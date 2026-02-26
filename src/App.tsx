@@ -1,43 +1,57 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './App.module.scss';
 import FigmaAgent from './components/FigmaAgent';
+import pkg from '../package.json';
+const { version } = pkg;
 
-interface ListItem {
-  id: string;
-  label: string;
-  component: React.ComponentType;
-}
+const PanelLeftIcon: React.FC = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
+    <line x1="6.5" y1="1.5" x2="6.5" y2="16.5" stroke="currentColor" strokeWidth="1.5"/>
+  </svg>
+);
 
-const LIST_ITEMS: ListItem[] = [
-  { id: 'figma-agent', label: 'Figma(Agent)', component: FigmaAgent },
-];
+const PanelRightIcon: React.FC = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
+    <line x1="11.5" y1="1.5" x2="11.5" y2="16.5" stroke="currentColor" strokeWidth="1.5"/>
+  </svg>
+);
 
 const FigmaLabApp: React.FC = () => {
-  const [activeId, setActiveId] = useState<string>(LIST_ITEMS[0].id);
-
-  const activeItem = LIST_ITEMS.find(item => item.id === activeId);
-  const ActiveComponent = activeItem?.component ?? null;
-
   return (
     <div className={styles.root}>
-      {/* listview layer - vertical scrollable, 5xN button grid */}
-      <div className={styles.listview}>
-        <div className={styles.grid}>
-          {LIST_ITEMS.map(item => (
-            <button
-              key={item.id}
-              className={`${styles.gridBtn} ${item.id === activeId ? styles.gridBtnActive : ''}`}
-              onClick={() => setActiveId(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+      {/* Title Bar */}
+      <div className={styles.titleBar}>
+        <span className={styles.appTitle}>iFigmaLab</span>
+        <span className={styles.brandInfo}>
+          <span className={styles.brandName}>&#123;BD&#125; creative</span>
+          <span className={styles.version}>v{version}</span>
+        </span>
       </div>
 
-      {/* content layer */}
+      {/* Menu Bar */}
+      <div className={styles.menuBar}>
+        <div className={styles.menuLeft}>
+          <button className={styles.panelBtn} aria-label="Toggle left panel">
+            <PanelLeftIcon />
+          </button>
+          <span className={styles.menuDivider} />
+          <nav className={styles.nav}>
+            <button className={styles.navItem}>BOOK</button>
+            <button className={styles.navItem}>EDIT</button>
+            <button className={styles.navItem}>VIEW</button>
+            <button className={styles.navItem}>HELP</button>
+          </nav>
+        </div>
+        <button className={styles.panelBtn} aria-label="Toggle right panel">
+          <PanelRightIcon />
+        </button>
+      </div>
+
+      {/* Content */}
       <div className={styles.content}>
-        {ActiveComponent && <ActiveComponent />}
+        <FigmaAgent />
       </div>
     </div>
   );
