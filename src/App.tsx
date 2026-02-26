@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, Provider } from 'jotai';
 import styles from './App.module.scss';
 import FigmaAgent from './components/FigmaAgent';
+import AgentSetupPanel from './components/FigmaAgent/ControlLayer/AgentSetupPanel';
 import { generateStatusAtom, generatedHtmlAtom } from './components/FigmaAgent/atoms';
 import { sharedStore } from './shared/store';
 import pkg from '../package.json';
 const { version } = pkg;
 
-type TabId = 'MCP' | 'VIEW' | 'HELP';
+type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
-const TAB_ITEMS: TabId[] = ['MCP', 'VIEW', 'HELP'];
+const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
 
 const PanelLeftIcon: React.FC = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -145,6 +146,7 @@ const FigmaLabApp: React.FC = () => {
 
         {/* Main Content */}
         <div className={styles.content}>
+          {activeTab === 'AGENT' && <Provider store={sharedStore}><AgentSetupPanel /></Provider>}
           {activeTab === 'MCP' && <FigmaAgent store={sharedStore} />}
           {activeTab === 'VIEW' && <ViewPage html={viewHtml} />}
           {activeTab === 'HELP' && (

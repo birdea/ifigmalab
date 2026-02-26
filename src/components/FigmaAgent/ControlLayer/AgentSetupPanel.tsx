@@ -24,7 +24,19 @@ const AgentSetupPanel: React.FC = () => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>AI Agent Setup (Google Gemini)</div>
+      <div className={styles.panelTitle}>AI Agent Setup</div>
+
+      <div className={styles.providerRow}>
+        <button className={`${styles.providerBtn} ${styles.providerBtnActive}`} type="button">
+          Google Gemini
+        </button>
+        <button className={styles.providerBtn} type="button" disabled>
+          Claude <span className={styles.providerTodo}>(todo)</span>
+        </button>
+        <button className={styles.providerBtn} type="button" disabled>
+          Codex <span className={styles.providerTodo}>(todo)</span>
+        </button>
+      </div>
 
       <div className={styles.formRow}>
         <label className={styles.formLabel}>Gemini API Token</label>

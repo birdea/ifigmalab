@@ -53,6 +53,50 @@ $panel-bg: #ffffff;
   margin-bottom: 2px;
 }
 
+// ─── Provider Selector ───────────────────────────────────────────────────────
+.providerRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.providerBtn {
+  padding: 5px 12px;
+  border: 1px solid $border;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: inherit;
+  color: $text-muted;
+  background: $white;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #eef2ff;
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.providerBtnActive {
+  background: #eef2ff;
+  border-color: $primary;
+  color: $primary;
+  font-weight: 600;
+  cursor: default;
+}
+
+.providerTodo {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
 // ─── Form elements ───────────────────────────────────────────────────────────
 .formRow {
   display: flex;
