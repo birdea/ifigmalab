@@ -1,8 +1,15 @@
 import React from 'react';
 import { Provider } from 'jotai';
+import type { createStore } from 'jotai';
 import ControlLayer from './ControlLayer';
 import ContentLayer from './ContentLayer';
 import styles from './FigmaAgent.module.scss';
+
+type JotaiStore = ReturnType<typeof createStore>;
+
+interface FigmaAgentProps {
+  store?: JotaiStore;
+}
 
 const FigmaAgentInner: React.FC = () => {
   return (
@@ -13,8 +20,8 @@ const FigmaAgentInner: React.FC = () => {
   );
 };
 
-const FigmaAgent: React.FC = () => (
-  <Provider>
+const FigmaAgent: React.FC<FigmaAgentProps> = ({ store }) => (
+  <Provider store={store}>
     <FigmaAgentInner />
   </Provider>
 );
