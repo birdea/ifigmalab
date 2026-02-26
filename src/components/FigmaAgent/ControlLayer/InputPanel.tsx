@@ -265,11 +265,11 @@ const InputPanel: React.FC = () => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>Input</div>
+      <div className={styles.panelTitle}>Figma Prompt</div>
 
       <div className={styles.formCol}>
         <label className={styles.formLabel}>
-          Figma MCP Data{' '}
+          Design Context{' '}
           <span className={styles.formLabelHint}>
             (Figma MCP → get_design_context 결과를 붙여넣기)
           </span>
@@ -296,7 +296,7 @@ const InputPanel: React.FC = () => {
       </div>
 
       <div className={styles.formCol}>
-        <label className={styles.formLabel}>Additional Prompt</label>
+        <label className={styles.formLabel}>Prompt</label>
         <textarea
           className={styles.formTextarea}
           rows={3}
