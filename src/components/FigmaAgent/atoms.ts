@@ -23,8 +23,11 @@ export const apiKeyAtom = atom<string>('');
 // 선택된 모델
 export const selectedModelAtom = atom<GeminiModel>(DEFAULT_MODEL);
 
-// 로컬 앱 연동 URL (선택)
-export const localAppUrlAtom = atom<string>('');
+// Figma MCP proxy server URL
+export const proxyServerUrlAtom = atom<string>('http://localhost:3006');
+
+// Figma Desktop App MCP server URL
+export const figmaMcpServerUrlAtom = atom<string>('http://localhost:3845');
 
 // Figma MCP Node ID
 export const figmaNodeIdAtom = atom<string>('');

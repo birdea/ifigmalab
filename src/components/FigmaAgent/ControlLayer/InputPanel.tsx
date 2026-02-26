@@ -5,7 +5,6 @@ import {
   promptAtom,
   apiKeyAtom,
   selectedModelAtom,
-  localAppUrlAtom,
   generateStatusAtom,
   generateErrorAtom,
   generatedHtmlAtom,
@@ -71,7 +70,6 @@ const InputPanel: React.FC = () => {
   const [prompt, setPrompt] = useAtom(promptAtom);
   const [apiKey] = useAtom(apiKeyAtom);
   const [model] = useAtom(selectedModelAtom);
-  const [localAppUrl] = useAtom(localAppUrlAtom);
   const screenshot = useAtomValue(screenshotAtom);
   const screenshotMimeType = useAtomValue(screenshotMimeTypeAtom);
   const [status, setStatus] = useAtom(generateStatusAtom);
@@ -109,7 +107,7 @@ const InputPanel: React.FC = () => {
     appendLog(`│ [VALIDATE] Prompt       : ${prompt.trim() ? `${prompt.length} chars ✓` : '비어있음'}`);
     appendLog(`│ [VALIDATE] Model        : ${model}`);
     appendLog(`│ [VALIDATE] Screenshot   : ${screenshot ? `${formatBytes(new TextEncoder().encode(screenshot).length)} (${screenshotMimeType}) ✓` : '없음'}`);
-    appendLog(`│ [VALIDATE] LocalApp URL : ${localAppUrl || '없음'}`);
+
 
     if (!apiKey) {
       appendLog(`│ [VALIDATE] ❌ API Key 없음 → 중단`);
@@ -143,7 +141,6 @@ const InputPanel: React.FC = () => {
       SYSTEM_PROMPT,
       '',
       mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '',
-      localAppUrl ? `## Local App URL\n${localAppUrl}` : '',
       prompt.trim()
         ? `## 추가 지시사항\n${prompt}`
         : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.',

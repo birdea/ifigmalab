@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
-import { figmaNodeIdAtom, figmaConnectedAtom, mcpDataAtom, screenshotAtom, screenshotMimeTypeAtom } from '../atoms';
+import { figmaNodeIdAtom, figmaConnectedAtom, mcpDataAtom, screenshotAtom, screenshotMimeTypeAtom, proxyServerUrlAtom, figmaMcpServerUrlAtom } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
 
-const PROXY_BASE = 'http://localhost:3006';
 const POLL_INTERVAL = 10_000;
 
 /** Figma URL 또는 raw node-id를 Figma 형식(콜론 구분)으로 정규화한다.
@@ -48,6 +47,8 @@ const FigmaMcpPanel: React.FC = () => {
   const [, setMcpData] = useAtom(mcpDataAtom);
   const [screenshot, setScreenshot] = useAtom(screenshotAtom);
   const [screenshotMimeType, setScreenshotMimeType] = useAtom(screenshotMimeTypeAtom);
+  const [proxyServerUrl, setProxyServerUrl] = useAtom(proxyServerUrlAtom);
+  const [figmaMcpServerUrl, setFigmaMcpServerUrl] = useAtom(figmaMcpServerUrlAtom);
   const [fetching, setFetching] = React.useState(false);
   const [fetchingScreenshot, setFetchingScreenshot] = React.useState(false);
   const [fetchError, setFetchError] = React.useState('');
@@ -55,7 +56,7 @@ const FigmaMcpPanel: React.FC = () => {
 
   const checkStatus = async () => {
     try {
-      const res = await fetch(`${PROXY_BASE}/api/figma/status`);
+      const res = await fetch(`${proxyServerUrl}/api/figma/status`);
       const data = await res.json() as { connected: boolean };
       setConnected(data.connected);
     } catch {
@@ -69,7 +70,7 @@ const FigmaMcpPanel: React.FC = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
+  }, [proxyServerUrl]);
 
   const handleFetch = async () => {
     if (!nodeId.trim()) {
@@ -83,16 +84,14 @@ const FigmaMcpPanel: React.FC = () => {
       return;
     }
 
-    // 파싱된 Node ID로 입력창 업데이트
     setNodeId(resolvedId);
     setFetching(true);
     setFetchError('');
     try {
-      // proxy-server를 통해 MCP 프로토콜로 Figma Desktop App에 요청
-      const res = await fetch(`${PROXY_BASE}/api/figma/fetch-context`, {
+      const res = await fetch(`${proxyServerUrl}/api/figma/fetch-context`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodeId: resolvedId }),
+        body: JSON.stringify({ nodeId: resolvedId, mcpServerUrl: figmaMcpServerUrl }),
       });
       const text = await res.text();
       let json: { data?: string; error?: string } = {};
@@ -124,10 +123,10 @@ const FigmaMcpPanel: React.FC = () => {
     setFetchingScreenshot(true);
     setFetchError('');
     try {
-      const res = await fetch(`${PROXY_BASE}/api/figma/fetch-screenshot`, {
+      const res = await fetch(`${proxyServerUrl}/api/figma/fetch-screenshot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodeId: resolvedId }),
+        body: JSON.stringify({ nodeId: resolvedId, mcpServerUrl: figmaMcpServerUrl }),
       });
       const text = await res.text();
       let json: { data?: string; mimeType?: string; error?: string } = {};
@@ -149,11 +148,32 @@ const FigmaMcpPanel: React.FC = () => {
       <div className={styles.panelTitle}>Figma MCP 연동</div>
 
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>Figma Desktop App → MCP</span>
+        <label className={styles.formLabel}>Proxy Server URL</label>
+        <input
+          className={styles.formInput}
+          type="url"
+          placeholder="http://localhost:3006"
+          value={proxyServerUrl}
+          onChange={e => setProxyServerUrl(e.target.value)}
+        />
+      </div>
+
+      <div className={styles.formRow}>
+        <label className={styles.formLabel}>Figma MCP Server URL</label>
+        <input
+          className={styles.formInput}
+          type="url"
+          placeholder="http://localhost:3845"
+          value={figmaMcpServerUrl}
+          onChange={e => setFigmaMcpServerUrl(e.target.value)}
+        />
+      </div>
+
+      <div className={styles.formRow}>
+        <span className={styles.formLabel}>연결 상태</span>
         <span className={connected ? styles.statusConnected : styles.statusDisconnected}>
-          {connected ? '● Connected' : '○ Disconnected'}
+          {connected ? '(●) : Connected' : '(○) : Disconnected'}
         </span>
-        <span className={styles.mcpUrl}>localhost:3845</span>
       </div>
 
       <div className={styles.formRow}>

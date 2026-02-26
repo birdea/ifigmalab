@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { apiKeyAtom, selectedModelAtom, localAppUrlAtom, GEMINI_MODELS } from '../atoms';
+import { apiKeyAtom, selectedModelAtom, GEMINI_MODELS } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
 
 const SESSION_KEY = 'figma_agent_api_key';
@@ -8,7 +8,6 @@ const SESSION_KEY = 'figma_agent_api_key';
 const AgentSetupPanel: React.FC = () => {
   const [apiKey, setApiKey] = useAtom(apiKeyAtom);
   const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
-  const [localAppUrl, setLocalAppUrl] = useAtom(localAppUrlAtom);
   const [showKey, setShowKey] = useState(false);
 
   // sessionStorage에서 복원
@@ -67,16 +66,6 @@ const AgentSetupPanel: React.FC = () => {
         </select>
       </div>
 
-      <div className={styles.formRow}>
-        <label className={styles.formLabel}>Local App URL (선택)</label>
-        <input
-          className={styles.formInput}
-          type="url"
-          placeholder="http://localhost:3000"
-          value={localAppUrl}
-          onChange={e => setLocalAppUrl(e.target.value)}
-        />
-      </div>
     </div>
   );
 };
