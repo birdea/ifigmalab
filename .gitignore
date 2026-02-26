@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+
+# Module Federation Types
+@mf-types
+@mf-types.zip
