@@ -32,53 +32,6 @@ $panel-bg: #ffffff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-.controlHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid $border;
-  background: #f5f7ff;
-}
-
-.controlTitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.foldBtn {
-  background: transparent;
-  border: 1px solid $border;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: $text-muted;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background-color 0.15s, color 0.15s;
-
-  &:hover {
-    background: $border;
-    color: $text;
-  }
-}
-
-.controlBody {
-  max-height: 2000px;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.controlBodyFolded {
-  max-height: 0;
-}
 
 // ─── Panel ───────────────────────────────────────────────────────────────────
 .panel {

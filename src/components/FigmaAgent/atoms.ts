@@ -38,9 +38,6 @@ export const mcpDataAtom = atom<string>('');
 // 추가 프롬프트
 export const promptAtom = atom<string>('');
 
-// Control Layer fold 상태
-export const controlFoldedAtom = atom<boolean>(false);
-
 // 생성 상태
 export type GenerateStatus = 'idle' | 'loading' | 'success' | 'error';
 export const generateStatusAtom = atom<GenerateStatus>('idle');
