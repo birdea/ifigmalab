@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './App.module.scss';
 import FigmaFull from './components/FigmaFull';
 import FigmaPart from './components/FigmaPart';
+import FigmaAgent from './components/FigmaAgent';
 
 interface ListItem {
   id: string;
@@ -12,6 +13,7 @@ interface ListItem {
 const LIST_ITEMS: ListItem[] = [
   { id: 'figma-full', label: 'Figma(Full)', component: FigmaFull },
   { id: 'figma-part', label: 'Figma(Part)', component: FigmaPart },
+  { id: 'figma-agent', label: 'Figma(Agent)', component: FigmaAgent },
 ];
 
 const FigmaLabApp: React.FC = () => {

@@ -1,0 +1,84 @@
+import React, { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import { apiKeyAtom, selectedModelAtom, localAppUrlAtom, GEMINI_MODELS } from '../atoms';
+import styles from '../FigmaAgent.module.scss';
+
+const SESSION_KEY = 'figma_agent_api_key';
+
+const AgentSetupPanel: React.FC = () => {
+  const [apiKey, setApiKey] = useAtom(apiKeyAtom);
+  const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
+  const [localAppUrl, setLocalAppUrl] = useAtom(localAppUrlAtom);
+  const [showKey, setShowKey] = useState(false);
+
+  // sessionStorage에서 복원
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved && !apiKey) setApiKey(saved);
+  }, []);
+
+  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setApiKey(val);
+    sessionStorage.setItem(SESSION_KEY, val);
+  };
+
+  return (
+    <div className={styles.panel}>
+      <div className={styles.panelTitle}>AI Agent Setup (Google Gemini)</div>
+
+      <div className={styles.formRow}>
+        <label className={styles.formLabel}>Gemini API Token</label>
+        <div className={styles.inputWithBtn}>
+          <input
+            className={styles.formInput}
+            type={showKey ? 'text' : 'password'}
+            placeholder="AIza..."
+            value={apiKey}
+            onChange={handleApiKeyChange}
+            autoComplete="off"
+          />
+          <button className={styles.toggleBtn} onClick={() => setShowKey(v => !v)} type="button">
+            {showKey ? 'Hide' : 'Show'}
+          </button>
+          <a
+            className={styles.getKeyBtn}
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GET
+          </a>
+        </div>
+      </div>
+
+      <div className={styles.formRow}>
+        <label className={styles.formLabel}>Model</label>
+        <select
+          className={styles.formSelect}
+          value={selectedModel}
+          onChange={e => setSelectedModel(e.target.value as typeof selectedModel)}
+        >
+          {GEMINI_MODELS.map(m => (
+            <option key={m.id} value={m.id}>
+              {m.label} — {m.tier}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className={styles.formRow}>
+        <label className={styles.formLabel}>Local App URL (선택)</label>
+        <input
+          className={styles.formInput}
+          type="url"
+          placeholder="http://localhost:3000"
+          value={localAppUrl}
+          onChange={e => setLocalAppUrl(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default AgentSetupPanel;

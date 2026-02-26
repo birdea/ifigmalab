@@ -1,0 +1,660 @@
+@use "sass:color";
+
+$primary: #4c6ef5;
+$primary-dark: color.adjust($primary, $lightness: -8%);
+$success: #2ecc71;
+$error: #e74c3c;
+$warning: #f39c12;
+$text: #1a1a1a;
+$text-muted: #7f7f7f;
+$border: #e0e0e0;
+$bg: #f8f9fa;
+$white: #ffffff;
+$panel-bg: #ffffff;
+
+// ─── Root ────────────────────────────────────────────────────────────────────
+.root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: $bg;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow: auto;
+}
+
+// ─── Control Layer ───────────────────────────────────────────────────────────
+.controlLayer {
+  flex-shrink: 0;
+  background: $white;
+  border-bottom: 1px solid $border;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.controlHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid $border;
+  background: #f5f7ff;
+}
+
+.controlTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.foldBtn {
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-muted;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover {
+    background: $border;
+    color: $text;
+  }
+}
+
+.controlBody {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.controlBodyFolded {
+  max-height: 0;
+}
+
+// ─── Panel ───────────────────────────────────────────────────────────────────
+.panel {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.panelTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 2px;
+}
+
+// ─── Form elements ───────────────────────────────────────────────────────────
+.formRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.formCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-muted;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.formLabelHint {
+  font-weight: 400;
+  color: #aaa;
+  font-size: 11px;
+}
+
+.inputSizeBadge {
+  margin-left: 6px;
+  padding: 1px 6px;
+  background: #eef2ff;
+  border: 1px solid #c5ceff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $primary;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  vertical-align: middle;
+}
+
+.formInput {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  color: $text;
+  background: $white;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: $primary;
+  }
+
+  &::placeholder {
+    color: #bbb;
+  }
+}
+
+.formSelect {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  color: $text;
+  background: $white;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: $primary;
+  }
+}
+
+.formTextarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: $text;
+  background: #fafafa;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: $primary;
+    background: $white;
+  }
+
+  &::placeholder {
+    color: #bbb;
+  }
+}
+
+.inputWithBtn {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  min-width: 0;
+}
+
+.toggleBtn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  color: $text-muted;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: $border;
+  }
+}
+
+.fetchBtn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: $primary;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  color: $white;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Get API Key Link Button ──────────────────────────────────────────────────
+.getKeyBtn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: #e8f5e9;
+  border: 1px solid #66bb6a;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #2e7d32;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: #c8e6c9;
+  }
+}
+
+// ─── Optimize Button ─────────────────────────────────────────────────────────
+.optimizeBtn {
+  align-self: flex-end;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid #7c8ef7;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: inherit;
+  color: $primary;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover {
+    background: #eef2ff;
+  }
+}
+
+// ─── Screenshot Button ───────────────────────────────────────────────────────
+.fetchScreenshotBtn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: #fff8e7;
+  border: 1px solid #f39c12;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #7d4f00;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #fef3d0;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Screenshot Preview ───────────────────────────────────────────────────────
+.screenshotPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: #fafafa;
+  border: 1px solid $border;
+  border-radius: 8px;
+}
+
+.screenshotHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.screenshotLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.screenshotClear {
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  color: $error;
+  cursor: pointer;
+
+  &:hover {
+    background: #fdecea;
+  }
+}
+
+.screenshotThumb {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid $border;
+  background: $white;
+}
+
+// ─── Status (MCP connected/disconnected) ─────────────────────────────────────
+.statusConnected {
+  font-size: 12px;
+  font-weight: 600;
+  color: $success;
+}
+
+.statusDisconnected {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.mcpUrl {
+  font-size: 12px;
+  color: $text-muted;
+  font-family: monospace;
+}
+
+.errorText {
+  font-size: 12px;
+  color: $error;
+  width: 100%;
+}
+
+// ─── Debug Log ────────────────────────────────────────────────────────────────
+.debugLogWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.debugLogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.debugLogTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debugLogClear {
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  color: $text-muted;
+  cursor: pointer;
+
+  &:hover {
+    background: $border;
+    color: $text;
+  }
+}
+
+.debugLogArea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: #2d2d2d;
+  background: #f8f8f8;
+  line-height: 1.55;
+  resize: vertical;
+  box-sizing: border-box;
+  white-space: pre;
+  overflow: auto;
+  outline: none;
+
+  &:focus {
+    border-color: $primary;
+  }
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+.submitRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submitBtn {
+  padding: 9px 20px;
+  background: $primary;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: $white;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Content Layer ────────────────────────────────────────────────────────────
+.contentLayer {
+  flex: 1 0 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 16px;
+  overflow: auto;
+}
+
+// ─── Status Bar ───────────────────────────────────────────────────────────────
+.statusBar {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.statusBar_loading {
+  background: #eef2ff;
+  color: $primary;
+}
+
+.statusBar_success {
+  background: #e8f8f0;
+  color: $success;
+}
+
+.statusBar_error {
+  background: #fdecea;
+  color: $error;
+}
+
+// ─── Loading Placeholder ─────────────────────────────────────────────────────
+.loadingPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  color: $text-muted;
+  font-size: 14px;
+}
+
+.loadingSpinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid $border;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ─── Preview Frame ────────────────────────────────────────────────────────────
+.previewWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0;
+  background: #f0f0f0;
+  border-radius: 10px;
+  min-height: 400px;
+}
+
+.previewFrame {
+  width: 100%;
+  max-width: 800px;
+  min-height: 400px;
+  height: auto;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  display: block;
+}
+
+// ─── Content Actions ──────────────────────────────────────────────────────────
+.contentActions {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0 0;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  padding: 6px 14px;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  color: $text;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: #eef2ff;
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+// ─── Debug Button ─────────────────────────────────────────────────────────────
+.actionBtnDebug {
+  border-color: #f39c12;
+  color: #7d4f00;
+
+  &:hover {
+    background: #fff8e7;
+    border-color: #f39c12;
+    color: #7d4f00;
+  }
+}
+
+// ─── Debug Block ──────────────────────────────────────────────────────────────
+.debugBlock {
+  margin-top: 12px;
+  border: 1px solid #f39c12;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a1400;
+}
+
+.debugSection {
+  padding: 12px 16px;
+  border-bottom: 1px solid #3a2e00;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.debugLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f39c12;
+  margin-bottom: 8px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.debugCode {
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: #e8d5a0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+// ─── Source Code Block ────────────────────────────────────────────────────────
+.sourceBlock {
+  margin-top: 12px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 400px;
+  background: #1e1e2e;
+}
+
+.sourceCode {
+  margin: 0;
+  padding: 16px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: #cdd6f4;
+  white-space: pre;
+  line-height: 1.6;
+  overflow: visible;
+}
