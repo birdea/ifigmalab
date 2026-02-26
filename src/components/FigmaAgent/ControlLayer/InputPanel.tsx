@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import {
   mcpDataAtom,
@@ -76,10 +76,12 @@ const InputPanel: React.FC = () => {
   const [, setError] = useAtom(generateErrorAtom);
   const [, setGeneratedHtml] = useAtom(generatedHtmlAtom);
   const [, setRawResponse] = useAtom(rawResponseAtom);
-  const [debugLog, setDebugLog] = useAtom(debugLogAtom);
-  const debugRef = useRef<HTMLTextAreaElement>(null);
+  const [, setDebugLog] = useAtom(debugLogAtom);
 
   const isLoading = status === 'loading';
+  const hasApiKey = !!apiKey;
+  const hasContent = !!(mcpData.trim() || prompt.trim());
+  const isReady = hasApiKey && hasContent;
   const byteSize = new TextEncoder().encode(mcpData).length;
   const formatBytes = (n: number) =>
     n === 0 ? '' : n >= 1024 ? `${(n / 1024).toFixed(1)} KB` : `${n} bytes`;
@@ -88,12 +90,6 @@ const InputPanel: React.FC = () => {
     const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
     setDebugLog(prev => prev + `[${ts}] ${line}\n`);
   };
-
-  useEffect(() => {
-    if (debugRef.current) {
-      debugRef.current.scrollTop = debugRef.current.scrollHeight;
-    }
-  }, [debugLog]);
 
   const handleSubmit = async () => {
     const bar = '─'.repeat(40);
@@ -261,8 +257,6 @@ const InputPanel: React.FC = () => {
     appendLog(`🗜 Optimize: ${formatBytes(before)} → ${formatBytes(after)} (${Math.round((1 - after / before) * 100)}% 감소)`);
   };
 
-  const handleClearLog = () => setDebugLog('');
-
   return (
     <div className={styles.panel}>
       <div className={styles.panelTitle}>Figma Prompt</div>
@@ -306,33 +300,29 @@ const InputPanel: React.FC = () => {
         />
       </div>
 
+      <div className={styles.readinessRow}>
+        <span className={hasApiKey ? styles.readyItem : styles.notReadyItem}>
+          {hasApiKey ? '✓' : '✗'} API Key
+        </span>
+        <span className={hasContent ? styles.readyItem : styles.notReadyItem}>
+          {hasContent ? '✓' : '✗'} Content
+        </span>
+        {isReady && !isLoading && (
+          <span className={styles.readyBadge}>Ready</span>
+        )}
+      </div>
+
       <div className={styles.submitRow}>
         <button
           className={styles.submitBtn}
           onClick={handleSubmit}
-          disabled={isLoading}
+          disabled={isLoading || !isReady}
           type="button"
         >
           {isLoading ? '생성 중...' : 'Submit ▶'}
         </button>
       </div>
 
-      {/* ── Debug Log ─────────────────────────────────────────── */}
-      <div className={styles.debugLogWrap}>
-        <div className={styles.debugLogHeader}>
-          <span className={styles.debugLogTitle}>Debug Log</span>
-          <button className={styles.debugLogClear} onClick={handleClearLog} type="button">
-            Clear
-          </button>
-        </div>
-        <textarea
-          ref={debugRef}
-          className={styles.debugLogArea}
-          rows={10}
-          readOnly
-          value={debugLog || '— Submit 버튼을 누르면 로그가 표시됩니다 —'}
-        />
-      </div>
     </div>
   );
 };

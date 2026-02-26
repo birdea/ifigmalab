@@ -447,6 +447,39 @@ $panel-bg: #ffffff;
   }
 }
 
+// ─── Readiness Indicator ─────────────────────────────────────────────────────
+.readinessRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.readyItem {
+  color: $success;
+  font-weight: 500;
+}
+
+.notReadyItem {
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.readyBadge {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: #e8f8f0;
+  border: 1px solid #a3e4c1;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $success;
+}
+
 // ─── Submit ───────────────────────────────────────────────────────────────────
 .submitRow {
   display: flex;
