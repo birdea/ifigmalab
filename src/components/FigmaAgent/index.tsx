@@ -2,7 +2,6 @@ import React from 'react';
 import { Provider } from 'jotai';
 import type { createStore } from 'jotai';
 import ControlLayer from './ControlLayer';
-import ContentLayer from './ContentLayer';
 import styles from './FigmaAgent.module.scss';
 
 type JotaiStore = ReturnType<typeof createStore>;
@@ -15,7 +14,6 @@ const FigmaAgentInner: React.FC = () => {
   return (
     <div className={styles.root}>
       <ControlLayer />
-      <ContentLayer />
     </div>
   );
 };

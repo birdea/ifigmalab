@@ -127,24 +127,30 @@ const InputPanel: React.FC = () => {
     setRawResponse('');
 
     // ── Build prompt parts ────────────────────────────────────
+    const enc = new TextEncoder();
     const parts: GeminiPart[] = [];
 
     if (screenshot) {
       parts.push({ inlineData: { mimeType: screenshotMimeType, data: screenshot } });
     }
 
-    const textContent = [
-      SYSTEM_PROMPT,
-      '',
-      mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '',
-      prompt.trim()
-        ? `## 추가 지시사항\n${prompt}`
-        : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.',
-    ].filter(Boolean).join('\n\n');
+    const systemPromptSection = SYSTEM_PROMPT;
+    const designContextSection = mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '';
+    const userPromptSection = prompt.trim()
+      ? `## 추가 지시사항\n${prompt}`
+      : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.';
+
+    const textContent = [systemPromptSection, '', designContextSection, userPromptSection]
+      .filter(Boolean).join('\n\n');
 
     parts.push({ text: textContent });
 
-    const promptBytes = new TextEncoder().encode(textContent).length;
+    const promptBytes = enc.encode(textContent).length;
+    const systemBytes = enc.encode(systemPromptSection).length;
+    const contextBytes = designContextSection ? enc.encode(designContextSection).length : 0;
+    const userBytes = enc.encode(userPromptSection).length;
+    const screenshotBytes = screenshot ? enc.encode(screenshot).length : 0;
+    const estimatedTokens = Math.round(promptBytes / 4);
 
     // ── Request ───────────────────────────────────────────────
     const endpoint = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
@@ -152,12 +158,21 @@ const InputPanel: React.FC = () => {
       contents: [{ role: 'user', parts }],
       generationConfig: { maxOutputTokens: 65536 },
     };
+    const requestBodyJson = JSON.stringify(requestBody);
+    const requestBodyBytes = enc.encode(requestBodyJson).length;
 
     appendLog(`├${bar}`);
-    appendLog(`│ [REQUEST]  endpoint     : POST ${GEMINI_API_BASE}/models/${model}:generateContent`);
-    appendLog(`│ [REQUEST]  prompt size  : ${formatBytes(promptBytes)}`);
-    appendLog(`│ [REQUEST]  screenshot   : ${screenshot ? '포함' : '없음'}`);
-    appendLog(`│ [REQUEST]  maxTokens    : 65,536`);
+    appendLog(`│ [BUILD]    system prompt   : ${formatBytes(systemBytes)} (${systemPromptSection.length} chars)`);
+    appendLog(`│ [BUILD]    design context  : ${contextBytes > 0 ? `${formatBytes(contextBytes)} (${designContextSection.length} chars)` : '없음'}`);
+    appendLog(`│ [BUILD]    user prompt     : ${formatBytes(userBytes)} (${userPromptSection.length} chars)`);
+    appendLog(`│ [BUILD]    screenshot      : ${screenshotBytes > 0 ? `${formatBytes(screenshotBytes)} (${screenshotMimeType})` : '없음'}`);
+    appendLog(`│ [BUILD]    total text      : ${formatBytes(promptBytes)} / est. ~${estimatedTokens.toLocaleString()} tokens`);
+    appendLog(`│ [BUILD]    parts count     : ${parts.length} (${screenshot ? 'image + text' : 'text only'})`);
+    appendLog(`├${bar}`);
+    appendLog(`│ [REQUEST]  model           : ${model}`);
+    appendLog(`│ [REQUEST]  endpoint        : POST .../models/${model}:generateContent`);
+    appendLog(`│ [REQUEST]  maxOutputTokens : 65,536`);
+    appendLog(`│ [REQUEST]  body size       : ${formatBytes(requestBodyBytes)}`);
     appendLog(`├${bar}`);
     appendLog(`│ [NETWORK]  Gemini API 호출 중...`);
 
@@ -172,8 +187,12 @@ const InputPanel: React.FC = () => {
 
       const networkMs = Date.now() - startTime;
       appendLog(`│ [NETWORK]  HTTP ${res.status} ${res.statusText} (${networkMs}ms)`);
+      appendLog(`│ [NETWORK]  content-type    : ${res.headers.get('content-type') ?? '-'}`);
 
       const rawText = await res.text();
+      const rawTextBytes = enc.encode(rawText).length;
+      appendLog(`│ [NETWORK]  response size   : ${formatBytes(rawTextBytes)}`);
+
       let data: GeminiResponse;
       try {
         data = JSON.parse(rawText) as GeminiResponse;
@@ -191,35 +210,59 @@ const InputPanel: React.FC = () => {
       }
 
       // ── Parse Gemini response ─────────────────────────────
-      appendLog(`│ [RESPONSE] 응답 파싱 중...`);
+      appendLog(`├${bar}`);
+      appendLog(`│ [RESPONSE] candidates      : ${data.candidates?.length ?? 0}개`);
 
       const usage = data.usageMetadata;
       if (usage) {
-        appendLog(`│ [TOKENS]   prompt     : ${usage.promptTokenCount?.toLocaleString() ?? '-'}`);
-        appendLog(`│ [TOKENS]   candidates : ${usage.candidatesTokenCount?.toLocaleString() ?? '-'}`);
-        appendLog(`│ [TOKENS]   total      : ${usage.totalTokenCount?.toLocaleString() ?? '-'}`);
+        const inputCost = usage.promptTokenCount ?? 0;
+        const outputCost = usage.candidatesTokenCount ?? 0;
+        appendLog(`│ [TOKENS]   prompt          : ${inputCost.toLocaleString()} tokens`);
+        appendLog(`│ [TOKENS]   candidates      : ${outputCost.toLocaleString()} tokens`);
+        appendLog(`│ [TOKENS]   total           : ${(usage.totalTokenCount ?? 0).toLocaleString()} tokens`);
+        appendLog(`│ [TOKENS]   ratio (out/in)  : ${inputCost > 0 ? (outputCost / inputCost * 100).toFixed(1) : '-'}%`);
       }
 
       const finishReason = data.candidates?.[0]?.finishReason;
-      appendLog(`│ [RESPONSE] finishReason: ${finishReason ?? 'unknown'}`);
+      appendLog(`│ [RESPONSE] finishReason    : ${finishReason ?? 'unknown'}`);
       if (finishReason === 'MAX_TOKENS') {
-        appendLog(`│ [RESPONSE] ⚠️ MAX_TOKENS: 출력이 잘렸을 수 있습니다`);
+        appendLog(`│ [RESPONSE] ⚠️  MAX_TOKENS — 출력이 잘렸을 수 있습니다 (maxOutputTokens 초과)`);
+      } else if (finishReason === 'STOP') {
+        appendLog(`│ [RESPONSE] ✓  STOP — 정상 종료`);
+      } else if (finishReason === 'SAFETY') {
+        appendLog(`│ [RESPONSE] ⚠️  SAFETY — 안전 정책으로 차단됨`);
       }
 
       const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-      const rawBytes = new TextEncoder().encode(rawResponse).length;
-      appendLog(`│ [RESPONSE] rawResponse  : ${formatBytes(rawBytes)} (${rawResponse.length} chars)`);
+      const rawBytes = enc.encode(rawResponse).length;
+      const rawLines = rawResponse.split('\n').length;
+      appendLog(`│ [RESPONSE] raw text        : ${formatBytes(rawBytes)} / ${rawLines.toLocaleString()} lines`);
 
+      appendLog(`├${bar}`);
       const html = extractHtml(rawResponse);
-      const htmlBytes = new TextEncoder().encode(html).length;
-      appendLog(`│ [RESPONSE] html (extracted): ${formatBytes(htmlBytes)} (${html.length} chars)`);
+      const htmlBytes = enc.encode(html).length;
+      const htmlLines = html.split('\n').length;
+      appendLog(`│ [EXTRACT]  html size       : ${formatBytes(htmlBytes)} / ${htmlLines.toLocaleString()} lines`);
 
+      const hasDoctype = /<!DOCTYPE\s+html/i.test(html);
+      const hasHead = /<head[\s>]/i.test(html);
+      const hasBody = /<body[\s>]/i.test(html);
+      const styleCount = (html.match(/<style[\s>]/gi) ?? []).length;
+      const scriptCount = (html.match(/<script[\s>]/gi) ?? []).length;
       const isHtmlComplete = html.trimEnd().endsWith('</html>');
-      appendLog(`│ [RESULT]   HTML 완성 여부: ${isHtmlComplete ? '✓ </html>로 종료됨' : '⚠️ </html> 없음 (토큰 부족 가능)'}`);
 
-      const preview = rawResponse.slice(0, 160).replace(/\n/g, '↵');
-      appendLog(`│ [RESULT]   rawResponse preview:`);
-      appendLog(`│            ${preview}${rawResponse.length > 160 ? '...' : ''}`);
+      appendLog(`│ [EXTRACT]  <!DOCTYPE>      : ${hasDoctype ? '✓' : '✗'}`);
+      appendLog(`│ [EXTRACT]  <head>          : ${hasHead ? '✓' : '✗'}`);
+      appendLog(`│ [EXTRACT]  <body>          : ${hasBody ? '✓' : '✗'}`);
+      appendLog(`│ [EXTRACT]  <style> blocks  : ${styleCount}`);
+      appendLog(`│ [EXTRACT]  <script> blocks : ${scriptCount}`);
+      appendLog(`│ [EXTRACT]  </html> 종료    : ${isHtmlComplete ? '✓' : '⚠️  없음 (토큰 부족 가능)'}`);
+
+      appendLog(`├${bar}`);
+      const firstLines = html.split('\n').slice(0, 3).map(l => l.trimEnd()).join('↵');
+      const lastLines = html.split('\n').slice(-3).map(l => l.trimEnd()).join('↵');
+      appendLog(`│ [PREVIEW]  first 3 lines   : ${firstLines}`);
+      appendLog(`│ [PREVIEW]  last  3 lines   : ${lastLines}`);
 
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
       appendLog(`├${bar}`);
