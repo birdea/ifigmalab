@@ -47,7 +47,7 @@ const FigmaMcpPanel: React.FC = () => {
   const [, setMcpData] = useAtom(mcpDataAtom);
   const [screenshot, setScreenshot] = useAtom(screenshotAtom);
   const [screenshotMimeType, setScreenshotMimeType] = useAtom(screenshotMimeTypeAtom);
-  const [proxyServerUrl, setProxyServerUrl] = useAtom(proxyServerUrlAtom);
+  const [proxyServerUrl] = useAtom(proxyServerUrlAtom);
   const [figmaMcpServerUrl, setFigmaMcpServerUrl] = useAtom(figmaMcpServerUrlAtom);
   const [fetching, setFetching] = React.useState(false);
   const [fetchingScreenshot, setFetchingScreenshot] = React.useState(false);
@@ -146,17 +146,6 @@ const FigmaMcpPanel: React.FC = () => {
   return (
     <div className={styles.panel}>
       <div className={styles.panelTitle}>Figma MCP 연동</div>
-
-      <div className={styles.formRow}>
-        <label className={styles.formLabel}>Proxy Server URL</label>
-        <input
-          className={styles.formInput}
-          type="url"
-          placeholder="http://localhost:3006"
-          value={proxyServerUrl}
-          onChange={e => setProxyServerUrl(e.target.value)}
-        />
-      </div>
 
       <div className={styles.formRow}>
         <label className={styles.formLabel}>Figma MCP Server URL</label>
