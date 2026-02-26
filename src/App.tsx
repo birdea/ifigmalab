@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './App.module.scss';
 import FigmaAgent from './components/FigmaAgent';
 import pkg from '../package.json';
 const { version } = pkg;
+
+type TabId = 'BOOK' | 'EDIT' | 'VIEW' | 'HELP';
+
+const TAB_ITEMS: TabId[] = ['BOOK', 'EDIT', 'VIEW', 'HELP'];
 
 const PanelLeftIcon: React.FC = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,7 +22,20 @@ const PanelRightIcon: React.FC = () => (
   </svg>
 );
 
+const TabContent: React.FC<{ activeTab: TabId }> = ({ activeTab }) => {
+  if (activeTab === 'BOOK') return <FigmaAgent />;
+  return (
+    <div className={styles.placeholder}>
+      <span>{activeTab}</span>
+    </div>
+  );
+};
+
 const FigmaLabApp: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabId>('BOOK');
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+
   return (
     <div className={styles.root}>
       {/* Title Bar */}
@@ -33,25 +50,51 @@ const FigmaLabApp: React.FC = () => {
       {/* Menu Bar */}
       <div className={styles.menuBar}>
         <div className={styles.menuLeft}>
-          <button className={styles.panelBtn} aria-label="Toggle left panel">
+          <button
+            className={`${styles.panelBtn} ${leftOpen ? styles.panelBtnActive : ''}`}
+            aria-label="Toggle left panel"
+            onClick={() => setLeftOpen(v => !v)}
+          >
             <PanelLeftIcon />
           </button>
           <span className={styles.menuDivider} />
           <nav className={styles.nav}>
-            <button className={styles.navItem}>BOOK</button>
-            <button className={styles.navItem}>EDIT</button>
-            <button className={styles.navItem}>VIEW</button>
-            <button className={styles.navItem}>HELP</button>
+            {TAB_ITEMS.map(tab => (
+              <button
+                key={tab}
+                className={`${styles.navItem} ${activeTab === tab ? styles.navItemActive : ''}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
           </nav>
         </div>
-        <button className={styles.panelBtn} aria-label="Toggle right panel">
+        <button
+          className={`${styles.panelBtn} ${rightOpen ? styles.panelBtnActive : ''}`}
+          aria-label="Toggle right panel"
+          onClick={() => setRightOpen(v => !v)}
+        >
           <PanelRightIcon />
         </button>
       </div>
 
-      {/* Content */}
-      <div className={styles.content}>
-        <FigmaAgent />
+      {/* Body */}
+      <div className={styles.body}>
+        {/* Left Sidebar */}
+        <div className={`${styles.sidebar} ${styles.sidebarLeft} ${leftOpen ? styles.sidebarOpen : ''}`}>
+          <div className={styles.sidebarContent}>Left Panel</div>
+        </div>
+
+        {/* Main Content */}
+        <div className={styles.content}>
+          <TabContent activeTab={activeTab} />
+        </div>
+
+        {/* Right Sidebar */}
+        <div className={`${styles.sidebar} ${styles.sidebarRight} ${rightOpen ? styles.sidebarOpen : ''}`}>
+          <div className={styles.sidebarContent}>Right Panel</div>
+        </div>
       </div>
     </div>
   );

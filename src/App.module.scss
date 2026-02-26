@@ -120,10 +120,76 @@
   }
 }
 
+.navItemActive {
+  background-color: #f0f0f0;
+  color: #111111;
+}
+
+.panelBtnActive {
+  background-color: #f0f0f0;
+  color: #111111;
+}
+
+// ─── Body (sidebar + content + sidebar) ──────────────────────────────────────
+.body {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ─── Sidebars ─────────────────────────────────────────────────────────────────
+.sidebar {
+  flex-shrink: 0;
+  width: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+  transition: width 0.22s ease, border-color 0.22s ease;
+}
+
+.sidebarLeft {
+  border-right: 0px solid #e8e8e8;
+
+  &.sidebarOpen {
+    width: 240px;
+    border-right-width: 1px;
+  }
+}
+
+.sidebarRight {
+  border-left: 0px solid #e8e8e8;
+
+  &.sidebarOpen {
+    width: 240px;
+    border-left-width: 1px;
+  }
+}
+
+.sidebarContent {
+  width: 240px;
+  height: 100%;
+  padding: 16px;
+  font-size: 13px;
+  color: #aaaaaa;
+  box-sizing: border-box;
+}
+
 // ─── Content layer ────────────────────────────────────────────────────────────
 .content {
   flex: 1 0 0;
   min-height: 0;
   overflow: auto;
   position: relative;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 20px;
+  font-weight: 600;
+  color: #cccccc;
+  letter-spacing: 2px;
 }
