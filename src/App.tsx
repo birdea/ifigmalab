@@ -102,8 +102,8 @@ const FigmaLabApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('MCP');
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
-  const [leftWidth, setLeftWidth] = useState(240);
-  const [rightWidth, setRightWidth] = useState(240);
+  const leftWidthRef = useRef(240);
+  const rightWidthRef = useRef(240);
   const [isResizingLeft, setIsResizingLeft] = useState(false);
   const [isResizingRight, setIsResizingRight] = useState(false);
   const [viewHtml, setViewHtml] = useState('');
@@ -116,11 +116,15 @@ const FigmaLabApp: React.FC = () => {
     const handleMouseMove = (e: MouseEvent) => {
       if (leftDragStart.current) {
         const delta = e.clientX - leftDragStart.current.x;
-        setLeftWidth(Math.min(480, Math.max(160, leftDragStart.current.width + delta)));
+        const newWidth = Math.min(480, Math.max(160, leftDragStart.current.width + delta));
+        document.documentElement.style.setProperty('--left-panel-width', `${newWidth}px`);
+        leftWidthRef.current = newWidth;
       }
       if (rightDragStart.current) {
         const delta = rightDragStart.current.x - e.clientX;
-        setRightWidth(Math.min(480, Math.max(160, rightDragStart.current.width + delta)));
+        const newWidth = Math.min(480, Math.max(160, rightDragStart.current.width + delta));
+        document.documentElement.style.setProperty('--right-panel-width', `${newWidth}px`);
+        rightWidthRef.current = newWidth;
       }
     };
     const handleMouseUp = () => {
@@ -147,7 +151,7 @@ const FigmaLabApp: React.FC = () => {
 
   // 왼쪽 패널 크기 조절 시작(Drag Start)
   const handleLeftResizerMouseDown = (e: React.MouseEvent) => {
-    leftDragStart.current = { x: e.clientX, width: leftWidth };
+    leftDragStart.current = { x: e.clientX, width: leftWidthRef.current };
     setIsResizingLeft(true);
     document.body.style.cursor = 'ew-resize';
     document.body.style.userSelect = 'none';
@@ -156,7 +160,7 @@ const FigmaLabApp: React.FC = () => {
 
   // 오른쪽 패널 크기 조절 시작(Drag Start)
   const handleRightResizerMouseDown = (e: React.MouseEvent) => {
-    rightDragStart.current = { x: e.clientX, width: rightWidth };
+    rightDragStart.current = { x: e.clientX, width: rightWidthRef.current };
     setIsResizingRight(true);
     document.body.style.cursor = 'ew-resize';
     document.body.style.userSelect = 'none';
@@ -235,7 +239,7 @@ const FigmaLabApp: React.FC = () => {
         {/* Left Sidebar */}
         <div
           className={`${styles.sidebar} ${styles.sidebarLeft} ${leftOpen ? styles.sidebarOpen : ''} ${isResizingLeft ? styles.sidebarResizing : ''}`}
-          style={leftOpen ? { width: leftWidth } : undefined}
+          style={leftOpen ? { width: 'var(--left-panel-width, 240px)' } : undefined}
         >
           <div className={styles.sidebarContent}>Left Panel</div>
         </div>
@@ -251,16 +255,16 @@ const FigmaLabApp: React.FC = () => {
         {/* Main Content */}
         <div className={styles.content}>
           <Provider store={sharedStore}>
-            <div style={{ display: activeTab === 'AGENT' ? 'block' : 'none', height: '100%', width: '100%' }}>
+            <div style={{ visibility: activeTab === 'AGENT' ? 'visible' : 'hidden', position: activeTab === 'AGENT' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'AGENT' ? 1 : -1, opacity: activeTab === 'AGENT' ? 1 : 0 }}>
               <AgentSetupPanel />
             </div>
-            <div style={{ display: activeTab === 'MCP' ? 'block' : 'none', height: '100%', width: '100%' }}>
+            <div style={{ visibility: activeTab === 'MCP' ? 'visible' : 'hidden', position: activeTab === 'MCP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'MCP' ? 1 : -1, opacity: activeTab === 'MCP' ? 1 : 0 }}>
               <FigmaAgent />
             </div>
-            <div style={{ display: activeTab === 'VIEW' ? 'block' : 'none', height: '100%', width: '100%' }}>
+            <div style={{ visibility: activeTab === 'VIEW' ? 'visible' : 'hidden', position: activeTab === 'VIEW' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'VIEW' ? 1 : -1, opacity: activeTab === 'VIEW' ? 1 : 0 }}>
               <ViewPage html={viewHtml} />
             </div>
-            <div style={{ display: activeTab === 'HELP' ? 'block' : 'none', height: '100%', width: '100%' }}>
+            <div style={{ visibility: activeTab === 'HELP' ? 'visible' : 'hidden', position: activeTab === 'HELP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'HELP' ? 1 : -1, opacity: activeTab === 'HELP' ? 1 : 0 }}>
               <HelpPage />
             </div>
           </Provider>
@@ -277,7 +281,7 @@ const FigmaLabApp: React.FC = () => {
         {/* Right Sidebar */}
         <div
           className={`${styles.sidebar} ${styles.sidebarRight} ${rightOpen ? styles.sidebarOpen : ''} ${isResizingRight ? styles.sidebarResizing : ''}`}
-          style={rightOpen ? { width: rightWidth } : undefined}
+          style={rightOpen ? { width: 'var(--right-panel-width, 240px)' } : undefined}
         >
           <div className={styles.sidebarContent}>Right Panel</div>
         </div>

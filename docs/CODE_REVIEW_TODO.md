@@ -9,12 +9,12 @@
 - [x] **N-07**: 프로덕션 빌드 소스맵 미설정 개선 (`webpack.config.js`)
 
 ## Sprint 2 — 성능 및 안정성 (Performance)
-- [ ] **P-01**: 탭 전환 시 컴포넌트 언마운트/리마운트 방지 (CSS visibility 등 활용) (`App.tsx`)
-- [ ] **Q-05**: `useEffect` 의존성 배열 누락 수정 (`AgentSetupPanel.tsx`, `FigmaMcpPanel.tsx`)
-- [ ] **N-05**: 연결 확인 폴링 전략 최적화 (지수 백오프 적용) (`FigmaMcpPanel.tsx`)
-- [ ] **P-02**: 사이드바 리사이즈 중 전체 리렌더링 방지 (CSS 변수 직접 조작) (`App.tsx`)
-- [ ] **N-04**: `parseNodeId` 렌더링마다 재계산 방지 (`useMemo` 적용) (`FigmaMcpPanel.tsx`)
-- [ ] **P-03**: `byteSize` 렌더링마다 재계산 방지 (`useMemo` 적용) (`InputPanel.tsx`)
+- [x] **P-01**: 탭 전환 시 컴포넌트 언마운트/리마운트 방지 (CSS visibility 등 활용) (`App.tsx`)
+- [x] **Q-05**: `useEffect` 의존성 배열 누락 수정 (`AgentSetupPanel.tsx`, `FigmaMcpPanel.tsx`)
+- [x] **N-05**: 연결 확인 폴링 전략 최적화 (지수 백오프 적용) (`FigmaMcpPanel.tsx`)
+- [x] **P-02**: 사이드바 리사이즈 중 전체 리렌더링 방지 (CSS 변수 직접 조작) (`App.tsx`)
+- [x] **N-04**: `parseNodeId` 렌더링마다 재계산 방지 (`useMemo` 적용) (`FigmaMcpPanel.tsx`)
+- [x] **P-03**: `byteSize` 렌더링마다 재계산 방지 (`useMemo` 적용) (`InputPanel.tsx`)
 
 ## Sprint 3 — 아키텍처 및 코드 품질 (Architecture & Code Quality)
 - [ ] **A-02**: `InputPanel` God Component 책임 분리 (`hooks/` 분리) (`InputPanel.tsx`)

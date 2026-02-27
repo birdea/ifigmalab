@@ -133,7 +133,7 @@ const AgentSetupPanel: React.FC = () => {
   // selectedModel이 외부(Fetch 작업 등)에서 변경될 경우, 내부 Staged 상태와 동기화
   useEffect(() => {
     setStagedModel(selectedModel);
-  }, [selectedModel]);
+  }, [selectedModel, setStagedModel]);
 
   const fetchModels = React.useCallback(async (key: string) => {
     if (!key) return;

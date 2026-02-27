@@ -63,20 +63,36 @@ const FigmaMcpPanel: React.FC = () => {
       const res = await fetch(`${proxyServerUrl}/api/figma/status`);
       const data = await res.json();
       if (typeof data === 'object' && data !== null && 'connected' in data) {
-        setConnected((data as { connected: boolean }).connected);
+        const isConnected = (data as { connected: boolean }).connected;
+        setConnected(isConnected);
+        return isConnected;
       } else {
         setConnected(false);
+        return false;
       }
     } catch {
       setConnected(false);
+      return false;
     }
   }, [proxyServerUrl, setConnected]);
 
   useEffect(() => {
-    checkStatus();
-    timerRef.current = setInterval(checkStatus, POLL_INTERVAL);
+    let active = true;
+    let delay = POLL_INTERVAL;
+
+    const poll = async () => {
+      if (!active) return;
+      const ok = await checkStatus();
+      if (!active) return;
+      delay = ok ? POLL_INTERVAL : Math.min(delay * 2, 60000);
+      timerRef.current = setTimeout(poll, delay);
+    };
+
+    poll();
+
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      active = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [checkStatus]);
 
