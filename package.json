@@ -40,7 +40,7 @@
   },
   "scripts": {
     "build": "webpack --mode production && cp public/_redirects dist/_redirects",
-    "test": "jest --passWithNoTests",
+    "test": "jest --coverage",
     "lint": "eslint .",
     "format": "eslint --fix .",
     "dev": "webpack serve --mode development --port 3005"

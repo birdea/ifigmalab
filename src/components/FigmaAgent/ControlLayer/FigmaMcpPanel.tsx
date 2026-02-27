@@ -104,11 +104,11 @@ const FigmaMcpPanel: React.FC = () => {
     };
   }, [checkStatus]);
 
-  async function fetchFigmaData<T>(
+  const fetchFigmaData = React.useCallback(async <T,>(
     endpoint: string,
     setFetchingState: (val: boolean) => void,
     onSuccess: (json: T) => void
-  ) {
+  ) => {
     if (!nodeId.trim()) {
       setFetchError('Node ID 또는 Figma URL을 입력해주세요.');
       return;
@@ -140,24 +140,24 @@ const FigmaMcpPanel: React.FC = () => {
     } finally {
       setFetchingState(false);
     }
-  }
+  }, [nodeId, resolvedNodeId, proxyServerUrl, figmaMcpServerUrl, setNodeId]);
 
   /** Proxy Server와 연계하여 Figma Node 정보를 Fetch 하여 로컬 상태에 주입합니다. */
-  const handleFetch = () => fetchFigmaData<{ data?: string }>(
+  const handleFetch = React.useCallback(() => fetchFigmaData<{ data?: string }>(
     'fetch-context',
     setFetching,
     (json) => setMcpData(json.data ?? '')
-  );
+  ), [fetchFigmaData, setFetching, setMcpData]);
 
   /** Proxy Server와 연계하여 대상 Figma Node 영역의 Screenshot을 Fetch 해옵니다. */
-  const handleFetchScreenshot = () => fetchFigmaData<{ data?: string, mimeType?: string }>(
+  const handleFetchScreenshot = React.useCallback(() => fetchFigmaData<{ data?: string, mimeType?: string }>(
     'fetch-screenshot',
     setFetchingScreenshot,
     (json) => {
       setScreenshot(json.data ?? '');
       setScreenshotMimeType(json.mimeType ?? 'image/png');
     }
-  );
+  ), [fetchFigmaData, setFetchingScreenshot, setScreenshot, setScreenshotMimeType]);
 
   return (
     <div className={styles.panel}>
@@ -178,10 +178,10 @@ const FigmaMcpPanel: React.FC = () => {
             onClick={checkStatus}
             type="button"
           >
-            Apply
+            적용
           </button>
           <span className={connected ? styles.statusConnected : styles.statusDisconnected}>
-            {connected ? '(●) : Connected' : '(○) : Disconnected'}
+            {connected ? '(●) : 연결됨' : '(○) : 연결 안 됨'}
           </span>
         </div>
       </div>
@@ -202,7 +202,7 @@ const FigmaMcpPanel: React.FC = () => {
             disabled={fetching || fetchingScreenshot}
             type="button"
           >
-            {fetching ? '가져오는 중...' : 'Fetch'}
+            {fetching ? '가져오는 중...' : '데이터 가져오기'}
           </button>
           <button
             className={styles.fetchScreenshotBtn}
@@ -210,7 +210,7 @@ const FigmaMcpPanel: React.FC = () => {
             disabled={fetching || fetchingScreenshot || !connected || !resolvedNodeId}
             type="button"
           >
-            {fetchingScreenshot ? '캡처 중...' : '📸 Screenshot'}
+            {fetchingScreenshot ? '캡처 중...' : '📸 스크린샷'}
           </button>
         </div>
         {fetchError && <span className={styles.errorText}>{fetchError}</span>}
@@ -219,7 +219,7 @@ const FigmaMcpPanel: React.FC = () => {
       {screenshot && (
         <div className={styles.screenshotPreview}>
           <div className={styles.screenshotHeader}>
-            <span className={styles.screenshotLabel}>📸 Screenshot (AI 입력용)</span>
+            <span className={styles.screenshotLabel}>📸 스크린샷 (AI 입력용)</span>
             <button
               className={styles.screenshotClear}
               onClick={() => setScreenshot('')}

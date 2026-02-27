@@ -14,6 +14,12 @@ const { version } = pkg;
 type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
 const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
+const TAB_LABELS: Record<TabId, string> = {
+  AGENT: '에이전트',
+  MCP: 'MCP 연동',
+  VIEW: '미리보기',
+  HELP: '도움말'
+};
 
 
 /**
@@ -112,6 +118,9 @@ const FigmaLabApp: React.FC = () => {
     setToast(false);
   };
 
+  const getTabPanelClass = (id: TabId) =>
+    `${styles.tabPanel} ${activeTab === id ? '' : styles.tabPanelHidden}`;
+
   return (
     <div className={styles.root}>
       {/* Title Bar */}
@@ -136,7 +145,7 @@ const FigmaLabApp: React.FC = () => {
                 className={`${styles.navItem} ${activeTab === tab ? styles.navItemActive : ''}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab}
+                {TAB_LABELS[tab]}
               </button>
             ))}
           </nav>
@@ -148,16 +157,16 @@ const FigmaLabApp: React.FC = () => {
         {/* Main Content */}
         <div className={styles.content}>
           <Provider store={sharedStore}>
-            <div id="panel-AGENT" role="tabpanel" aria-labelledby="tab-AGENT" style={{ visibility: activeTab === 'AGENT' ? 'visible' : 'hidden', position: activeTab === 'AGENT' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'AGENT' ? 1 : -1, opacity: activeTab === 'AGENT' ? 1 : 0 }}>
+            <div id="panel-AGENT" role="tabpanel" aria-labelledby="tab-AGENT" className={getTabPanelClass('AGENT')}>
               <AgentSetupPanel />
             </div>
-            <div id="panel-MCP" role="tabpanel" aria-labelledby="tab-MCP" style={{ visibility: activeTab === 'MCP' ? 'visible' : 'hidden', position: activeTab === 'MCP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'MCP' ? 1 : -1, opacity: activeTab === 'MCP' ? 1 : 0 }}>
+            <div id="panel-MCP" role="tabpanel" aria-labelledby="tab-MCP" className={getTabPanelClass('MCP')}>
               <FigmaAgent />
             </div>
-            <div id="panel-VIEW" role="tabpanel" aria-labelledby="tab-VIEW" style={{ visibility: activeTab === 'VIEW' ? 'visible' : 'hidden', position: activeTab === 'VIEW' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'VIEW' ? 1 : -1, opacity: activeTab === 'VIEW' ? 1 : 0 }}>
+            <div id="panel-VIEW" role="tabpanel" aria-labelledby="tab-VIEW" className={getTabPanelClass('VIEW')}>
               <ViewPage html={viewHtml} />
             </div>
-            <div id="panel-HELP" role="tabpanel" aria-labelledby="tab-HELP" style={{ visibility: activeTab === 'HELP' ? 'visible' : 'hidden', position: activeTab === 'HELP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'HELP' ? 1 : -1, opacity: activeTab === 'HELP' ? 1 : 0 }}>
+            <div id="panel-HELP" role="tabpanel" aria-labelledby="tab-HELP" className={getTabPanelClass('HELP')}>
               <HelpPage />
             </div>
           </Provider>

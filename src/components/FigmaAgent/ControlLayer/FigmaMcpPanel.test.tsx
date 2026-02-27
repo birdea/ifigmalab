@@ -22,7 +22,7 @@ describe('FigmaMcpPanel', () => {
     it('renders the component with default disconnected state', () => {
         renderComponent();
         expect(screen.getByText('Figma MCP 연동')).toBeInTheDocument();
-        expect(screen.getByText('(○) : Disconnected')).toBeInTheDocument();
+        expect(screen.getByText('(○) : 연결 안 됨')).toBeInTheDocument();
     });
 
     it('checks status and updates connected state successfully', async () => {
@@ -31,11 +31,11 @@ describe('FigmaMcpPanel', () => {
         });
 
         renderComponent();
-        const applyBtn = screen.getByText('Apply');
+        const applyBtn = screen.getByText('적용');
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(●) : Connected')).toBeInTheDocument();
+            expect(screen.getByText('(●) : 연결됨')).toBeInTheDocument();
         });
     });
 
@@ -45,11 +45,11 @@ describe('FigmaMcpPanel', () => {
         });
 
         renderComponent();
-        const applyBtn = screen.getByText('Apply');
+        const applyBtn = screen.getByText('적용');
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(○) : Disconnected')).toBeInTheDocument();
+            expect(screen.getByText('(○) : 연결 안 됨')).toBeInTheDocument();
         });
     });
 
@@ -64,7 +64,7 @@ describe('FigmaMcpPanel', () => {
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234:5678' } });
 
-        const fetchBtn = screen.getByText('Fetch');
+        const fetchBtn = screen.getByText('데이터 가져오기');
         fireEvent.click(fetchBtn);
 
         await waitFor(() => {
@@ -81,7 +81,7 @@ describe('FigmaMcpPanel', () => {
     it('displays error message when empty nodeId is submitted for context fetch', async () => {
         renderComponent();
 
-        const fetchBtn = screen.getByText('Fetch');
+        const fetchBtn = screen.getByText('데이터 가져오기');
         fireEvent.click(fetchBtn);
 
         await waitFor(() => {
@@ -95,7 +95,7 @@ describe('FigmaMcpPanel', () => {
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: 'invalid-string' } });
 
-        const fetchBtn = screen.getByText('Fetch');
+        const fetchBtn = screen.getByText('데이터 가져오기');
         fireEvent.click(fetchBtn);
 
         await waitFor(() => {
@@ -114,7 +114,7 @@ describe('FigmaMcpPanel', () => {
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234:5678' } });
 
-        const fetchBtn = screen.getByText('Fetch');
+        const fetchBtn = screen.getByText('데이터 가져오기');
         fireEvent.click(fetchBtn);
 
         await waitFor(() => {
@@ -133,7 +133,7 @@ describe('FigmaMcpPanel', () => {
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234:5678' } });
 
-        const fetchBtn = screen.getByText('Fetch');
+        const fetchBtn = screen.getByText('데이터 가져오기');
         fireEvent.click(fetchBtn);
 
         await waitFor(() => {
@@ -149,17 +149,17 @@ describe('FigmaMcpPanel', () => {
 
         renderComponent();
 
-        const applyBtn = screen.getByText('Apply');
+        const applyBtn = screen.getByText('적용');
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(●) : Connected')).toBeInTheDocument();
+            expect(screen.getByText('(●) : 연결됨')).toBeInTheDocument();
         });
 
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234:5678' } });
 
-        const screenshotBtn = screen.getByText('📸 Screenshot');
+        const screenshotBtn = screen.getByText('📸 스크린샷');
         fireEvent.click(screenshotBtn);
 
         await waitFor(() => {
@@ -176,17 +176,17 @@ describe('FigmaMcpPanel', () => {
 
         renderComponent();
 
-        const applyBtn = screen.getByText('Apply');
+        const applyBtn = screen.getByText('적용');
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(●) : Connected')).toBeInTheDocument();
+            expect(screen.getByText('(●) : 연결됨')).toBeInTheDocument();
         });
 
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234-5678' } }); // Valid alternative format
 
-        const screenshotBtn = screen.getByText('📸 Screenshot');
+        const screenshotBtn = screen.getByText('📸 스크린샷');
         fireEvent.click(screenshotBtn);
 
         await waitFor(() => {

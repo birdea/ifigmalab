@@ -81,7 +81,7 @@ const InputPanel: React.FC = () => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle} id="panel-title">디자인 프롬프트 (Design Prompt)</div>
+      <div className={styles.panelTitle} id="panel-title">디자인 프롬프트</div>
 
       <div className={styles.formCol}>
         <div className={styles.contextLabelRow}>
@@ -103,7 +103,7 @@ const InputPanel: React.FC = () => {
               type="button"
               aria-label="데이터 사이즈 최적화 (data-* 속성 제거)"
             >
-              🗜 최적화 (Optimize)
+              🗜 최적화
             </button>
           )}
         </div>
@@ -136,16 +136,16 @@ const InputPanel: React.FC = () => {
 
       <div className={styles.readinessRow} aria-live="polite">
         <span className={hasApiKey ? styles.readyItem : styles.notReadyItem}>
-          {hasApiKey ? '✓ API 키 (API Key)' : '✗ API 키 없음 (No API Key)'}
+          {hasApiKey ? '✓ API 키' : '✗ API 키 없음'}
         </span>
         <span className={hasContent ? styles.readyItem : styles.notReadyItem}>
-          {hasContent ? '✓ 컨텐츠 (Content)' : '✗ 컨텐츠 없음 (No Content)'}
+          {hasContent ? '✓ 컨텐츠' : '✗ 컨텐츠 없음'}
         </span>
         {tokenCount !== null && (
-          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} 토큰 (tokens)</span>
+          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} 토큰</span>
         )}
         {isReady && !isLoading && tokenCount === null && (
-          <span className={styles.readyBadge}>준비 완료 (Ready)</span>
+          <span className={styles.readyBadge}>준비 완료</span>
         )}
       </div>
 
@@ -158,7 +158,7 @@ const InputPanel: React.FC = () => {
             type="button"
             aria-busy={isCountingTokens}
           >
-            {isCountingTokens ? '토큰 계산 중...' : '토큰 계산 (Count Tokens)'}
+            {isCountingTokens ? '토큰 계산 중...' : '토큰 계산'}
           </button>
           <button
             className={styles.submitBtn}
@@ -167,7 +167,7 @@ const InputPanel: React.FC = () => {
             type="button"
             aria-busy={isLoading}
           >
-            {isLoading ? '생성 중...' : '생성 요청 (Submit) ▶'}
+            {isLoading ? '생성 중...' : '생성 요청 ▶'}
           </button>
         </div>
       </div>
@@ -177,14 +177,14 @@ const InputPanel: React.FC = () => {
       {debugLog && (
         <div className={styles.debugLogWrap}>
           <div className={styles.debugLogHeader}>
-            <span className={styles.debugLogTitle} id="debug-log-title">디버그 로그 (Debug Log)</span>
+            <span className={styles.debugLogTitle} id="debug-log-title">디버그 로그</span>
             <button
               className={styles.debugLogClear}
               onClick={() => setDebugLog('')}
               type="button"
               aria-label="로그 지우기"
             >
-              지우기 (Clear)
+              지우기
             </button>
           </div>
           <textarea

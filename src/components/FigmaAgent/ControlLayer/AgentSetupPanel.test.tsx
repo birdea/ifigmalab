@@ -32,7 +32,7 @@ describe('AgentSetupPanel', () => {
                 <AgentSetupPanel />
             </Provider>
         );
-        expect(screen.getByText('AI Agent Setup')).toBeInTheDocument();
+        expect(screen.getByText('AI 에이전트 설정')).toBeInTheDocument();
     });
 
     it('handles API key input and show/hide toggle', () => {
@@ -47,10 +47,10 @@ describe('AgentSetupPanel', () => {
         expect(input).toHaveValue('test-api-key');
         expect(input).toHaveAttribute('type', 'password');
 
-        const toggleBtn = screen.getByText('Show');
+        const toggleBtn = screen.getByText('보기');
         fireEvent.click(toggleBtn);
         expect(input).toHaveAttribute('type', 'text');
-        expect(screen.getByText('Hide')).toBeInTheDocument();
+        expect(screen.getByText('숨기기')).toBeInTheDocument();
     });
 
     it('saves API key to localStorage when "Remember" is checked and PIN is entered', async () => {
@@ -161,7 +161,7 @@ describe('AgentSetupPanel', () => {
         const input = screen.getByPlaceholderText('AIza...');
         fireEvent.change(input, { target: { value: 'test-api-key' } });
 
-        const infoBtn = screen.getByText('Get Model Info');
+        const infoBtn = screen.getByText('모델 정보 조회');
         fireEvent.click(infoBtn);
 
         await waitFor(() => {

@@ -95,6 +95,18 @@ v2 리뷰 이후 Sprint 1~4가 체계적으로 이행되었고, 코드베이스 
 | 22 | Q-10 | UI 문자열 언어 정책 | ⚠️ 한국어/영어 혼재 지속 (정책 미결정) |
 | 23 | N-02 | Prompt Injection 방어 기초 | ✅ `<user_instructions>` 태그 격리 + 경고 프롬프트 추가 |
 
+### ✅ Sprint 6 — 코드 품질·아키텍처 (완료)
+
+| # | ID | 항목 | 결과 |
+|---|----|------|------|
+| 6 | A-07 | 암호화 유틸리티 분리 | ✅ `src/utils/crypto.ts`로 추출 |
+| 7 | A-08 | AgentSetupPanel 훅 분리 | ✅ `useApiKeyEncryption.ts`, `useGeminiModels.ts` 추출 |
+| 8 | Q-11 | useAgentSubmit `as` 캐스팅 → 타입 가드 | ✅ `isGeminiResponse`, `isCountTokensResponse` 타입 가드 적용 |
+| 9 | Q-12 | requestBody 이중 직렬화 제거 | ✅ `requestBodyJson` 재사용 |
+| 10 | Q-13 | formatBytes 함수 중복 제거 | ✅ `src/utils/utils.ts`로 통합 |
+| 11 | Q-14 | AgentSetupPanel 인라인 스타일 → SCSS | ✅ CSS 클래스 전환 완료 |
+| 12 | Q-16 | FigmaAgentInner 불필요 래퍼 제거 | ✅ `FigmaAgent` 컴포넌트 통합 |
+
 ---
 
 ## 3. 잔존 이슈 — 보안
@@ -590,29 +602,29 @@ headers: {
 | 4 | S-05 | mcpData Prompt Injection 격리 추가 | useAgentSubmit.ts | 1h |
 | 5 | N-12 | 프로덕션 소스맵 활성화 (`source-map`) | webpack.config.js | 30m |
 
-### Sprint 6 — 코드 품질·아키텍처 (1~2주 차)
+### ✅ Sprint 6 — 코드 품질·아키텍처 (완료)
 
 | # | ID | 항목 | 담당 파일 | 공수 |
 |---|----|------|----------|------|
-| 6 | A-07 | 암호화 유틸리티 분리 | 신규 src/utils/crypto.ts | 1h |
-| 7 | A-08 | AgentSetupPanel 훅 분리 | 신규 hooks/useApiKeyEncryption.ts, useGeminiModels.ts | 3h |
-| 8 | Q-11 | useAgentSubmit `as` 캐스팅 → 타입 가드 | useAgentSubmit.ts | 1h |
-| 9 | Q-12 | requestBody 이중 직렬화 제거 | useAgentSubmit.ts | 15m |
-| 10 | Q-13 | formatBytes 함수 중복 제거 | utils.ts, InputPanel.tsx, useAgentSubmit.ts | 30m |
-| 11 | Q-14 | AgentSetupPanel 인라인 스타일 → SCSS | AgentSetupPanel.tsx, FigmaAgent.module.scss | 1h |
-| 12 | Q-16 | FigmaAgentInner 불필요 래퍼 제거 | FigmaAgent/index.tsx | 15m |
+| 6 | A-07 | 암호화 유틸리티 분리 | ✅ 완료 (src/utils/crypto.ts) | 1h |
+| 7 | A-08 | AgentSetupPanel 훅 분리 | ✅ 완료 (hooks/useApiKeyEncryption.ts, useGeminiModels.ts) | 3h |
+| 8 | Q-11 | useAgentSubmit `as` 캐스팅 → 타입 가드 | ✅ 완료 | 1h |
+| 9 | Q-12 | requestBody 이중 직렬화 제거 | ✅ 완료 | 15m |
+| 10 | Q-13 | formatBytes 함수 중복 제거 | ✅ 완료 | 30m |
+| 11 | Q-14 | AgentSetupPanel 인라인 스타일 → SCSS | ✅ 완료 | 1h |
+| 12 | Q-16 | FigmaAgentInner 불필요 래퍼 제거 | ✅ 완료 | 15m |
 
-### Sprint 7 — 성능·테스트·접근성 (2~3주 차)
+### ✅ Sprint 7 — 성능·테스트·접근성 (완료)
 
-| # | ID | 항목 | 담당 파일 | 공수 |
+| # | ID | 항목 | 담당 파일 | 결과 |
 |---|----|------|----------|------|
-| 13 | P-04 | 탭 패널 인라인 스타일 → CSS 모듈 | App.tsx, App.module.scss | 1h |
-| 14 | N-14 | 탭 패널 스타일 유틸리티 함수 추출 | App.tsx | 30m |
-| 15 | N-11 | handleFetch/handleFetchScreenshot useCallback 적용 | FigmaMcpPanel.tsx | 30m |
-| 16 | N-13 | `--passWithNoTests` 플래그 제거 | package.json | 15m |
-| 17 | N-15 | Jest 커버리지 임계값 설정 (branches: 70%) | jest.config.js | 30m |
-| 18 | N-15 | useAgentSubmit Branch 커버리지 개선 | useAgentSubmit.test.ts (신규) | 3h |
-| 19 | Q-15 | UI 문자열 언어 정책 결정 및 통일 | 전체 | 2h |
+| 13 | P-04 | 탭 패널 인라인 스타일 → CSS 모듈 | App.tsx, App.module.scss | ✅ 완료 |
+| 14 | N-14 | 탭 패널 스타일 유틸리티 함수 추출 | App.tsx | ✅ 완료 |
+| 15 | N-11 | handleFetch/handleFetchScreenshot useCallback 적용 | FigmaMcpPanel.tsx | ✅ 완료 |
+| 16 | N-13 | `--passWithNoTests` 플래그 제거 | package.json | ✅ 완료 |
+| 17 | N-15 | Jest 커버리지 임계값 설정 (branches: 70%) | jest.config.js | ✅ 완료 |
+| 18 | N-15 | useAgentSubmit Branch 커버리지 개선 | useAgentSubmit.test.tsx (신규) | ✅ 완료 (78.57%) |
+| 19 | Q-15 | UI 문자열 언어 정책 결정 및 통일 | 전체 | ✅ 완료 (한국어) |
 
 ### Sprint 8 — E2E 테스트·i18n (4~5주 차)
 

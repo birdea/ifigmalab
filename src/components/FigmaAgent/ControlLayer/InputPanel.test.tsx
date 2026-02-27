@@ -17,7 +17,7 @@ describe('InputPanel', () => {
                 <InputPanel />
             </Provider>
         );
-        expect(screen.getByText('디자인 프롬프트 (Design Prompt)')).toBeInTheDocument();
+        expect(screen.getByText('디자인 프롬프트')).toBeInTheDocument();
     });
 
     it('updates MCP data and prompt text', () => {
@@ -89,13 +89,13 @@ describe('InputPanel', () => {
             </Provider>
         );
 
-        const submitBtn = screen.getByText('생성 요청 (Submit) ▶');
+        const submitBtn = screen.getByText('생성 요청 ▶');
         expect(submitBtn).not.toBeDisabled();
 
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
-            expect(screen.getByText(/생성 완료/)).toBeInTheDocument();
+            expect(screen.getByText(/생성 완료|결과가 VIEW 페이지에 반영되었습니다/)).toBeInTheDocument();
         });
 
         expect(global.fetch).toHaveBeenCalledWith(
@@ -106,5 +106,47 @@ describe('InputPanel', () => {
                 })
             })
         );
+    });
+
+    it('shows and hides debug log', () => {
+        const { createStore } = require('jotai');
+        const { debugLogAtom } = require('../atoms');
+        const store = createStore();
+
+        const { rerender } = render(
+            <Provider store={store}>
+                <InputPanel />
+            </Provider>
+        );
+
+        expect(screen.queryByText('디버그 로그')).not.toBeInTheDocument();
+
+        store.set(debugLogAtom, 'some log line');
+        rerender(
+            <Provider store={store}>
+                <InputPanel />
+            </Provider>
+        );
+        expect(screen.getByText('디버그 로그')).toBeInTheDocument();
+
+        const clearBtn = screen.getByText('지우기');
+        fireEvent.click(clearBtn);
+        expect(store.get(debugLogAtom)).toBe('');
+    });
+
+    it('handles token count display states', () => {
+        const { createStore } = require('jotai');
+        const { apiKeyAtom, mcpDataAtom, promptAtom } = require('../atoms');
+        const store = createStore();
+        store.set(apiKeyAtom, 'key');
+        store.set(promptAtom, 'prompt');
+
+        render(
+            <Provider store={store}>
+                <InputPanel />
+            </Provider>
+        );
+
+        expect(screen.getByText('준비 완료')).toBeInTheDocument();
     });
 });

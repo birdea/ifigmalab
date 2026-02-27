@@ -211,6 +211,25 @@
   position: relative;
 }
 
+.tabPanel {
+  height: 100%;
+  width: 100%;
+  visibility: visible;
+  position: relative;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.tabPanelHidden {
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+}
+
 .placeholder {
   display: flex;
   align-items: center;

@@ -44,7 +44,7 @@ const AgentSetupPanel: React.FC = () => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>AI Agent Setup</div>
+      <div className={styles.panelTitle}>AI 에이전트 설정</div>
 
       <div className={styles.providerRow}>
         <button className={`${styles.providerBtn} ${styles.providerBtnActive}`} type="button">
@@ -72,7 +72,7 @@ const AgentSetupPanel: React.FC = () => {
                 autoComplete="off"
               />
               <button className={styles.toggleBtn} onClick={() => setShowKey(v => !v)} type="button">
-                {showKey ? 'Hide' : 'Show'}
+                {showKey ? '숨기기' : '보기'}
               </button>
               <a
                 className={styles.getKeyBtn}
@@ -140,13 +140,13 @@ const AgentSetupPanel: React.FC = () => {
               onKeyDown={e => { if (e.key === 'Enter') handleUnlock(); }}
             />
             <button className={styles.toggleBtn} onClick={() => setShowKey(v => !v)} type="button">
-              {showKey ? 'Hide' : 'Show'}
+              {showKey ? '숨기기' : '보기'}
             </button>
             <button className={styles.fetchBtn} onClick={handleUnlock} type="button">
-              Unlock
+              잠금 해제
             </button>
             <button className={styles.toggleBtn} onClick={handleClearSaved} type="button">
-              Clear
+              초기화
             </button>
           </div>
           {unlockError && <div className={styles.errorTextNoMargin}>{unlockError}</div>}
@@ -154,7 +154,7 @@ const AgentSetupPanel: React.FC = () => {
       )}
 
       <div className={styles.formRow}>
-        <label className={styles.formLabel}>Model</label>
+        <label className={styles.formLabel}>모델 (Model)</label>
         <select
           className={styles.formSelect}
           value={stagedModel}
@@ -173,7 +173,7 @@ const AgentSetupPanel: React.FC = () => {
           type="button"
           title="API에서 모델 목록 갱신"
         >
-          {isFetchingModels ? '...' : 'Refresh'}
+          {isFetchingModels ? '...' : '새로고침'}
         </button>
         <button
           className={stagedModel !== selectedModel ? styles.fetchBtn : styles.toggleBtn}
@@ -182,7 +182,7 @@ const AgentSetupPanel: React.FC = () => {
           type="button"
           title="선택한 모델을 MCP에 적용"
         >
-          SET
+          설정
         </button>
       </div>
       <div className={styles.activeModelHint}>
@@ -197,7 +197,7 @@ const AgentSetupPanel: React.FC = () => {
           disabled={!apiKey || isFetchingInfo}
           type="button"
         >
-          {isFetchingInfo ? 'Loading...' : 'Get Model Info'}
+          {isFetchingInfo ? '조회 중...' : '모델 정보 조회'}
         </button>
         {modelInfoText && (
           <pre className={styles.modelInfoArea}>{modelInfoText}</pre>

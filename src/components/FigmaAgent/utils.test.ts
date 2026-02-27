@@ -21,6 +21,16 @@ describe('FigmaAgent utils', () => {
             const raw = '  just text  ';
             expect(extractHtml(raw)).toBe('just text');
         });
+
+        it('extracts HTML when starts with <html', () => {
+            const raw = '  <html lang="ko"><body></body></html>  ';
+            expect(extractHtml(raw)).toBe('<html lang="ko"><body></body></html>');
+        });
+
+        it('returns raw when starts with <!', () => {
+            const raw = '<!DOCTYPE html><html></html>';
+            expect(extractHtml(raw)).toBe(raw);
+        });
     });
 
     describe('preprocessMcpData', () => {
