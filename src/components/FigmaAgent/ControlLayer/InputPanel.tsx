@@ -11,11 +11,9 @@ import {
 import styles from '../FigmaAgent.module.scss';
 import {
   preprocessMcpData,
-  formatBytes,
 } from '../utils';
 import { useAgentSubmit } from '../hooks/useAgentSubmit';
-
-const TEXT_ENCODER = new TextEncoder();
+import { formatBytes, TEXT_ENCODER } from '../../../utils/utils';
 
 /**
  * 사용자의 추가 Prompt와 Figma MCP 데이터를 모아 Gemini API로 전송하는 입력 패널 Component.

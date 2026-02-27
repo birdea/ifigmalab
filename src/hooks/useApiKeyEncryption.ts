@@ -1,0 +1,124 @@
+import { useEffect, useState, useCallback } from 'react';
+import { useAtom } from 'jotai';
+import {
+    apiKeyAtom,
+    isLockedAtom,
+    savedEncryptedKeyAtom,
+    pinAtom,
+    rememberKeyAtom
+} from '../components/FigmaAgent/atoms';
+import { encryptData, decryptData } from '../utils/crypto';
+
+const LOCAL_STORAGE_KEY_ENC = 'figma_agent_api_key_enc';
+
+export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) {
+    const [apiKey, setApiKey] = useAtom(apiKeyAtom);
+    const [rememberKey, setRememberKey] = useAtom(rememberKeyAtom);
+    const [pin, setPin] = useAtom(pinAtom);
+    const [savedEncryptedKey, setSavedEncryptedKey] = useAtom(savedEncryptedKeyAtom);
+    const [isLocked, setIsLocked] = useAtom(isLockedAtom);
+    const [unlockError, setUnlockError] = useState('');
+
+    // Component Mount 시 LocalStorage 암호화 Key 검사
+    useEffect(() => {
+        if (apiKey || savedEncryptedKey) return;
+
+        const enc = localStorage.getItem(LOCAL_STORAGE_KEY_ENC);
+        if (enc) {
+            setSavedEncryptedKey(enc);
+            setIsLocked(true);
+            setRememberKey(true);
+        } else {
+            // 하위 호환성 유지: 기존 일반 Text 형태의 SessionStorage 조회
+            const sessionKey = sessionStorage.getItem('figma_agent_api_key');
+            if (sessionKey) {
+                setApiKey(sessionKey);
+                onUnlockSuccess?.(sessionKey);
+            }
+        }
+    }, [apiKey, savedEncryptedKey, setSavedEncryptedKey, setIsLocked, setRememberKey, setApiKey, onUnlockSuccess]);
+
+    // 조건 충족 시 API Key를 암호화하여 로컬에 보관
+    useEffect(() => {
+        if (isLocked) return;
+
+        let isActive = true;
+        const saveEncrypted = async () => {
+            if (rememberKey && apiKey && pin.length >= 4) {
+                try {
+                    let needsSave = true;
+                    if (savedEncryptedKey) {
+                        try {
+                            const decryptedKey = await decryptData(savedEncryptedKey, pin);
+                            if (decryptedKey === apiKey) {
+                                needsSave = false;
+                            }
+                        } catch {
+                            // 복호화 실패 시 (e.g. PIN 변경)
+                        }
+                    }
+
+                    if (needsSave && isActive) {
+                        const encrypted = await encryptData(apiKey, pin);
+                        localStorage.setItem(LOCAL_STORAGE_KEY_ENC, encrypted);
+                        setSavedEncryptedKey(encrypted);
+                    }
+                } catch (e) {
+                    console.error('Encryption failed', e);
+                }
+            } else if (!rememberKey && savedEncryptedKey) {
+                if (isActive) {
+                    localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
+                    setSavedEncryptedKey('');
+                }
+            }
+        };
+        saveEncrypted();
+        return () => { isActive = false; };
+    }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey, setSavedEncryptedKey]);
+
+    const handleUnlock = useCallback(async () => {
+        try {
+            const decryptedKey = await decryptData(savedEncryptedKey, pin);
+            if (!decryptedKey) throw new Error('Invalid PIN');
+
+            setApiKey(decryptedKey);
+            setIsLocked(false);
+            setUnlockError('');
+            onUnlockSuccess?.(decryptedKey);
+        } catch {
+            setUnlockError('PIN 번호가 일치하지 않습니다.');
+        }
+    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, onUnlockSuccess]);
+
+    const handleResetPin = useCallback(() => {
+        localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
+        setSavedEncryptedKey('');
+        setPin('');
+    }, [setSavedEncryptedKey, setPin]);
+
+    const handleClearSaved = useCallback(() => {
+        localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
+        setSavedEncryptedKey('');
+        setIsLocked(false);
+        setApiKey('');
+        setPin('');
+        setRememberKey(false);
+    }, [setSavedEncryptedKey, setIsLocked, setApiKey, setPin, setRememberKey]);
+
+    return {
+        apiKey,
+        setApiKey,
+        rememberKey,
+        setRememberKey,
+        pin,
+        setPin,
+        savedEncryptedKey,
+        isLocked,
+        unlockError,
+        setUnlockError,
+        handleUnlock,
+        handleResetPin,
+        handleClearSaved
+    };
+}

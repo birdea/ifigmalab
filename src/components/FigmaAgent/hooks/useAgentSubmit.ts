@@ -18,11 +18,23 @@ import {
     SYSTEM_PROMPT,
     GeminiPart,
     GeminiResponse,
-    formatBytes
 } from '../utils';
+import { formatBytes, TEXT_ENCODER } from '../../../utils/utils';
 
-const TEXT_ENCODER = new TextEncoder();
 const MAX_OUTPUT_TOKENS = 65536;
+
+function isGeminiResponse(v: unknown): v is GeminiResponse {
+    return typeof v === 'object' && v !== null && ('candidates' in v || 'usageMetadata' in v || 'error' in v);
+}
+
+interface CountTokensResponse {
+    totalTokens?: number;
+    error?: { message?: string; code?: number };
+}
+
+function isCountTokensResponse(v: unknown): v is CountTokensResponse {
+    return typeof v === 'object' && v !== null && ('totalTokens' in v || 'error' in v);
+}
 
 export function useAgentSubmit(appendLog: (line: string) => void) {
     const mcpData = useAtomValue(mcpDataAtom);
@@ -81,7 +93,9 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                     body: JSON.stringify({ contents: [{ role: 'user', parts }] }),
                 }
             );
-            const data = await res.json() as { totalTokens?: number; error?: { message?: string; code?: number } };
+            const json = await res.json();
+            if (!isCountTokensResponse(json)) throw new Error('Invalid API response format for countTokens');
+            const data = json;
             if (!res.ok || data.error) {
                 appendLog(`[COUNT TOKENS] ❌ Error (${data.error?.code ?? res.status}): ${data.error?.message ?? res.statusText}`);
             } else {
@@ -171,7 +185,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                     'Content-Type': 'application/json',
                     'x-goog-api-key': apiKey,
                 },
-                body: JSON.stringify(requestBody),
+                body: requestBodyJson,
             });
 
             const networkMs = Date.now() - startTime;
@@ -182,17 +196,19 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             const rawTextBytes = TEXT_ENCODER.encode(rawText).length;
             appendLog(`│ [NETWORK]  response size   : ${formatBytes(rawTextBytes)}`);
 
-            let data: GeminiResponse;
+            let data: unknown;
             try {
-                data = JSON.parse(rawText) as GeminiResponse;
+                data = JSON.parse(rawText);
             } catch {
                 appendLog(`│ [RESPONSE] ❌ JSON 파싱 실패: ${rawText.slice(0, 200)}`);
                 appendLog(`└${bar}`);
                 throw new Error(`응답 파싱 오류: ${rawText.slice(0, 100)}`);
             }
 
-            if (!res.ok || (data && typeof data === 'object' && 'error' in data)) {
-                const error = (data as GeminiResponse).error;
+            if (!isGeminiResponse(data)) throw new Error('Invalid Gemini API response format');
+
+            if (!res.ok || data.error) {
+                const error = data.error;
                 const errMsg = error?.message ?? `HTTP ${res.status}`;
                 const errCode = error?.code ?? res.status;
                 appendLog(`│ [RESPONSE] ❌ API 오류 (code: ${errCode}): ${errMsg}`);

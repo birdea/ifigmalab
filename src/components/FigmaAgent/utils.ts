@@ -25,16 +25,6 @@ export function preprocessMcpData(raw: string): string {
     return result.trim();
 }
 
-/**
- * 바이트 단위를 읽기 쉬운 문자열로 변환합니다.
- */
-export function formatBytes(n: number): string {
-    if (n === 0) return '';
-    if (n >= 1048576) return `${(n / 1048576).toFixed(1)} MB`;
-    if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
-    return `${n} bytes`;
-}
-
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 export const SYSTEM_PROMPT = `당신은 전문 프론트엔드 개발자입니다. Figma 디자인 데이터를 바탕으로 완전히 독립 실행 가능한 HTML 파일을 작성해주세요.

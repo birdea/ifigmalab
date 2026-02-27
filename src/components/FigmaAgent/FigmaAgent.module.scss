@@ -298,6 +298,9 @@ $panel-bg: #ffffff;
 }
 
 .savedBadge {
+  align-self: center;
+  white-space: nowrap;
+  margin-left: 8px;
   padding: 1px 7px;
   background: #e8f8f0;
   border: 1px solid #a3e4c1;
@@ -305,6 +308,53 @@ $panel-bg: #ffffff;
   font-size: 11px;
   font-weight: 600;
   color: $success;
+}
+
+.resetPinBtn {
+  margin-left: 8px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  color: $text-muted;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: $border;
+  }
+}
+
+.pinRequiredHint {
+  font-size: 0.8rem;
+  align-self: center;
+  white-space: nowrap;
+  margin-left: 8px;
+  color: $text-muted;
+  opacity: 0.7;
+}
+
+.lockedSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.lockedHint {
+  font-size: 0.9rem;
+  color: #a0aec0; // Darker muted color for contrast
+  margin-bottom: 4px;
+}
+
+.errorTextNoMargin {
+  font-size: 12px;
+  color: $error;
+  width: 100%;
+  margin-top: 0;
 }
 
 // ─── Model Info ──────────────────────────────────────────────────────────────
