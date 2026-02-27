@@ -287,7 +287,8 @@
   }
 
   // lists
-  ul, ol {
+  ul,
+  ol {
     margin: 8px 0 0;
     padding-left: 20px;
     display: flex;
@@ -299,13 +300,13 @@
   }
 
   li {
-    > p {
+    >p {
       margin: 0;
     }
   }
 
   // inline code: tab badge style
-  :not(pre) > code {
+  :not(pre)>code {
     padding: 2px 7px;
     background: #f0f0f0;
     border: 1px solid #e0e0e0;
@@ -343,6 +344,32 @@
   strong {
     color: #111111;
     font-weight: 600;
+  }
+
+  // table
+  table {
+    width: 100%;
+    margin: 16px 0;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #444444;
+
+    th,
+    td {
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f8f8f8;
+      font-weight: 600;
+      color: #111111;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
   }
 
   // links
@@ -441,8 +468,15 @@
   animation: toastIn 0.22s ease;
 
   @keyframes toastIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
