@@ -6,7 +6,9 @@ import {
     isLockedAtom,
     savedEncryptedKeyAtom,
     pinAtom,
-    rememberKeyAtom
+    rememberKeyAtom,
+    unlockAttemptsAtom,
+    lockedUntilAtom
 } from '../components/FigmaAgent/atoms';
 import { encryptData, decryptData } from '../utils/crypto';
 
@@ -79,7 +81,16 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
         return () => { isActive = false; };
     }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey, setSavedEncryptedKey]);
 
+    const [unlockAttempts, setUnlockAttempts] = useAtom(unlockAttemptsAtom);
+    const [lockedUntil, setLockedUntil] = useAtom(lockedUntilAtom);
+
     const handleUnlock = useCallback(async () => {
+        if (Date.now() < lockedUntil) {
+            const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+            setUnlockError(t('errors.locked_out', { seconds: remaining }));
+            return;
+        }
+
         try {
             const decryptedKey = await decryptData(savedEncryptedKey, pin);
             if (!decryptedKey) throw new Error(t('errors.invalid_pin'));
@@ -87,11 +98,23 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
             setApiKey(decryptedKey);
             setIsLocked(false);
             setUnlockError('');
+            setUnlockAttempts(0);
+            setLockedUntil(0);
             onUnlockSuccess?.(decryptedKey);
         } catch {
-            setUnlockError(t('errors.invalid_pin'));
+            const newAttempts = unlockAttempts + 1;
+            setUnlockAttempts(newAttempts);
+
+            if (newAttempts >= 5) {
+                const lockoutTime = Date.now() + 30_000; // 30 seconds
+                setLockedUntil(lockoutTime);
+                setUnlockAttempts(0);
+                setUnlockError(t('errors.locked_out', { seconds: 30 }));
+            } else {
+                setUnlockError(`${t('errors.invalid_pin')} (${newAttempts}/5)`);
+            }
         }
-    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, onUnlockSuccess, t]);
+    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, onUnlockSuccess, t, unlockAttempts, setUnlockAttempts, lockedUntil, setLockedUntil]);
 
     const handleResetPin = useCallback(() => {
         localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);

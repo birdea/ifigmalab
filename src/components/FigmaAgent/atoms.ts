@@ -71,3 +71,7 @@ export const isLockedAtom = atom<boolean>(false);
 export const savedEncryptedKeyAtom = atom<string>('');
 export const pinAtom = atom<string>('');
 export const rememberKeyAtom = atom<boolean>(false);
+
+// Security: PIN attempts and lockout
+export const unlockAttemptsAtom = atom<number>(0);
+export const lockedUntilAtom = atom<number>(0);

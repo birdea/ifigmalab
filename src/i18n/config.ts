@@ -15,7 +15,7 @@ i18n
         },
         fallbackLng: 'ko',
         interpolation: {
-            escapeValue: false,
+            escapeValue: true, // React already escapes values, but enabling this adds an extra layer of security.
         },
     });
 

@@ -163,8 +163,8 @@ describe('FigmaMcpPanel', () => {
         fireEvent.click(screenshotBtn);
 
         await waitFor(() => {
-            expect(screen.getByAltText('Figma screenshot')).toBeInTheDocument();
-            expect(screen.getByAltText('Figma screenshot')).toHaveAttribute('src', 'data:image/jpeg;base64,base64image');
+            expect(screen.getByAltText('Figma 스크린샷')).toBeInTheDocument();
+            expect(screen.getByAltText('Figma 스크린샷')).toHaveAttribute('src', 'data:image/jpeg;base64,base64image');
         });
     });
 

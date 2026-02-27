@@ -53,7 +53,9 @@
         "screenshot_label": "스크린샷 (AI 입력용)",
         "remove": "제거",
         "error_node_id_required": "Node ID 또는 Figma URL을 입력해주세요.",
-        "error_node_id_invalid": "올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요."
+        "error_node_id_invalid": "올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요.",
+        "error_server_response": "서버 응답 오류 (proxy-server 재시작 필요): {{text}}",
+        "screenshot_alt": "Figma 스크린샷"
     },
     "input": {
         "title": "디자인 프롬프트",
@@ -83,7 +85,8 @@
         "api_key_required": "Gemini API Token을 먼저 입력해주세요.",
         "content_required": "MCP 데이터 또는 프롬프트를 입력해주세요.",
         "json_parse_failed": "응답 파싱 오류: ",
-        "invalid_response": "Invalid Gemini API response format"
+        "invalid_response": "Invalid Gemini API response format",
+        "locked_out": "잠금 해제 불가: {{seconds}}초 후 재시도"
     },
     "common": {
         "todo": "(todo)"

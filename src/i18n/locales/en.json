@@ -53,7 +53,9 @@
         "screenshot_label": "Screenshot (for AI input)",
         "remove": "Remove",
         "error_node_id_required": "Please enter Node ID or Figma URL.",
-        "error_node_id_invalid": "Please enter valid Node ID or Figma URL."
+        "error_node_id_invalid": "Please enter valid Node ID or Figma URL.",
+        "error_server_response": "Server response error (proxy-server restart required): {{text}}",
+        "screenshot_alt": "Figma screenshot"
     },
     "input": {
         "title": "Design Prompt",
@@ -83,7 +85,8 @@
         "api_key_required": "Please enter Gemini API Token first.",
         "content_required": "Please enter MCP data or prompt.",
         "json_parse_failed": "Response parse error: ",
-        "invalid_response": "Invalid Gemini API response format"
+        "invalid_response": "Invalid Gemini API response format",
+        "locked_out": "Locked out: try again in {{seconds}}s"
     },
     "common": {
         "todo": "(todo)"

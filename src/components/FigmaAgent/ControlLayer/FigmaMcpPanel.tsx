@@ -155,7 +155,7 @@ const FigmaMcpPanel: React.FC = () => {
       const text = await res.text();
       let json: { error?: string, data?: string, mimeType?: string } = {};
       try { json = JSON.parse(text); } catch {
-        throw new Error(`서버 응답 오류 (proxy-server 재시작 필요): ${text.slice(0, 120)}`);
+        throw new Error(t('mcp.error_server_response', { text: text.slice(0, 120) }));
       }
       if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
       onSuccess(json as unknown as T);
@@ -261,7 +261,7 @@ const FigmaMcpPanel: React.FC = () => {
           <img
             className={styles.screenshotThumb}
             src={`data:${screenshotMimeType};base64,${screenshot}`}
-            alt="Figma screenshot"
+            alt={t('mcp.screenshot_alt')}
           />
         </div>
       )}
