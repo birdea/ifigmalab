@@ -17,7 +17,7 @@ describe('InputPanel', () => {
                 <InputPanel />
             </Provider>
         );
-        expect(screen.getByText('Design Prompt')).toBeInTheDocument();
+        expect(screen.getByText('디자인 프롬프트 (Design Prompt)')).toBeInTheDocument();
     });
 
     it('updates MCP data and prompt text', () => {
@@ -48,7 +48,7 @@ describe('InputPanel', () => {
         const mcpTextarea = screen.getAllByRole('textbox')[0];
         fireEvent.change(mcpTextarea, { target: { value: '<div data-node-id="123"></div>' } });
 
-        const optimizeBtn = screen.getByText(/Optimize/);
+        const optimizeBtn = screen.getByText(/최적화/);
         fireEvent.click(optimizeBtn);
 
         expect(mcpTextarea).toHaveValue('<div></div>');
@@ -89,7 +89,7 @@ describe('InputPanel', () => {
             </Provider>
         );
 
-        const submitBtn = screen.getByText('Submit ▶');
+        const submitBtn = screen.getByText('생성 요청 (Submit) ▶');
         expect(submitBtn).not.toBeDisabled();
 
         fireEvent.click(submitBtn);

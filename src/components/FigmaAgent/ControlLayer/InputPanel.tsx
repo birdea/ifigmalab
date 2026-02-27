@@ -79,22 +79,24 @@ const InputPanel: React.FC = () => {
     const optimized = preprocessMcpData(mcpData);
     const after = TEXT_ENCODER.encode(optimized).length;
     setMcpData(optimized);
-    appendLog(`🗜 Optimize: ${formatBytes(before)} → ${formatBytes(after)} (${Math.round((1 - after / before) * 100)}% 감소)`);
+    appendLog(`🗜 데이터 최적화: ${formatBytes(before)} → ${formatBytes(after)} (${Math.round((1 - after / before) * 100)}% 감소)`);
   };
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>Design Prompt</div>
+      <div className={styles.panelTitle} id="panel-title">디자인 프롬프트 (Design Prompt)</div>
 
       <div className={styles.formCol}>
         <div className={styles.contextLabelRow}>
-          <label className={styles.formLabel}>
-            Context{' '}
+          <label className={styles.formLabel} htmlFor="context-textarea">
+            컨텍스트 (Context){' '}
             <span className={styles.formLabelHint}>
               (Fetch 시 자동 입력 (또는 Figma MCP get_design_context 결과 붙여넣기))
             </span>
             {formatBytes(byteSize) && (
-              <span className={styles.inputSizeBadge}>{formatBytes(byteSize)}</span>
+              <span className={styles.inputSizeBadge} aria-live="polite">
+                {formatBytes(byteSize)}
+              </span>
             )}
           </label>
           {mcpData.trim() && (
@@ -102,23 +104,31 @@ const InputPanel: React.FC = () => {
               className={styles.optimizeBtn}
               onClick={handleOptimize}
               type="button"
+              aria-label="데이터 사이즈 최적화 (data-* 속성 제거)"
             >
-              🗜 Optimize (data-* 속성 제거)
+              🗜 최적화 (Optimize)
             </button>
           )}
         </div>
         <textarea
+          id="context-textarea"
           className={styles.formTextarea}
           rows={6}
           placeholder={'const imgShape = "http://localhost:3845/assets/...";\n\nexport default function MyComponent() {\n  return (\n    <div className="flex ...">\n      ...\n    </div>\n  );\n}'}
           value={mcpData}
           onChange={e => setMcpData(e.target.value)}
+          aria-describedby="panel-title"
         />
       </div>
 
+      <div className={styles.formCol} role="separator" aria-orientation="horizontal" />
+
       <div className={styles.formCol}>
-        <label className={styles.formLabel}>Prompt</label>
+        <label className={styles.formLabel} htmlFor="prompt-textarea">
+          프롬프트 (Prompt)
+        </label>
         <textarea
+          id="prompt-textarea"
           className={styles.formTextarea}
           rows={3}
           placeholder="위 디자인을 그대로 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘. (추가 지시사항 입력)"
@@ -127,18 +137,18 @@ const InputPanel: React.FC = () => {
         />
       </div>
 
-      <div className={styles.readinessRow}>
+      <div className={styles.readinessRow} aria-live="polite">
         <span className={hasApiKey ? styles.readyItem : styles.notReadyItem}>
-          {hasApiKey ? '✓' : '✗'} API Key
+          {hasApiKey ? '✓ API 키 (API Key)' : '✗ API 키 없음 (No API Key)'}
         </span>
         <span className={hasContent ? styles.readyItem : styles.notReadyItem}>
-          {hasContent ? '✓' : '✗'} Content
+          {hasContent ? '✓ 컨텐츠 (Content)' : '✗ 컨텐츠 없음 (No Content)'}
         </span>
         {tokenCount !== null && (
-          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} tokens</span>
+          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} 토큰 (tokens)</span>
         )}
         {isReady && !isLoading && tokenCount === null && (
-          <span className={styles.readyBadge}>Ready</span>
+          <span className={styles.readyBadge}>준비 완료 (Ready)</span>
         )}
       </div>
 
@@ -149,26 +159,35 @@ const InputPanel: React.FC = () => {
             onClick={handleCountTokens}
             disabled={!isReady || isCountingTokens || isLoading}
             type="button"
+            aria-busy={isCountingTokens}
           >
-            {isCountingTokens ? 'Counting...' : 'Count Tokens'}
+            {isCountingTokens ? '토큰 계산 중...' : '토큰 계산 (Count Tokens)'}
           </button>
           <button
             className={styles.submitBtn}
             onClick={handleSubmit}
             disabled={isLoading || !isReady}
             type="button"
+            aria-busy={isLoading}
           >
-            {isLoading ? '생성 중...' : 'Submit ▶'}
+            {isLoading ? '생성 중...' : '생성 요청 (Submit) ▶'}
           </button>
         </div>
       </div>
 
+      <div role="separator" aria-orientation="horizontal" />
+
       {debugLog && (
         <div className={styles.debugLogWrap}>
           <div className={styles.debugLogHeader}>
-            <span className={styles.debugLogTitle}>Debug Log</span>
-            <button className={styles.debugLogClear} onClick={() => setDebugLog('')} type="button">
-              Clear
+            <span className={styles.debugLogTitle} id="debug-log-title">디버그 로그 (Debug Log)</span>
+            <button
+              className={styles.debugLogClear}
+              onClick={() => setDebugLog('')}
+              type="button"
+              aria-label="로그 지우기"
+            >
+              지우기 (Clear)
             </button>
           </div>
           <textarea
@@ -177,6 +196,8 @@ const InputPanel: React.FC = () => {
             readOnly
             value={debugLog}
             rows={8}
+            aria-labelledby="debug-log-title"
+            aria-live="polite"
           />
         </div>
       )}

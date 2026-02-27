@@ -61,7 +61,7 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   if (!html) {
     return (
       <div className={styles.placeholder}>
-        <span>VIEW</span>
+        <span>미리보기 (VIEW)</span>
       </div>
     );
   }
@@ -125,10 +125,14 @@ const FigmaLabApp: React.FC = () => {
 
       <div className={styles.menuBar}>
         <div className={styles.menuLeft}>
-          <nav className={styles.nav}>
+          <nav className={styles.nav} role="tablist" aria-label="메인 탭 메뉴">
             {TAB_ITEMS.map(tab => (
               <button
                 key={tab}
+                role="tab"
+                aria-selected={activeTab === tab}
+                aria-controls={`panel-${tab}`}
+                id={`tab-${tab}`}
                 className={`${styles.navItem} ${activeTab === tab ? styles.navItemActive : ''}`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -144,16 +148,16 @@ const FigmaLabApp: React.FC = () => {
         {/* Main Content */}
         <div className={styles.content}>
           <Provider store={sharedStore}>
-            <div style={{ visibility: activeTab === 'AGENT' ? 'visible' : 'hidden', position: activeTab === 'AGENT' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'AGENT' ? 1 : -1, opacity: activeTab === 'AGENT' ? 1 : 0 }}>
+            <div id="panel-AGENT" role="tabpanel" aria-labelledby="tab-AGENT" style={{ visibility: activeTab === 'AGENT' ? 'visible' : 'hidden', position: activeTab === 'AGENT' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'AGENT' ? 1 : -1, opacity: activeTab === 'AGENT' ? 1 : 0 }}>
               <AgentSetupPanel />
             </div>
-            <div style={{ visibility: activeTab === 'MCP' ? 'visible' : 'hidden', position: activeTab === 'MCP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'MCP' ? 1 : -1, opacity: activeTab === 'MCP' ? 1 : 0 }}>
+            <div id="panel-MCP" role="tabpanel" aria-labelledby="tab-MCP" style={{ visibility: activeTab === 'MCP' ? 'visible' : 'hidden', position: activeTab === 'MCP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'MCP' ? 1 : -1, opacity: activeTab === 'MCP' ? 1 : 0 }}>
               <FigmaAgent />
             </div>
-            <div style={{ visibility: activeTab === 'VIEW' ? 'visible' : 'hidden', position: activeTab === 'VIEW' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'VIEW' ? 1 : -1, opacity: activeTab === 'VIEW' ? 1 : 0 }}>
+            <div id="panel-VIEW" role="tabpanel" aria-labelledby="tab-VIEW" style={{ visibility: activeTab === 'VIEW' ? 'visible' : 'hidden', position: activeTab === 'VIEW' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'VIEW' ? 1 : -1, opacity: activeTab === 'VIEW' ? 1 : 0 }}>
               <ViewPage html={viewHtml} />
             </div>
-            <div style={{ visibility: activeTab === 'HELP' ? 'visible' : 'hidden', position: activeTab === 'HELP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'HELP' ? 1 : -1, opacity: activeTab === 'HELP' ? 1 : 0 }}>
+            <div id="panel-HELP" role="tabpanel" aria-labelledby="tab-HELP" style={{ visibility: activeTab === 'HELP' ? 'visible' : 'hidden', position: activeTab === 'HELP' ? 'relative' : 'absolute', height: '100%', width: '100%', zIndex: activeTab === 'HELP' ? 1 : -1, opacity: activeTab === 'HELP' ? 1 : 0 }}>
               <HelpPage />
             </div>
           </Provider>
@@ -162,10 +166,10 @@ const FigmaLabApp: React.FC = () => {
 
       {/* Toast Popup */}
       {toast && (
-        <div className={styles.toast}>
+        <div className={styles.toast} role="status" aria-live="polite">
           <span className={styles.toastIcon}>✓</span>
           <span className={styles.toastMessage}>결과가 VIEW 페이지에 반영되었습니다</span>
-          <button className={styles.toastAction} onClick={handleGoToView}>VIEW로 이동</button>
+          <button className={styles.toastAction} onClick={handleGoToView}>미리보기(VIEW)로 이동</button>
           <button className={styles.toastClose} onClick={() => setToast(false)} aria-label="닫기">×</button>
         </div>
       )}

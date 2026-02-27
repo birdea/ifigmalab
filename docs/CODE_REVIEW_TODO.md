@@ -28,8 +28,8 @@
 - [x] **N-08**: `declarations.d.ts` 내 SCSS 타입 `any` 처리 개선
 
 ## Sprint 4 — 테스트 및 UX/접근성 (Testing & Accessibility)
-- [ ] **T-01**: `FigmaMcpPanel` 등 통합 테스트 코드 추가 (`FigmaMcpPanel.test.tsx`)
-- [ ] **T-01**: 네트워크 에러 등 실패 엣지 케이스 테스트 추가
-- [ ] **N-10**: 접근성(a11y) 구조 개선 (`aria-live`, `role="separator"`, 포커스 트랩 구성) (`App.tsx`, `InputPanel.tsx`)
-- [ ] **Q-10**: UI 문자열 언어 혼재(한국어/영어 일관성 부족) 통일 및 개선 체계 마련
-- [ ] **N-02**: Prompt Injection 방어 부재 개선 (Gemini 파싱 프롬프트 방어/격리) (`InputPanel.tsx`)
+- [x] **T-01**: `FigmaMcpPanel` 등 통합 테스트 코드 추가 (`FigmaMcpPanel.test.tsx`)
+- [x] **T-01**: 네트워크 에러 등 실패 엣지 케이스 테스트 추가
+- [x] **N-10**: 접근성(a11y) 구조 개선 (`aria-live`, `role="separator"`, 포커스 트랩 구성) (`App.tsx`, `InputPanel.tsx`)
+- [x] **Q-10**: UI 문자열 언어 혼재(한국어/영어 일관성 부족) 통일 및 개선 체계 마련
+- [x] **N-02**: Prompt Injection 방어 부재 개선 (Gemini 파싱 프롬프트 방어/격리) (`InputPanel.tsx`)
