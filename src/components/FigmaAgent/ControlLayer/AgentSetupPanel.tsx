@@ -4,7 +4,7 @@ import { apiKeyAtom, selectedModelAtom, GEMINI_MODELS, modelInfoTextAtom } from 
 import styles from '../FigmaAgent.module.scss';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const SESSION_KEY = 'figma_agent_api_key';
+const LOCAL_STORAGE_KEY = 'figma_agent_api_key';
 
 interface GeminiModelInfo {
   name: string;
@@ -45,17 +45,37 @@ const AgentSetupPanel: React.FC = () => {
   const [showKey, setShowKey] = useState(false);
   const [modelInfoText, setModelInfoText] = useAtom(modelInfoTextAtom);
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
+  const [rememberKey, setRememberKey] = useState(false);
 
-  // sessionStorage에서 복원
+  // localStorage에서 복원 (Remember가 체크된 경우에만 저장되어 있음)
   useEffect(() => {
-    const saved = sessionStorage.getItem(SESSION_KEY);
-    if (saved && !apiKey) setApiKey(saved);
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      setApiKey(saved);
+      setRememberKey(true);
+    }
   }, []);
 
   const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setApiKey(val);
-    sessionStorage.setItem(SESSION_KEY, val);
+    if (rememberKey) {
+      if (val) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, val);
+      } else {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      }
+    }
+  };
+
+  const handleRememberToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setRememberKey(checked);
+    if (checked && apiKey) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, apiKey);
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
   };
 
   const handleGetModelInfo = async () => {
@@ -118,6 +138,21 @@ const AgentSetupPanel: React.FC = () => {
             GET
           </a>
         </div>
+      </div>
+
+      <div className={styles.rememberRow}>
+        <input
+          id="rememberApiKey"
+          type="checkbox"
+          checked={rememberKey}
+          onChange={handleRememberToggle}
+        />
+        <label htmlFor="rememberApiKey" className={styles.rememberLabel}>
+          API 키 기억하기
+        </label>
+        {rememberKey && apiKey && (
+          <span className={styles.savedBadge}>저장됨</span>
+        )}
       </div>
 
       <div className={styles.formRow}>
