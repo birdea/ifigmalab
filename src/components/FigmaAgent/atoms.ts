@@ -27,10 +27,10 @@ export const selectedModelAtom = atom<GeminiModel>(DEFAULT_MODEL);
 export const geminiModelsAtom = atom<GeminiModelEntry[]>(GEMINI_MODELS_DEFAULT);
 
 // Figma MCP proxy server URL
-export const proxyServerUrlAtom = atom<string>('http://localhost:3006');
+export const proxyServerUrlAtom = atom<string>(process.env.PROXY_URL || 'http://localhost:3006');
 
 // Figma Desktop App MCP server URL
-export const figmaMcpServerUrlAtom = atom<string>('http://localhost:3845');
+export const figmaMcpServerUrlAtom = atom<string>(process.env.FIGMA_MCP_URL || 'http://localhost:3845');
 
 // Figma Target Node ID
 export const figmaNodeIdAtom = atom<string>('');

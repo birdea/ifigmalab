@@ -17,15 +17,15 @@
 - [x] **P-03**: `byteSize` 렌더링마다 재계산 방지 (`useMemo` 적용) (`InputPanel.tsx`)
 
 ## Sprint 3 — 아키텍처 및 코드 품질 (Architecture & Code Quality)
-- [ ] **A-02**: `InputPanel` God Component 책임 분리 (`hooks/` 분리) (`InputPanel.tsx`)
-- [ ] **Q-02**: `handleFetch`와 `handleFetchScreenshot` 중복 패턴 공통화 (`FigmaMcpPanel.tsx`)
-- [ ] **A-05**: 미기능 사이드바 플레이스홀더 제거 혹은 Feature Flag 처리 (`App.tsx`)
-- [ ] **A-06**: 미사용 로우/공통 의존성 `react-router-dom` 제거 (`package.json`, `webpack.config.js`)
-- [ ] **N-03**: Provider 이중 래핑(Redundant Provider) 최적화 (`App.tsx`, `FigmaAgent/index.tsx`)
-- [ ] **Q-08**: 런타임 타입 파싱/타입 가드 추가 (`FigmaMcpPanel.tsx`, `AgentSetupPanel.tsx`)
-- [ ] **N-09**: 환경 변수 하드코딩 교체 (로컬 기본값 및 닷엔브 주입) (`atoms.ts` 등)
-- [ ] **Q-09**: 매직 넘버 상수화 (사이드바 너비, 토큰 수 등) (`App.tsx`, `InputPanel.tsx`)
-- [ ] **N-08**: `declarations.d.ts` 내 SCSS 타입 `any` 처리 개선
+- [x] **A-02**: `InputPanel` God Component 책임 분리 (`hooks/` 분리) (`InputPanel.tsx`)
+- [x] **Q-02**: `handleFetch`와 `handleFetchScreenshot` 중복 패턴 공통화 (`FigmaMcpPanel.tsx`)
+- [x] **A-05**: 미기능 사이드바 플레이스홀더 제거 혹은 Feature Flag 처리 (`App.tsx`)
+- [x] **A-06**: 미사용 로우/공통 의존성 `react-router-dom` 제거 (`package.json`, `webpack.config.js`)
+- [x] **N-03**: Provider 이중 래핑(Redundant Provider) 최적화 (`App.tsx`, `FigmaAgent/index.tsx`)
+- [x] **Q-08**: 런타임 타입 파싱/타입 가드 추가 (`FigmaMcpPanel.tsx`, `AgentSetupPanel.tsx`)
+- [x] **N-09**: 환경 변수 하드코딩 교체 (로컬 기본값 및 닷엔브 주입) (`atoms.ts` 등)
+- [x] **Q-09**: 매직 넘버 상수화 (사이드바 너비, 토큰 수 등) (`App.tsx`, `InputPanel.tsx`)
+- [x] **N-08**: `declarations.d.ts` 내 SCSS 타입 `any` 처리 개선
 
 ## Sprint 4 — 테스트 및 UX/접근성 (Testing & Accessibility)
 - [ ] **T-01**: `FigmaMcpPanel` 등 통합 테스트 코드 추가 (`FigmaMcpPanel.test.tsx`)

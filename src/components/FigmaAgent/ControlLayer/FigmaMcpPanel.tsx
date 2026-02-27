@@ -40,6 +40,14 @@ function parseNodeId(raw: string): string | null {
   return null;
 }
 
+interface ConnectionStatus {
+  connected: boolean;
+}
+
+function isConnectionStatus(v: unknown): v is ConnectionStatus {
+  return typeof v === 'object' && v !== null && 'connected' in v && typeof (v as ConnectionStatus).connected === 'boolean';
+}
+
 /**
  * Figma MCP와의 통신 환경 설정을 관리하고, Figma 디자인 요소에서 상태를 가져오는 패널.
  */
@@ -62,8 +70,8 @@ const FigmaMcpPanel: React.FC = () => {
     try {
       const res = await fetch(`${proxyServerUrl}/api/figma/status`);
       const data = await res.json();
-      if (typeof data === 'object' && data !== null && 'connected' in data) {
-        const isConnected = (data as { connected: boolean }).connected;
+      if (isConnectionStatus(data)) {
+        const isConnected = data.connected;
         setConnected(isConnected);
         return isConnected;
       } else {
@@ -121,7 +129,7 @@ const FigmaMcpPanel: React.FC = () => {
         body: JSON.stringify({ nodeId: resolvedNodeId, mcpServerUrl: figmaMcpServerUrl }),
       });
       const text = await res.text();
-      let json: { error?: string } = {};
+      let json: { error?: string, data?: string, mimeType?: string } = {};
       try { json = JSON.parse(text); } catch {
         throw new Error(`서버 응답 오류 (proxy-server 재시작 필요): ${text.slice(0, 120)}`);
       }

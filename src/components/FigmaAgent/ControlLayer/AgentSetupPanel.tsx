@@ -108,6 +108,15 @@ interface GeminiModelsListResponse {
   error?: { message?: string; code?: number };
 }
 
+function isGeminiModelsListResponse(v: unknown): v is GeminiModelsListResponse {
+  return typeof v === 'object' && v !== null && ('models' in v || 'error' in v);
+}
+
+function isGeminiModelInfo(v: unknown): v is GeminiModelInfo {
+  return typeof v === 'object' && v !== null && ('name' in v || 'error' in v);
+}
+
+
 /**
  * API Key 초기화, Model 선택 여부, 로컬 암호화 저장을 설정하는 Panel.
  */
@@ -145,7 +154,9 @@ const AgentSetupPanel: React.FC = () => {
           'x-goog-api-key': key,
         }
       });
-      const data = (await res.json()) as GeminiModelsListResponse;
+      const json = await res.json();
+      if (!isGeminiModelsListResponse(json)) throw new Error('Invalid API response format for models list');
+      const data = json;
       if (!res.ok || data.error) {
         setModelsError(`Error (${data.error?.code ?? res.status}): ${data.error?.message ?? res.statusText}`);
       } else {
@@ -278,7 +289,9 @@ const AgentSetupPanel: React.FC = () => {
         }
       }
       );
-      const data = (await res.json()) as GeminiModelInfo;
+      const json = await res.json();
+      if (!isGeminiModelInfo(json)) throw new Error('Invalid API response format for model info');
+      const data = json;
       if (!res.ok || data.error) {
         setModelInfoText(`Error (${data.error?.code ?? res.status}): ${data.error?.message ?? res.statusText}`);
       } else {

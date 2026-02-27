@@ -15,20 +15,6 @@ type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
 const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
 
-const PanelLeftIcon: React.FC = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
-    <line x1="6.5" y1="1.5" x2="6.5" y2="16.5" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-);
-
-const PanelRightIcon: React.FC = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
-    <line x1="11.5" y1="1.5" x2="11.5" y2="16.5" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-);
-
 
 /**
  * 도움말 화면을 렌더링하는 Component.
@@ -100,73 +86,8 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
  */
 const FigmaLabApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('MCP');
-  const [leftOpen, setLeftOpen] = useState(false);
-  const [rightOpen, setRightOpen] = useState(false);
-  const leftWidthRef = useRef(240);
-  const rightWidthRef = useRef(240);
-  const [isResizingLeft, setIsResizingLeft] = useState(false);
-  const [isResizingRight, setIsResizingRight] = useState(false);
   const [viewHtml, setViewHtml] = useState('');
   const [toast, setToast] = useState(false);
-
-  const leftDragStart = useRef<{ x: number; width: number } | null>(null);
-  const rightDragStart = useRef<{ x: number; width: number } | null>(null);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (leftDragStart.current) {
-        const delta = e.clientX - leftDragStart.current.x;
-        const newWidth = Math.min(480, Math.max(160, leftDragStart.current.width + delta));
-        document.documentElement.style.setProperty('--left-panel-width', `${newWidth}px`);
-        leftWidthRef.current = newWidth;
-      }
-      if (rightDragStart.current) {
-        const delta = rightDragStart.current.x - e.clientX;
-        const newWidth = Math.min(480, Math.max(160, rightDragStart.current.width + delta));
-        document.documentElement.style.setProperty('--right-panel-width', `${newWidth}px`);
-        rightWidthRef.current = newWidth;
-      }
-    };
-    const handleMouseUp = () => {
-      if (leftDragStart.current) {
-        leftDragStart.current = null;
-        setIsResizingLeft(false);
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-      }
-      if (rightDragStart.current) {
-        rightDragStart.current = null;
-        setIsResizingRight(false);
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-      }
-    };
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, []);
-
-  // 왼쪽 패널 크기 조절 시작(Drag Start)
-  const handleLeftResizerMouseDown = (e: React.MouseEvent) => {
-    leftDragStart.current = { x: e.clientX, width: leftWidthRef.current };
-    setIsResizingLeft(true);
-    document.body.style.cursor = 'ew-resize';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  };
-
-  // 오른쪽 패널 크기 조절 시작(Drag Start)
-  const handleRightResizerMouseDown = (e: React.MouseEvent) => {
-    rightDragStart.current = { x: e.clientX, width: rightWidthRef.current };
-    setIsResizingRight(true);
-    document.body.style.cursor = 'ew-resize';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  };
-
   const generateStatus = useAtomValue(generateStatusAtom, { store: sharedStore });
   const generatedHtml = useAtomValue(generatedHtmlAtom, { store: sharedStore });
   const prevStatus = useRef(generateStatus);
@@ -202,17 +123,8 @@ const FigmaLabApp: React.FC = () => {
         </span>
       </div>
 
-      {/* Menu Bar */}
       <div className={styles.menuBar}>
         <div className={styles.menuLeft}>
-          <button
-            className={`${styles.panelBtn} ${leftOpen ? styles.panelBtnActive : ''}`}
-            aria-label="Toggle left panel"
-            onClick={() => setLeftOpen(v => !v)}
-          >
-            <PanelLeftIcon />
-          </button>
-          <span className={styles.menuDivider} />
           <nav className={styles.nav}>
             {TAB_ITEMS.map(tab => (
               <button
@@ -225,33 +137,10 @@ const FigmaLabApp: React.FC = () => {
             ))}
           </nav>
         </div>
-        <button
-          className={`${styles.panelBtn} ${rightOpen ? styles.panelBtnActive : ''}`}
-          aria-label="Toggle right panel"
-          onClick={() => setRightOpen(v => !v)}
-        >
-          <PanelRightIcon />
-        </button>
       </div>
 
       {/* Body */}
       <div className={styles.body}>
-        {/* Left Sidebar */}
-        <div
-          className={`${styles.sidebar} ${styles.sidebarLeft} ${leftOpen ? styles.sidebarOpen : ''} ${isResizingLeft ? styles.sidebarResizing : ''}`}
-          style={leftOpen ? { width: 'var(--left-panel-width, 240px)' } : undefined}
-        >
-          <div className={styles.sidebarContent}>Left Panel</div>
-        </div>
-
-        {/* Left Resizer */}
-        {leftOpen && (
-          <div
-            className={`${styles.resizer} ${isResizingLeft ? styles.resizerDragging : ''}`}
-            onMouseDown={handleLeftResizerMouseDown}
-          />
-        )}
-
         {/* Main Content */}
         <div className={styles.content}>
           <Provider store={sharedStore}>
@@ -268,22 +157,6 @@ const FigmaLabApp: React.FC = () => {
               <HelpPage />
             </div>
           </Provider>
-        </div>
-
-        {/* Right Resizer */}
-        {rightOpen && (
-          <div
-            className={`${styles.resizer} ${isResizingRight ? styles.resizerDragging : ''}`}
-            onMouseDown={handleRightResizerMouseDown}
-          />
-        )}
-
-        {/* Right Sidebar */}
-        <div
-          className={`${styles.sidebar} ${styles.sidebarRight} ${rightOpen ? styles.sidebarOpen : ''} ${isResizingRight ? styles.sidebarResizing : ''}`}
-          style={rightOpen ? { width: 'var(--right-panel-width, 240px)' } : undefined}
-        >
-          <div className={styles.sidebarContent}>Right Panel</div>
         </div>
       </div>
 
