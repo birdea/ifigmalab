@@ -3,6 +3,19 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'jotai';
 import AgentSetupPanel from './AgentSetupPanel';
 
+// Polyfill Web Crypto API for JSDOM
+if (typeof global.crypto === 'undefined') {
+    Object.defineProperty(global, 'crypto', {
+        value: require('crypto').webcrypto,
+        writable: true,
+    });
+} else if (!global.crypto.subtle) {
+    Object.defineProperty(global.crypto, 'subtle', {
+        value: require('crypto').webcrypto.subtle,
+        writable: true,
+    });
+}
+
 // Mock fetch
 global.fetch = jest.fn() as jest.Mock;
 
@@ -40,7 +53,7 @@ describe('AgentSetupPanel', () => {
         expect(screen.getByText('Hide')).toBeInTheDocument();
     });
 
-    it('saves API key to localStorage when "Remember" is checked and PIN is entered', () => {
+    it('saves API key to localStorage when "Remember" is checked and PIN is entered', async () => {
         render(
             <Provider>
                 <AgentSetupPanel />
@@ -56,7 +69,9 @@ describe('AgentSetupPanel', () => {
         const pinInput = screen.getByPlaceholderText('4자리 이상 PIN 입력');
         fireEvent.change(pinInput, { target: { value: '1234' } });
 
-        expect(localStorage.getItem('figma_agent_api_key_enc')).toBeTruthy();
+        await waitFor(() => {
+            expect(localStorage.getItem('figma_agent_api_key_enc')).toBeTruthy();
+        });
     });
 
     it('fetches models when refresh button is clicked', async () => {

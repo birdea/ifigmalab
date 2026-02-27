@@ -9,7 +9,7 @@ module.exports = (env, argv) => {
   return {
     entry: './src/index.ts',
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? 'source-map' : 'eval-cheap-module-source-map',
+    devtool: isProd ? false : 'eval-cheap-module-source-map',
     devServer: {
       port: 3005,
       headers: {
