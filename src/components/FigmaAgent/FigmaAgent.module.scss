@@ -275,6 +275,51 @@ $panel-bg: #ffffff;
   }
 }
 
+// ─── Model Info ──────────────────────────────────────────────────────────────
+.modelInfoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modelInfoBtn {
+  align-self: flex-start;
+  padding: 6px 12px;
+  background: #e8f5e9;
+  border: 1px solid #66bb6a;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #2e7d32;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #c8e6c9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.modelInfoArea {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: #2d2d2d;
+  background: #f8f8f8;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+}
+
 // ─── Optimize Button ─────────────────────────────────────────────────────────
 .optimizeBtn {
   align-self: flex-end;
@@ -485,6 +530,48 @@ $panel-bg: #ffffff;
 .submitRow {
   display: flex;
   justify-content: flex-end;
+}
+
+.submitBtnGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.countTokensBtn {
+  padding: 9px 16px;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  color: $text-muted;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #eef2ff;
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.tokenBadge {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: #eef2ff;
+  border: 1px solid #c5ceff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: $primary;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 .submitBtn {

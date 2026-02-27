@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import {
   mcpDataAtom,
@@ -77,6 +77,8 @@ const InputPanel: React.FC = () => {
   const [, setGeneratedHtml] = useAtom(generatedHtmlAtom);
   const [, setRawResponse] = useAtom(rawResponseAtom);
   const [, setDebugLog] = useAtom(debugLogAtom);
+  const [tokenCount, setTokenCount] = useState<number | null>(null);
+  const [isCountingTokens, setIsCountingTokens] = useState(false);
 
   const isLoading = status === 'loading';
   const hasApiKey = !!apiKey;
@@ -86,9 +88,59 @@ const InputPanel: React.FC = () => {
   const formatBytes = (n: number) =>
     n === 0 ? '' : n >= 1024 ? `${(n / 1024).toFixed(1)} KB` : `${n} bytes`;
 
+  // 컨텐츠 변경 시 이전 토큰 카운트 초기화
+  useEffect(() => {
+    setTokenCount(null);
+  }, [mcpData, prompt, screenshot]);
+
   const appendLog = (line: string) => {
     const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
     setDebugLog(prev => prev + `[${ts}] ${line}\n`);
+  };
+
+  /** generateContent / countTokens 양쪽에서 사용하는 parts 빌더 */
+  const buildPromptParts = (): GeminiPart[] => {
+    const parts: GeminiPart[] = [];
+    if (screenshot) {
+      parts.push({ inlineData: { mimeType: screenshotMimeType, data: screenshot } });
+    }
+    const designContextSection = mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '';
+    const userPromptSection = prompt.trim()
+      ? `## 추가 지시사항\n${prompt}`
+      : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.';
+    const textContent = [SYSTEM_PROMPT, '', designContextSection, userPromptSection]
+      .filter(Boolean).join('\n\n');
+    parts.push({ text: textContent });
+    return parts;
+  };
+
+  const handleCountTokens = async () => {
+    if (!apiKey || (!mcpData.trim() && !prompt.trim())) return;
+    setIsCountingTokens(true);
+    setTokenCount(null);
+    try {
+      const parts = buildPromptParts();
+      const res = await fetch(
+        `${GEMINI_API_BASE}/models/${model}:countTokens?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ role: 'user', parts }] }),
+        }
+      );
+      const data = await res.json() as { totalTokens?: number; error?: { message?: string; code?: number } };
+      if (!res.ok || data.error) {
+        appendLog(`[COUNT TOKENS] ❌ Error (${data.error?.code ?? res.status}): ${data.error?.message ?? res.statusText}`);
+      } else {
+        const count = data.totalTokens ?? 0;
+        setTokenCount(count);
+        appendLog(`[COUNT TOKENS] ✓ ${count.toLocaleString()} tokens (model: ${model})`);
+      }
+    } catch (e) {
+      appendLog(`[COUNT TOKENS] ❌ ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setIsCountingTokens(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -103,7 +155,6 @@ const InputPanel: React.FC = () => {
     appendLog(`│ [VALIDATE] Prompt       : ${prompt.trim() ? `${prompt.length} chars ✓` : '비어있음'}`);
     appendLog(`│ [VALIDATE] Model        : ${model}`);
     appendLog(`│ [VALIDATE] Screenshot   : ${screenshot ? `${formatBytes(new TextEncoder().encode(screenshot).length)} (${screenshotMimeType}) ✓` : '없음'}`);
-
 
     if (!apiKey) {
       appendLog(`│ [VALIDATE] ❌ API Key 없음 → 중단`);
@@ -128,22 +179,15 @@ const InputPanel: React.FC = () => {
 
     // ── Build prompt parts ────────────────────────────────────
     const enc = new TextEncoder();
-    const parts: GeminiPart[] = [];
-
-    if (screenshot) {
-      parts.push({ inlineData: { mimeType: screenshotMimeType, data: screenshot } });
-    }
+    const parts = buildPromptParts();
 
     const systemPromptSection = SYSTEM_PROMPT;
     const designContextSection = mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '';
     const userPromptSection = prompt.trim()
       ? `## 추가 지시사항\n${prompt}`
       : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.';
-
     const textContent = [systemPromptSection, '', designContextSection, userPromptSection]
       .filter(Boolean).join('\n\n');
-
-    parts.push({ text: textContent });
 
     const promptBytes = enc.encode(textContent).length;
     const systemBytes = enc.encode(systemPromptSection).length;
@@ -350,20 +394,33 @@ const InputPanel: React.FC = () => {
         <span className={hasContent ? styles.readyItem : styles.notReadyItem}>
           {hasContent ? '✓' : '✗'} Content
         </span>
-        {isReady && !isLoading && (
+        {tokenCount !== null && (
+          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} tokens</span>
+        )}
+        {isReady && !isLoading && tokenCount === null && (
           <span className={styles.readyBadge}>Ready</span>
         )}
       </div>
 
       <div className={styles.submitRow}>
-        <button
-          className={styles.submitBtn}
-          onClick={handleSubmit}
-          disabled={isLoading || !isReady}
-          type="button"
-        >
-          {isLoading ? '생성 중...' : 'Submit ▶'}
-        </button>
+        <div className={styles.submitBtnGroup}>
+          <button
+            className={styles.countTokensBtn}
+            onClick={handleCountTokens}
+            disabled={!isReady || isCountingTokens || isLoading}
+            type="button"
+          >
+            {isCountingTokens ? 'Counting...' : 'Count Tokens'}
+          </button>
+          <button
+            className={styles.submitBtn}
+            onClick={handleSubmit}
+            disabled={isLoading || !isReady}
+            type="button"
+          >
+            {isLoading ? '생성 중...' : 'Submit ▶'}
+          </button>
+        </div>
       </div>
 
     </div>
