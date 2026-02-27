@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "crypto-js": "^4.2.0",
     "jotai": "^2.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -15,7 +14,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/crypto-js": "^4.2.2",
     "@types/jest": "^29.5.14",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",

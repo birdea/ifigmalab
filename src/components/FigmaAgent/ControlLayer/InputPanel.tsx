@@ -11,6 +11,7 @@ import {
 import styles from '../FigmaAgent.module.scss';
 import {
   preprocessMcpData,
+  formatBytes,
 } from '../utils';
 import { useAgentSubmit } from '../hooks/useAgentSubmit';
 
@@ -40,8 +41,6 @@ const InputPanel: React.FC = () => {
   const hasContent = !!(mcpData.trim() || prompt.trim());
   const isReady = hasApiKey && hasContent;
   const byteSize = React.useMemo(() => TEXT_ENCODER.encode(mcpData).length, [mcpData]);
-  const formatBytes = (n: number) =>
-    n === 0 ? '' : n >= 1024 ? `${(n / 1024).toFixed(1)} KB` : `${n} bytes`;
 
   const appendLog = useCallback((line: string) => {
     const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
