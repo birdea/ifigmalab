@@ -23,6 +23,8 @@ import {
   GeminiResponse
 } from '../utils';
 
+const TEXT_ENCODER = new TextEncoder();
+
 /**
  * 사용자의 추가 Prompt와 Figma MCP 데이터를 모아 Gemini API로 전송하는 입력 패널 Component.
  * Token 수 계산 및 생성 요청(Validation 포함) 로직을 관리합니다.
@@ -53,7 +55,7 @@ const InputPanel: React.FC = () => {
   const hasApiKey = !!apiKey;
   const hasContent = !!(mcpData.trim() || prompt.trim());
   const isReady = hasApiKey && hasContent;
-  const byteSize = new TextEncoder().encode(mcpData).length;
+  const byteSize = React.useMemo(() => TEXT_ENCODER.encode(mcpData).length, [mcpData]);
   const formatBytes = (n: number) =>
     n === 0 ? '' : n >= 1024 ? `${(n / 1024).toFixed(1)} KB` : `${n} bytes`;
 
@@ -64,24 +66,37 @@ const InputPanel: React.FC = () => {
 
   const appendLog = (line: string) => {
     const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
-    setDebugLog(prev => prev + `[${ts}] ${line}\n`);
+    setDebugLog(prev => {
+      const newLine = `[${ts}] ${line}\n`;
+      const combined = prev + newLine;
+      const lines = combined.split('\n');
+      if (lines.length > 500) {
+        return lines.slice(lines.length - 500).join('\n');
+      }
+      return combined;
+    });
   };
 
   /** 
    * Token 계산과 Content 생성 양측에서 사용하는 공통 Prompt Parts 빌더.
    * Screenshot, Design Data, User Prompt를 포함합니다.
    */
-  const buildPromptParts = (): GeminiPart[] => {
-    const parts: GeminiPart[] = [];
-    if (screenshot) {
-      parts.push({ inlineData: { mimeType: screenshotMimeType, data: screenshot } });
-    }
+  const buildPromptText = (): { textContent: string, systemPromptSection: string, designContextSection: string, userPromptSection: string } => {
+    const systemPromptSection = SYSTEM_PROMPT;
     const designContextSection = mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '';
     const userPromptSection = prompt.trim()
       ? `## 추가 지시사항\n${prompt}`
       : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.';
-    const textContent = [SYSTEM_PROMPT, '', designContextSection, userPromptSection]
+    const textContent = [systemPromptSection, '', designContextSection, userPromptSection]
       .filter(Boolean).join('\n\n');
+    return { textContent, systemPromptSection, designContextSection, userPromptSection };
+  };
+
+  const buildPromptParts = (textContent: string): GeminiPart[] => {
+    const parts: GeminiPart[] = [];
+    if (screenshot) {
+      parts.push({ inlineData: { mimeType: screenshotMimeType, data: screenshot } });
+    }
     parts.push({ text: textContent });
     return parts;
   };
@@ -92,7 +107,8 @@ const InputPanel: React.FC = () => {
     setIsCountingTokens(true);
     setTokenCount(null);
     try {
-      const parts = buildPromptParts();
+      const { textContent } = buildPromptText();
+      const parts = buildPromptParts(textContent);
       const res = await fetch(
         `${GEMINI_API_BASE}/models/${model}:countTokens`,
         {
@@ -128,10 +144,10 @@ const InputPanel: React.FC = () => {
     appendLog(`│ Submit 요청`);
     appendLog(`├${bar}`);
     appendLog(`│ [VALIDATE] API Key      : ${apiKey ? `${apiKey.slice(0, 6)}...${apiKey.slice(-4)} (${apiKey.length} chars) ✓` : '❌ 없음'}`);
-    appendLog(`│ [VALIDATE] MCP Data     : ${mcpData.trim() ? `${formatBytes(new TextEncoder().encode(mcpData).length) || '0 bytes'} (${mcpData.length} chars) ✓` : '비어있음'}`);
+    appendLog(`│ [VALIDATE] MCP Data     : ${mcpData.trim() ? `${formatBytes(TEXT_ENCODER.encode(mcpData).length) || '0 bytes'} (${mcpData.length} chars) ✓` : '비어있음'}`);
     appendLog(`│ [VALIDATE] Prompt       : ${prompt.trim() ? `${prompt.length} chars ✓` : '비어있음'}`);
     appendLog(`│ [VALIDATE] Model        : ${model}`);
-    appendLog(`│ [VALIDATE] Screenshot   : ${screenshot ? `${formatBytes(new TextEncoder().encode(screenshot).length)} (${screenshotMimeType}) ✓` : '없음'}`);
+    appendLog(`│ [VALIDATE] Screenshot   : ${screenshot ? `${formatBytes(TEXT_ENCODER.encode(screenshot).length)} (${screenshotMimeType}) ✓` : '없음'}`);
 
     if (!apiKey) {
       appendLog(`│ [VALIDATE] ❌ API Key 없음 → 중단`);
@@ -155,22 +171,14 @@ const InputPanel: React.FC = () => {
     setRawResponse('');
 
     // --- Prompt Parts 구성 ---
-    const enc = new TextEncoder();
-    const parts = buildPromptParts();
+    const { textContent, systemPromptSection, designContextSection, userPromptSection } = buildPromptText();
+    const parts = buildPromptParts(textContent);
 
-    const systemPromptSection = SYSTEM_PROMPT;
-    const designContextSection = mcpData.trim() ? `## Figma Design Data\n${mcpData}` : '';
-    const userPromptSection = prompt.trim()
-      ? `## 추가 지시사항\n${prompt}`
-      : '위 Figma 디자인 데이터를 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘.';
-    const textContent = [systemPromptSection, '', designContextSection, userPromptSection]
-      .filter(Boolean).join('\n\n');
-
-    const promptBytes = enc.encode(textContent).length;
-    const systemBytes = enc.encode(systemPromptSection).length;
-    const contextBytes = designContextSection ? enc.encode(designContextSection).length : 0;
-    const userBytes = enc.encode(userPromptSection).length;
-    const screenshotBytes = screenshot ? enc.encode(screenshot).length : 0;
+    const promptBytes = TEXT_ENCODER.encode(textContent).length;
+    const systemBytes = TEXT_ENCODER.encode(systemPromptSection).length;
+    const contextBytes = designContextSection ? TEXT_ENCODER.encode(designContextSection).length : 0;
+    const userBytes = TEXT_ENCODER.encode(userPromptSection).length;
+    const screenshotBytes = screenshot ? TEXT_ENCODER.encode(screenshot).length : 0;
     const estimatedTokens = Math.round(promptBytes / 4);
 
     // --- API Request 구성 ---
@@ -180,7 +188,7 @@ const InputPanel: React.FC = () => {
       generationConfig: { maxOutputTokens: 65536 },
     };
     const requestBodyJson = JSON.stringify(requestBody);
-    const requestBodyBytes = enc.encode(requestBodyJson).length;
+    const requestBodyBytes = TEXT_ENCODER.encode(requestBodyJson).length;
 
     appendLog(`├${bar}`);
     appendLog(`│ [BUILD]    system prompt   : ${formatBytes(systemBytes)} (${systemPromptSection.length} chars)`);
@@ -214,7 +222,7 @@ const InputPanel: React.FC = () => {
       appendLog(`│ [NETWORK]  content-type    : ${res.headers.get('content-type') ?? '-'}`);
 
       const rawText = await res.text();
-      const rawTextBytes = enc.encode(rawText).length;
+      const rawTextBytes = TEXT_ENCODER.encode(rawText).length;
       appendLog(`│ [NETWORK]  response size   : ${formatBytes(rawTextBytes)}`);
 
       let data: GeminiResponse;
@@ -258,13 +266,13 @@ const InputPanel: React.FC = () => {
       }
 
       const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-      const rawBytes = enc.encode(rawResponse).length;
+      const rawBytes = TEXT_ENCODER.encode(rawResponse).length;
       const rawLines = rawResponse.split('\n').length;
       appendLog(`│ [RESPONSE] raw text        : ${formatBytes(rawBytes)} / ${rawLines.toLocaleString()} lines`);
 
       appendLog(`├${bar}`);
       const html = extractHtml(rawResponse);
-      const htmlBytes = enc.encode(html).length;
+      const htmlBytes = TEXT_ENCODER.encode(html).length;
       const htmlLines = html.split('\n').length;
       appendLog(`│ [EXTRACT]  html size       : ${formatBytes(htmlBytes)} / ${htmlLines.toLocaleString()} lines`);
 
@@ -317,9 +325,9 @@ const InputPanel: React.FC = () => {
 
   const handleOptimize = () => {
     if (!mcpData.trim()) return;
-    const before = new TextEncoder().encode(mcpData).length;
+    const before = TEXT_ENCODER.encode(mcpData).length;
     const optimized = preprocessMcpData(mcpData);
-    const after = new TextEncoder().encode(optimized).length;
+    const after = TEXT_ENCODER.encode(optimized).length;
     setMcpData(optimized);
     appendLog(`🗜 Optimize: ${formatBytes(before)} → ${formatBytes(after)} (${Math.round((1 - after / before) * 100)}% 감소)`);
   };

@@ -3,8 +3,8 @@ import { useAtom } from 'jotai';
 import { apiKeyAtom, selectedModelAtom, geminiModelsAtom, modelInfoTextAtom, isLockedAtom, savedEncryptedKeyAtom, pinAtom, rememberKeyAtom } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
 import CryptoJS from 'crypto-js';
+import { GEMINI_API_BASE } from '../utils';
 
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const LOCAL_STORAGE_KEY_ENC = 'figma_agent_api_key_enc';
 
 interface GeminiModelInfo {
@@ -77,7 +77,7 @@ const AgentSetupPanel: React.FC = () => {
     setStagedModel(selectedModel);
   }, [selectedModel]);
 
-  const fetchModels = async (key: string) => {
+  const fetchModels = React.useCallback(async (key: string) => {
     if (!key) return;
     setIsFetchingModels(true);
     setModelsError('');
@@ -110,7 +110,7 @@ const AgentSetupPanel: React.FC = () => {
     } finally {
       setIsFetchingModels(false);
     }
-  };
+  }, [selectedModel, setGeminiModels, setSelectedModel]);
 
   // Component Mount 시 LocalStorage 암호화 Key 검사 (세션당 1회 실행)
   useEffect(() => {
@@ -130,7 +130,7 @@ const AgentSetupPanel: React.FC = () => {
         fetchModels(sessionKey);
       }
     }
-  }, []);
+  }, [apiKey, savedEncryptedKey, setSavedEncryptedKey, setIsLocked, setRememberKey, setApiKey, fetchModels]);
 
   // 조건 충족 시 API Key를 암호화하여 로컬에 보관
   useEffect(() => {
@@ -149,7 +149,7 @@ const AgentSetupPanel: React.FC = () => {
             if (decryptedKey === apiKey) {
               needsSave = false; // 암호화된 값이 동일할 경우 새로 쓰지 않음
             }
-          } catch (e) {
+          } catch {
             // 복호화 실패 시 (e.g. PIN 변경) 새로 암호화하여 덮어씀
           }
         }
@@ -167,7 +167,7 @@ const AgentSetupPanel: React.FC = () => {
       localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
       setSavedEncryptedKey('');
     }
-  }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey]);
+  }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey, setSavedEncryptedKey]);
 
   const handleUnlock = () => {
     try {
@@ -179,7 +179,7 @@ const AgentSetupPanel: React.FC = () => {
       setIsLocked(false);
       setUnlockError('');
       fetchModels(decryptedKey);
-    } catch (e) {
+    } catch {
       setUnlockError('PIN 번호가 일치하지 않습니다.');
     }
   };

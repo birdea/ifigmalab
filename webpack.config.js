@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProd = argv.mode === 'production' || process.env.NODE_ENV === 'production';
@@ -8,6 +9,7 @@ module.exports = (env, argv) => {
   return {
     entry: './src/index.ts',
     mode: isProd ? 'production' : 'development',
+    devtool: isProd ? 'source-map' : 'eval-cheap-module-source-map',
     devServer: {
       port: 3005,
       headers: {
@@ -63,13 +65,13 @@ module.exports = (env, argv) => {
         shared: {
           react: { singleton: true, requiredVersion: '^19.0.0' },
           'react-dom': { singleton: true, requiredVersion: '^19.0.0' },
-          'react-router-dom': { singleton: true, requiredVersion: '^7.1.5' },
           jotai: { singleton: true, requiredVersion: '^2.11.0' }
         }
       }),
       new HtmlWebpackPlugin({
         template: './public/index.html'
-      })
+      }),
+      new ForkTsCheckerWebpackPlugin()
     ]
   };
 };

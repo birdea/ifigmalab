@@ -56,15 +56,21 @@ const FigmaMcpPanel: React.FC = () => {
   const [fetchError, setFetchError] = React.useState('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const checkStatus = async () => {
+  const resolvedNodeId = React.useMemo(() => parseNodeId(nodeId), [nodeId]);
+
+  const checkStatus = React.useCallback(async () => {
     try {
       const res = await fetch(`${proxyServerUrl}/api/figma/status`);
-      const data = await res.json() as { connected: boolean };
-      setConnected(data.connected);
+      const data = await res.json();
+      if (typeof data === 'object' && data !== null && 'connected' in data) {
+        setConnected((data as { connected: boolean }).connected);
+      } else {
+        setConnected(false);
+      }
     } catch {
       setConnected(false);
     }
-  };
+  }, [proxyServerUrl, setConnected]);
 
   useEffect(() => {
     checkStatus();
@@ -72,80 +78,62 @@ const FigmaMcpPanel: React.FC = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [proxyServerUrl]);
+  }, [checkStatus]);
+
+  async function fetchFigmaData<T>(
+    endpoint: string,
+    setFetchingState: (val: boolean) => void,
+    onSuccess: (json: T) => void
+  ) {
+    if (!nodeId.trim()) {
+      setFetchError('Node ID 또는 Figma URL을 입력해주세요.');
+      return;
+    }
+
+    if (!resolvedNodeId) {
+      setFetchError('올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요.');
+      return;
+    }
+
+    setNodeId(resolvedNodeId);
+    setFetchingState(true);
+    setFetchError('');
+    try {
+      const res = await fetch(`${proxyServerUrl}/api/figma/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nodeId: resolvedNodeId, mcpServerUrl: figmaMcpServerUrl }),
+      });
+      const text = await res.text();
+      let json: { error?: string } = {};
+      try { json = JSON.parse(text); } catch {
+        throw new Error(`서버 응답 오류 (proxy-server 재시작 필요): ${text.slice(0, 120)}`);
+      }
+      if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
+      onSuccess(json as unknown as T);
+    } catch (e) {
+      setFetchError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setFetchingState(false);
+    }
+  }
 
   /** Proxy Server와 연계하여 Figma Node 정보를 Fetch 하여 로컬 상태에 주입합니다. */
-  const handleFetch = async () => {
-    if (!nodeId.trim()) {
-      setFetchError('Node ID 또는 Figma URL을 입력해주세요.');
-      return;
-    }
-
-    const resolvedId = parseNodeId(nodeId);
-    if (!resolvedId) {
-      setFetchError('올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요.');
-      return;
-    }
-
-    setNodeId(resolvedId);
-    setFetching(true);
-    setFetchError('');
-    try {
-      const res = await fetch(`${proxyServerUrl}/api/figma/fetch-context`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodeId: resolvedId, mcpServerUrl: figmaMcpServerUrl }),
-      });
-      const text = await res.text();
-      let json: { data?: string; error?: string } = {};
-      try { json = JSON.parse(text); } catch {
-        throw new Error(`서버 응답 오류 (proxy-server 재시작 필요): ${text.slice(0, 120)}`);
-      }
-      if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
-      setMcpData(json.data ?? '');
-    } catch (e) {
-      setFetchError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setFetching(false);
-    }
-  };
+  const handleFetch = () => fetchFigmaData<{ data?: string }>(
+    'fetch-context',
+    setFetching,
+    (json) => setMcpData(json.data ?? '')
+  );
 
   /** Proxy Server와 연계하여 대상 Figma Node 영역의 Screenshot을 Fetch 해옵니다. */
-  const handleFetchScreenshot = async () => {
-    if (!nodeId.trim()) {
-      setFetchError('Node ID 또는 Figma URL을 입력해주세요.');
-      return;
-    }
-
-    const resolvedId = parseNodeId(nodeId);
-    if (!resolvedId) {
-      setFetchError('올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요.');
-      return;
-    }
-
-    setNodeId(resolvedId);
-    setFetchingScreenshot(true);
-    setFetchError('');
-    try {
-      const res = await fetch(`${proxyServerUrl}/api/figma/fetch-screenshot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodeId: resolvedId, mcpServerUrl: figmaMcpServerUrl }),
-      });
-      const text = await res.text();
-      let json: { data?: string; mimeType?: string; error?: string } = {};
-      try { json = JSON.parse(text); } catch {
-        throw new Error(`서버 응답 오류 (proxy-server 재시작 필요): ${text.slice(0, 120)}`);
-      }
-      if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
+  const handleFetchScreenshot = () => fetchFigmaData<{ data?: string, mimeType?: string }>(
+    'fetch-screenshot',
+    setFetchingScreenshot,
+    (json) => {
       setScreenshot(json.data ?? '');
       setScreenshotMimeType(json.mimeType ?? 'image/png');
-    } catch (e) {
-      setFetchError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setFetchingScreenshot(false);
     }
-  };
+  );
 
   return (
     <div className={styles.panel}>
@@ -195,7 +183,7 @@ const FigmaMcpPanel: React.FC = () => {
           <button
             className={styles.fetchScreenshotBtn}
             onClick={handleFetchScreenshot}
-            disabled={fetching || fetchingScreenshot || !connected || !parseNodeId(nodeId)}
+            disabled={fetching || fetchingScreenshot || !connected || !resolvedNodeId}
             type="button"
           >
             {fetchingScreenshot ? '캡처 중...' : '📸 Screenshot'}

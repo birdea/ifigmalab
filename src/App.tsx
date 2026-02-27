@@ -86,7 +86,7 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
         ref={iframeRef}
         className={styles.viewFrame}
         srcDoc={html}
-        sandbox="allow-scripts allow-same-origin"
+        sandbox="allow-scripts"
         referrerPolicy="no-referrer"
         title="Generated Preview"
       />
@@ -250,11 +250,20 @@ const FigmaLabApp: React.FC = () => {
 
         {/* Main Content */}
         <div className={styles.content}>
-          {activeTab === 'AGENT' && <Provider store={sharedStore}><AgentSetupPanel /></Provider>}
-          {activeTab === 'MCP' && <FigmaAgent store={sharedStore} />}
-          {activeTab === 'VIEW' && <ViewPage html={viewHtml} />}
-
-          {activeTab === 'HELP' && <HelpPage />}
+          <Provider store={sharedStore}>
+            <div style={{ display: activeTab === 'AGENT' ? 'block' : 'none', height: '100%', width: '100%' }}>
+              <AgentSetupPanel />
+            </div>
+            <div style={{ display: activeTab === 'MCP' ? 'block' : 'none', height: '100%', width: '100%' }}>
+              <FigmaAgent />
+            </div>
+            <div style={{ display: activeTab === 'VIEW' ? 'block' : 'none', height: '100%', width: '100%' }}>
+              <ViewPage html={viewHtml} />
+            </div>
+            <div style={{ display: activeTab === 'HELP' ? 'block' : 'none', height: '100%', width: '100%' }}>
+              <HelpPage />
+            </div>
+          </Provider>
         </div>
 
         {/* Right Resizer */}
