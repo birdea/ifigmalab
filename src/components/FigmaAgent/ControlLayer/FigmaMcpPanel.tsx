@@ -186,7 +186,7 @@ const FigmaMcpPanel: React.FC = () => {
           <button
             className={styles.fetchScreenshotBtn}
             onClick={handleFetchScreenshot}
-            disabled={fetching || fetchingScreenshot}
+            disabled={fetching || fetchingScreenshot || !connected || !parseNodeId(nodeId)}
             type="button"
           >
             {fetchingScreenshot ? '캡처 중...' : '📸 Screenshot'}
