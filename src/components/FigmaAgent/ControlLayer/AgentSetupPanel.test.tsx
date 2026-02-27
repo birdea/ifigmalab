@@ -9,6 +9,7 @@ global.fetch = jest.fn() as jest.Mock;
 describe('AgentSetupPanel', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        sessionStorage.clear();
         localStorage.clear();
     });
 
@@ -39,7 +40,7 @@ describe('AgentSetupPanel', () => {
         expect(screen.getByText('Hide')).toBeInTheDocument();
     });
 
-    it('saves API key to localStorage when "Remember" is checked', () => {
+    it('saves API key to localStorage when "Remember" is checked and PIN is entered', () => {
         render(
             <Provider>
                 <AgentSetupPanel />
@@ -47,12 +48,15 @@ describe('AgentSetupPanel', () => {
         );
 
         const input = screen.getByPlaceholderText('AIza...');
-        const rememberCheckbox = screen.getByLabelText('API 키 기억하기');
+        const rememberCheckbox = screen.getByLabelText('로컬에 암호화하여 저장');
 
         fireEvent.change(input, { target: { value: 'test-api-key' } });
         fireEvent.click(rememberCheckbox);
 
-        expect(localStorage.getItem('figma_agent_api_key')).toBe('test-api-key');
+        const pinInput = screen.getByPlaceholderText('4자리 이상 PIN 입력');
+        fireEvent.change(pinInput, { target: { value: '1234' } });
+
+        expect(localStorage.getItem('figma_agent_api_key_enc')).toBeTruthy();
     });
 
     it('fetches models when refresh button is clicked', async () => {
