@@ -136,7 +136,7 @@ describe('InputPanel', () => {
 
     it('handles token count display states', () => {
         const { createStore } = require('jotai');
-        const { apiKeyAtom, mcpDataAtom, promptAtom } = require('../atoms');
+        const { apiKeyAtom, promptAtom } = require('../atoms');
         const store = createStore();
         store.set(apiKeyAtom, 'key');
         store.set(promptAtom, 'prompt');

@@ -18,7 +18,8 @@ export default defineConfig({
     /* Shared settings for all the projects below. See https://playwright.dev/docs/test-use-options. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://localhost:3005',
+        // N-21: baseURL 환경 변수화
+        baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3005',
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',

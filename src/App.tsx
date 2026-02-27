@@ -138,7 +138,7 @@ const FigmaLabApp: React.FC = () => {
 
       <div className={styles.menuBar}>
         <div className={styles.menuLeft}>
-          <nav className={styles.nav} role="tablist" aria-label="메인 탭 메뉴">
+          <div className={styles.nav} role="tablist" aria-label="메인 탭 메뉴">
             {TAB_ITEMS.map(tab => (
               <button
                 key={tab}
@@ -152,7 +152,7 @@ const FigmaLabApp: React.FC = () => {
                 {t(`tabs.${tab.toLowerCase()}`)}
               </button>
             ))}
-          </nav>
+          </div>
 
         </div>
       </div>
