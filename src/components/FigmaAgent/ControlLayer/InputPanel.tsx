@@ -302,13 +302,13 @@ const InputPanel: React.FC = () => {
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>Figma Prompt</div>
+      <div className={styles.panelTitle}>Design Prompt</div>
 
       <div className={styles.formCol}>
         <label className={styles.formLabel}>
-          Design Context{' '}
+          Context{' '}
           <span className={styles.formLabelHint}>
-            (Figma MCP → get_design_context 결과를 붙여넣기)
+            (Fetch 시 자동 입력 (또는 Figma MCP get_design_context 결과 붙여넣기))
           </span>
           {formatBytes(byteSize) && (
             <span className={styles.inputSizeBadge}>{formatBytes(byteSize)}</span>

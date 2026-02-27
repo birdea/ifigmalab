@@ -148,7 +148,7 @@ const FigmaMcpPanel: React.FC = () => {
       <div className={styles.panelTitle}>Figma MCP 연동</div>
 
       <div className={styles.formRow}>
-        <label className={styles.formLabel}>Figma MCP Server URL</label>
+        <label className={styles.formLabel}>Server URL</label>
         <div className={styles.inputWithBtn}>
           <input
             className={styles.formInput}
@@ -171,7 +171,7 @@ const FigmaMcpPanel: React.FC = () => {
       </div>
 
       <div className={styles.formRow}>
-        <label className={styles.formLabel}>Figma Node ID</label>
+        <label className={styles.formLabel}>Node ID</label>
         <div className={styles.inputWithBtn}>
           <input
             className={styles.formInput}
