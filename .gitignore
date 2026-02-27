@@ -5,3 +5,6 @@ dist
 # Module Federation Types
 @mf-types
 @mf-types.zip
+
+# Testing
+coverage/
