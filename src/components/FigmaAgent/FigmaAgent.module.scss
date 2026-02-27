@@ -352,9 +352,29 @@ $panel-bg: #ffffff;
   overflow-x: auto;
 }
 
+// ─── Active Model Hint ───────────────────────────────────────────────────────
+.activeModelHint {
+  font-size: 11px;
+  color: $text-muted;
+  margin-top: -4px;
+
+  strong {
+    color: $primary;
+    font-weight: 600;
+  }
+}
+
+// ─── Context Label Row ───────────────────────────────────────────────────────
+.contextLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 // ─── Optimize Button ─────────────────────────────────────────────────────────
 .optimizeBtn {
-  align-self: flex-end;
+  flex-shrink: 0;
   padding: 4px 10px;
   background: transparent;
   border: 1px solid #7c8ef7;

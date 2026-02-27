@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import {
   mcpDataAtom,
@@ -76,9 +76,16 @@ const InputPanel: React.FC = () => {
   const [, setError] = useAtom(generateErrorAtom);
   const [, setGeneratedHtml] = useAtom(generatedHtmlAtom);
   const [, setRawResponse] = useAtom(rawResponseAtom);
-  const [, setDebugLog] = useAtom(debugLogAtom);
+  const [debugLog, setDebugLog] = useAtom(debugLogAtom);
   const [tokenCount, setTokenCount] = useState<number | null>(null);
   const [isCountingTokens, setIsCountingTokens] = useState(false);
+  const logRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [debugLog]);
 
   const isLoading = status === 'loading';
   const hasApiKey = !!apiKey;
@@ -349,15 +356,26 @@ const InputPanel: React.FC = () => {
       <div className={styles.panelTitle}>Design Prompt</div>
 
       <div className={styles.formCol}>
-        <label className={styles.formLabel}>
-          Context{' '}
-          <span className={styles.formLabelHint}>
-            (Fetch 시 자동 입력 (또는 Figma MCP get_design_context 결과 붙여넣기))
-          </span>
-          {formatBytes(byteSize) && (
-            <span className={styles.inputSizeBadge}>{formatBytes(byteSize)}</span>
+        <div className={styles.contextLabelRow}>
+          <label className={styles.formLabel}>
+            Context{' '}
+            <span className={styles.formLabelHint}>
+              (Fetch 시 자동 입력 (또는 Figma MCP get_design_context 결과 붙여넣기))
+            </span>
+            {formatBytes(byteSize) && (
+              <span className={styles.inputSizeBadge}>{formatBytes(byteSize)}</span>
+            )}
+          </label>
+          {mcpData.trim() && (
+            <button
+              className={styles.optimizeBtn}
+              onClick={handleOptimize}
+              type="button"
+            >
+              🗜 Optimize (data-* 속성 제거)
+            </button>
           )}
-        </label>
+        </div>
         <textarea
           className={styles.formTextarea}
           rows={6}
@@ -365,15 +383,6 @@ const InputPanel: React.FC = () => {
           value={mcpData}
           onChange={e => setMcpData(e.target.value)}
         />
-        {mcpData.trim() && (
-          <button
-            className={styles.optimizeBtn}
-            onClick={handleOptimize}
-            type="button"
-          >
-            🗜 Optimize (data-* 속성 제거)
-          </button>
-        )}
       </div>
 
       <div className={styles.formCol}>
@@ -422,6 +431,24 @@ const InputPanel: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {debugLog && (
+        <div className={styles.debugLogWrap}>
+          <div className={styles.debugLogHeader}>
+            <span className={styles.debugLogTitle}>Debug Log</span>
+            <button className={styles.debugLogClear} onClick={() => setDebugLog('')} type="button">
+              Clear
+            </button>
+          </div>
+          <textarea
+            ref={logRef}
+            className={styles.debugLogArea}
+            readOnly
+            value={debugLog}
+            rows={8}
+          />
+        </div>
+      )}
 
     </div>
   );

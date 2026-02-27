@@ -1,17 +1,19 @@
 import { atom } from 'jotai';
 
-export type GeminiModel =
-  | 'gemini-2.5-pro'
-  | 'gemini-2.5-flash'
-  | 'gemini-2.5-flash-lite'
-  | 'gemini-2.0-flash';
+// 동적 로딩을 지원하기 위해 string으로 변경
+export type GeminiModel = string;
 
-export const GEMINI_MODELS: { id: GeminiModel; label: string; tier: string }[] = [
-  { id: 'gemini-2.5-pro', label: 'gemini-2.5-pro', tier: '최고 성능 — 복잡한 추론·코딩' },
-  { id: 'gemini-2.5-flash', label: 'gemini-2.5-flash', tier: '기본값 — 속도·비용 균형' },
-  { id: 'gemini-2.5-flash-lite', label: 'gemini-2.5-flash-lite', tier: '저비용·저지연' },
-  { id: 'gemini-2.0-flash', label: 'gemini-2.0-flash', tier: '안정' },
+export interface GeminiModelEntry { id: string; label: string; tier: string }
+
+export const GEMINI_MODELS_DEFAULT: GeminiModelEntry[] = [
+  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', tier: '최고 성능 — 복잡한 추론·코딩' },
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', tier: '기본값 — 속도·비용 균형' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite', tier: '저비용·저지연' },
+  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', tier: '안정' },
 ];
+
+// 하위 호환 alias
+export const GEMINI_MODELS = GEMINI_MODELS_DEFAULT;
 
 export const DEFAULT_MODEL: GeminiModel = 'gemini-2.5-flash';
 
@@ -20,6 +22,9 @@ export const apiKeyAtom = atom<string>('');
 
 // 선택된 모델
 export const selectedModelAtom = atom<GeminiModel>(DEFAULT_MODEL);
+
+// 동적으로 가져온 모델 목록 (기본값은 하드코딩된 목록)
+export const geminiModelsAtom = atom<GeminiModelEntry[]>(GEMINI_MODELS_DEFAULT);
 
 // Figma MCP proxy server URL
 export const proxyServerUrlAtom = atom<string>('http://localhost:3006');

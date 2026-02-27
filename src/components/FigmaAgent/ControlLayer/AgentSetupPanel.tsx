@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { apiKeyAtom, selectedModelAtom, GEMINI_MODELS, modelInfoTextAtom } from '../atoms';
+import { apiKeyAtom, selectedModelAtom, geminiModelsAtom, modelInfoTextAtom } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -39,13 +39,63 @@ function formatModelInfo(info: GeminiModelInfo): string {
   return lines.join('\n');
 }
 
+interface GeminiModelsListResponse {
+  models?: Array<{
+    name: string;
+    displayName?: string;
+    description?: string;
+    supportedGenerationMethods?: string[];
+  }>;
+  error?: { message?: string; code?: number };
+}
+
 const AgentSetupPanel: React.FC = () => {
   const [apiKey, setApiKey] = useAtom(apiKeyAtom);
   const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
+  const [geminiModels, setGeminiModels] = useAtom(geminiModelsAtom);
+  const [stagedModel, setStagedModel] = useState(selectedModel);
   const [showKey, setShowKey] = useState(false);
   const [modelInfoText, setModelInfoText] = useAtom(modelInfoTextAtom);
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
+  const [isFetchingModels, setIsFetchingModels] = useState(false);
+  const [modelsError, setModelsError] = useState('');
   const [rememberKey, setRememberKey] = useState(false);
+
+  // selectedModel이 외부(fetchModels 등)에서 바뀔 때 staged도 동기화
+  useEffect(() => {
+    setStagedModel(selectedModel);
+  }, [selectedModel]);
+
+  const fetchModels = async (key: string) => {
+    if (!key) return;
+    setIsFetchingModels(true);
+    setModelsError('');
+    try {
+      const res = await fetch(`${GEMINI_API_BASE}/models?key=${key}&pageSize=100`);
+      const data = (await res.json()) as GeminiModelsListResponse;
+      if (!res.ok || data.error) {
+        setModelsError(`Error (${data.error?.code ?? res.status}): ${data.error?.message ?? res.statusText}`);
+      } else {
+        const filtered = (data.models ?? [])
+          .filter(m => (m.supportedGenerationMethods ?? []).includes('generateContent'))
+          .map(m => ({
+            id: m.name.replace('models/', ''),
+            label: m.displayName ?? m.name.replace('models/', ''),
+            tier: m.description ?? '',
+          }));
+        if (filtered.length > 0) {
+          setGeminiModels(filtered);
+          if (!filtered.some(m => m.id === selectedModel)) {
+            setSelectedModel(filtered[0].id);
+          }
+        }
+      }
+    } catch (e) {
+      setModelsError(`Network error: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setIsFetchingModels(false);
+    }
+  };
 
   // localStorage에서 복원 (Remember가 체크된 경우에만 저장되어 있음)
   useEffect(() => {
@@ -53,6 +103,7 @@ const AgentSetupPanel: React.FC = () => {
     if (saved) {
       setApiKey(saved);
       setRememberKey(true);
+      fetchModels(saved);
     }
   }, []);
 
@@ -84,7 +135,7 @@ const AgentSetupPanel: React.FC = () => {
     setModelInfoText('Loading...');
     try {
       const res = await fetch(
-        `${GEMINI_API_BASE}/models/${selectedModel}?key=${apiKey}`
+        `${GEMINI_API_BASE}/models/${stagedModel}?key=${apiKey}`
       );
       const data = (await res.json()) as GeminiModelInfo;
       if (!res.ok || data.error) {
@@ -159,16 +210,38 @@ const AgentSetupPanel: React.FC = () => {
         <label className={styles.formLabel}>Model</label>
         <select
           className={styles.formSelect}
-          value={selectedModel}
-          onChange={e => setSelectedModel(e.target.value as typeof selectedModel)}
+          value={stagedModel}
+          onChange={e => setStagedModel(e.target.value)}
         >
-          {GEMINI_MODELS.map(m => (
+          {geminiModels.map(m => (
             <option key={m.id} value={m.id}>
-              {m.label} — {m.tier}
+              {m.label}
             </option>
           ))}
         </select>
+        <button
+          className={styles.toggleBtn}
+          onClick={() => fetchModels(apiKey)}
+          disabled={!apiKey || isFetchingModels}
+          type="button"
+          title="API에서 모델 목록 갱신"
+        >
+          {isFetchingModels ? '...' : 'Refresh'}
+        </button>
+        <button
+          className={stagedModel !== selectedModel ? styles.fetchBtn : styles.toggleBtn}
+          onClick={() => setSelectedModel(stagedModel)}
+          disabled={stagedModel === selectedModel}
+          type="button"
+          title="선택한 모델을 MCP에 적용"
+        >
+          SET
+        </button>
       </div>
+      <div className={styles.activeModelHint}>
+        현재 적용: <strong>{selectedModel}</strong>
+      </div>
+      {modelsError && <div className={styles.errorText}>{modelsError}</div>}
 
       <div className={styles.modelInfoRow}>
         <button

@@ -2,18 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import helpContent from './content/help.md';
-import { useAtomValue, useAtom, Provider } from 'jotai';
+import { useAtomValue, Provider } from 'jotai';
 import styles from './App.module.scss';
 import FigmaAgent from './components/FigmaAgent';
 import AgentSetupPanel from './components/FigmaAgent/ControlLayer/AgentSetupPanel';
-import { generateStatusAtom, generatedHtmlAtom, debugLogAtom } from './components/FigmaAgent/atoms';
+import { generateStatusAtom, generatedHtmlAtom } from './components/FigmaAgent/atoms';
 import { sharedStore } from './shared/store';
 import pkg from '../package.json';
 const { version } = pkg;
 
-type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'LOG' | 'HELP';
+type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
-const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'LOG', 'HELP'];
+const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
 
 const PanelLeftIcon: React.FC = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,33 +29,6 @@ const PanelRightIcon: React.FC = () => (
   </svg>
 );
 
-const LogPage: React.FC = () => {
-  const [debugLog, setDebugLog] = useAtom(debugLogAtom, { store: sharedStore });
-  const logRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [debugLog]);
-
-  return (
-    <div className={styles.logPage}>
-      <div className={styles.logHeader}>
-        <span className={styles.logTitle}>Debug Log</span>
-        <button className={styles.logClear} onClick={() => setDebugLog('')} type="button">
-          Clear
-        </button>
-      </div>
-      <textarea
-        ref={logRef}
-        className={styles.logArea}
-        readOnly
-        value={debugLog || '— Submit 버튼을 누르면 로그가 표시됩니다 —'}
-      />
-    </div>
-  );
-};
 
 const HelpPage: React.FC = () => (
   <div className={styles.helpPage}>
@@ -264,7 +237,7 @@ const FigmaLabApp: React.FC = () => {
           {activeTab === 'AGENT' && <Provider store={sharedStore}><AgentSetupPanel /></Provider>}
           {activeTab === 'MCP' && <FigmaAgent store={sharedStore} />}
           {activeTab === 'VIEW' && <ViewPage html={viewHtml} />}
-          {activeTab === 'LOG' && <LogPage />}
+
           {activeTab === 'HELP' && <HelpPage />}
         </div>
 
