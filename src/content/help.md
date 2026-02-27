@@ -49,13 +49,11 @@ Figma 연동 또는 직접 붙여넣기, 두 가지 방법이 있습니다.
 
 ## 탭 안내
 
-| 탭 | 역할 |
-|---|---|
-| **AGENT** | Gemini API Key, 모델 선택, API 키 저장 설정 |
-| **MCP** | Figma 연동, Design Context 입력, 생성 요청 |
-| **VIEW** | 생성된 HTML 미리보기 및 소스 다운로드 |
-| **LOG** | 요청/응답 상세 디버그 로그 |
-| **HELP** | 이 페이지 |
+- **AGENT** — Gemini API Key, 모델 선택, API 키 저장 설정
+- **MCP** — Figma 연동, Design Context 입력, 생성 요청
+- **VIEW** — 생성된 HTML 미리보기 및 소스 다운로드
+- **LOG** — 요청/응답 상세 디버그 로그
+- **HELP** — 이 페이지
 
 ---
 
