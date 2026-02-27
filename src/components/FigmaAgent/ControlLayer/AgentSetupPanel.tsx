@@ -50,6 +50,9 @@ interface GeminiModelsListResponse {
   error?: { message?: string; code?: number };
 }
 
+/**
+ * API Key 초기화, Model 선택 여부, 로컬 암호화 저장을 설정하는 Panel.
+ */
 const AgentSetupPanel: React.FC = () => {
   const [apiKey, setApiKey] = useAtom(apiKeyAtom);
   const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
@@ -69,7 +72,7 @@ const AgentSetupPanel: React.FC = () => {
 
   const [unlockError, setUnlockError] = useState('');
 
-  // selectedModel이 외부(fetchModels 등)에서 바뀔 때 staged도 동기화
+  // selectedModel이 외부(Fetch 작업 등)에서 변경될 경우, 내부 Staged 상태와 동기화
   useEffect(() => {
     setStagedModel(selectedModel);
   }, [selectedModel]);
@@ -109,7 +112,7 @@ const AgentSetupPanel: React.FC = () => {
     }
   };
 
-  // Initial load: check localStorage for encrypted key (only once per session when lock atom is uninitialized)
+  // Component Mount 시 LocalStorage 암호화 Key 검사 (세션당 1회 실행)
   useEffect(() => {
     // 이미 언락했거나(key가 있거나) 체크했으면 스킵
     if (apiKey || savedEncryptedKey) return;
@@ -120,7 +123,7 @@ const AgentSetupPanel: React.FC = () => {
       setIsLocked(true);
       setRememberKey(true);
     } else {
-      // Backward compatibility: try to recover if there was a plain session key previously.
+      // 하위 호환성 유지: 기존 일반 Text 형태의 SessionStorage 조회 복원
       const sessionKey = sessionStorage.getItem('figma_agent_api_key');
       if (sessionKey) {
         setApiKey(sessionKey);
@@ -129,7 +132,7 @@ const AgentSetupPanel: React.FC = () => {
     }
   }, []);
 
-  // Encrypt and save when conditions are met
+  // 조건 충족 시 API Key를 암호화하여 로컬에 보관
   useEffect(() => {
     // 잠겨있는 상태(Unlock 화면)일 때는 저장 로직이 돌면 안 됨!
     if (isLocked) return;
@@ -144,10 +147,10 @@ const AgentSetupPanel: React.FC = () => {
             const bytes = CryptoJS.AES.decrypt(savedEncryptedKey, pin);
             const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
             if (decryptedKey === apiKey) {
-              needsSave = false; // 이미 동일한 값이 저장되어 있으므로 skip
+              needsSave = false; // 암호화된 값이 동일할 경우 새로 쓰지 않음
             }
           } catch (e) {
-            // 복호화 실패(예: PIN 변경 등) 시 새로 덮어씀
+            // 복호화 실패 시 (e.g. PIN 변경) 새로 암호화하여 덮어씀
           }
         }
 
@@ -160,7 +163,7 @@ const AgentSetupPanel: React.FC = () => {
         console.error('Encryption failed', e);
       }
     } else if (!rememberKey && savedEncryptedKey) {
-      // rememberKey를 해제했을 경우에만 삭제
+      // rememberKey 토글 해제 시 보관된 암호화 정보 제거
       localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
       setSavedEncryptedKey('');
     }

@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-// 동적 로딩을 지원하기 위해 string으로 변경
+// Dynamic loading을 지원하기 위해 string 타입으로 정의
 export type GeminiModel = string;
 
 export interface GeminiModelEntry { id: string; label: string; tier: string }
@@ -12,18 +12,18 @@ export const GEMINI_MODELS_DEFAULT: GeminiModelEntry[] = [
   { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', tier: '안정' },
 ];
 
-// 하위 호환 alias
+// 하위 호환을 위한 Alias
 export const GEMINI_MODELS = GEMINI_MODELS_DEFAULT;
 
 export const DEFAULT_MODEL: GeminiModel = 'gemini-2.5-flash';
 
-// API 키 — 로컬스토리지 암호화 보관 처리 (AgentSetupPanel.tsx 에서 담당)
+// API Key — AgentSetupPanel.tsx에서 LocalStorage 암호화 보관 담당
 export const apiKeyAtom = atom<string>('');
 
-// 선택된 모델
+// 현재 선택된 Model
 export const selectedModelAtom = atom<GeminiModel>(DEFAULT_MODEL);
 
-// 동적으로 가져온 모델 목록 (기본값은 하드코딩된 목록)
+// 동적으로 Fetch한 Model 리스트 (초기값은 하드코딩된 리스트)
 export const geminiModelsAtom = atom<GeminiModelEntry[]>(GEMINI_MODELS_DEFAULT);
 
 // Figma MCP proxy server URL
@@ -32,38 +32,38 @@ export const proxyServerUrlAtom = atom<string>('http://localhost:3006');
 // Figma Desktop App MCP server URL
 export const figmaMcpServerUrlAtom = atom<string>('http://localhost:3845');
 
-// Figma MCP Node ID
+// Figma Target Node ID
 export const figmaNodeIdAtom = atom<string>('');
 
-// Figma MCP 연결 상태
+// Figma MCP Connection 상태
 export const figmaConnectedAtom = atom<boolean>(false);
 
 // MCP 데이터 입력
 export const mcpDataAtom = atom<string>('');
 
-// 추가 프롬프트
+// 추가 Prompt 설정
 export const promptAtom = atom<string>('');
 
-// 생성 상태
+// Generation (생성) 상태
 export type GenerateStatus = 'idle' | 'loading' | 'success' | 'error';
 export const generateStatusAtom = atom<GenerateStatus>('idle');
 export const generateErrorAtom = atom<string>('');
 
-// 생성된 HTML
+// 생성된 원본 HTML
 export const generatedHtmlAtom = atom<string>('');
 export const rawResponseAtom = atom<string>('');
 
-// 소스 코드 패널 표시 여부
+// Source 패널 UI 노출 여부
 export const showSourceAtom = atom<boolean>(false);
 
-// Debug log
+// Debug 로그 데이터
 export const debugLogAtom = atom<string>('');
 
-// 스크린샷 (base64 data + mimeType)
+// 화면 캡처 이미지 (Base64 data + MimeType)
 export const screenshotAtom = atom<string>('');
 export const screenshotMimeTypeAtom = atom<string>('image/png');
 
-// Model Info 조회 결과
+// Model 정보 조회 텍스트
 export const modelInfoTextAtom = atom<string>('');
 
 // ... add imports for the lock state atoms

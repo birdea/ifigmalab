@@ -17,19 +17,23 @@ const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
 
 const PanelLeftIcon: React.FC = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
-    <line x1="6.5" y1="1.5" x2="6.5" y2="16.5" stroke="currentColor" strokeWidth="1.5"/>
+    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
+    <line x1="6.5" y1="1.5" x2="6.5" y2="16.5" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 );
 
 const PanelRightIcon: React.FC = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
-    <line x1="11.5" y1="1.5" x2="11.5" y2="16.5" stroke="currentColor" strokeWidth="1.5"/>
+    <rect x="1.5" y="1.5" width="15" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
+    <line x1="11.5" y1="1.5" x2="11.5" y2="16.5" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 );
 
 
+/**
+ * 도움말 화면을 렌더링하는 Component.
+ * Markdown 형태의 도움말 콘텐츠를 파싱하여 출력합니다.
+ */
 const HelpPage: React.FC = () => (
   <div className={styles.helpPage}>
     <div className={styles.helpMarkdown}>
@@ -47,6 +51,11 @@ const HelpPage: React.FC = () => (
   </div>
 );
 
+/**
+ * AI가 생성한 HTML 코드를 렌더링하여 미리보여주는 View Component.
+ * iframe 내부에 HTML 구조를 삽입하여 독립적인 렌더링 환경을 제공합니다.
+ * @param {string} html - 생성된 원본 HTML 문자열
+ */
 const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -85,6 +94,10 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   );
 };
 
+/**
+ * 어플리케이션의 메인 레이아웃 및 탭 구성을 관리하는 최상단 Component.
+ * 왼쪽/오른쪽 패널의 Resizing 기능 및 Toast 알림 기능을 포함합니다.
+ */
 const FigmaLabApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('MCP');
   const [leftOpen, setLeftOpen] = useState(false);
@@ -132,6 +145,7 @@ const FigmaLabApp: React.FC = () => {
     };
   }, []);
 
+  // 왼쪽 패널 크기 조절 시작(Drag Start)
   const handleLeftResizerMouseDown = (e: React.MouseEvent) => {
     leftDragStart.current = { x: e.clientX, width: leftWidth };
     setIsResizingLeft(true);
@@ -140,6 +154,7 @@ const FigmaLabApp: React.FC = () => {
     e.preventDefault();
   };
 
+  // 오른쪽 패널 크기 조절 시작(Drag Start)
   const handleRightResizerMouseDown = (e: React.MouseEvent) => {
     rightDragStart.current = { x: e.clientX, width: rightWidth };
     setIsResizingRight(true);
@@ -152,6 +167,7 @@ const FigmaLabApp: React.FC = () => {
   const generatedHtml = useAtomValue(generatedHtmlAtom, { store: sharedStore });
   const prevStatus = useRef(generateStatus);
 
+  // 생성 상태(generation status) 변경 감지 시 Toast 출력 및 VIEW 탭 갱신
   useEffect(() => {
     if (prevStatus.current !== 'success' && generateStatus === 'success' && generatedHtml) {
       setViewHtml(generatedHtml);

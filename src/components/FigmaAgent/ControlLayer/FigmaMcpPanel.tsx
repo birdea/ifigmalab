@@ -5,11 +5,10 @@ import styles from '../FigmaAgent.module.scss';
 
 const POLL_INTERVAL = 10_000;
 
-/** Figma URL 또는 raw node-id를 Figma 형식(콜론 구분)으로 정규화한다.
- *  - 텍스트 어느 위치에 있어도 Figma URL을 찾아 node-id 추출
- *  - "Implement this design from Figma.\n@https://...?node-id=22041-216444" → "22041:216444"
- *  - "1234-5678" → "1234:5678"
- *  - "1234:5678" → 그대로
+/** 
+ * Figma URL 또는 Node ID 파라미터를 입력받아 Figma MCP 처리 형태(콜론 구분)로 정규화합니다.
+ * @param {string} raw - 사용자가 입력한 URL 형태의 문자열 또는 Node ID 포맷값
+ * @returns {string | null} 정규화된 Node ID 또는 포맷 에러 시 null 반환
  */
 function parseNodeId(raw: string): string | null {
   // 1) 텍스트 전체에서 Figma URL을 검색 (@ 접두사 포함 여부 무관, 멀티라인 대응)
@@ -41,6 +40,9 @@ function parseNodeId(raw: string): string | null {
   return null;
 }
 
+/**
+ * Figma MCP와의 통신 환경 설정을 관리하고, Figma 디자인 요소에서 상태를 가져오는 패널.
+ */
 const FigmaMcpPanel: React.FC = () => {
   const [nodeId, setNodeId] = useAtom(figmaNodeIdAtom);
   const [connected, setConnected] = useAtom(figmaConnectedAtom);
@@ -72,6 +74,7 @@ const FigmaMcpPanel: React.FC = () => {
     };
   }, [proxyServerUrl]);
 
+  /** Proxy Server와 연계하여 Figma Node 정보를 Fetch 하여 로컬 상태에 주입합니다. */
   const handleFetch = async () => {
     if (!nodeId.trim()) {
       setFetchError('Node ID 또는 Figma URL을 입력해주세요.');
@@ -107,6 +110,7 @@ const FigmaMcpPanel: React.FC = () => {
     }
   };
 
+  /** Proxy Server와 연계하여 대상 Figma Node 영역의 Screenshot을 Fetch 해옵니다. */
   const handleFetchScreenshot = async () => {
     if (!nodeId.trim()) {
       setFetchError('Node ID 또는 Figma URL을 입력해주세요.');

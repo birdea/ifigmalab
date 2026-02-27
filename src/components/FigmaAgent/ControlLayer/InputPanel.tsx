@@ -23,6 +23,10 @@ import {
   GeminiResponse
 } from '../utils';
 
+/**
+ * 사용자의 추가 Prompt와 Figma MCP 데이터를 모아 Gemini API로 전송하는 입력 패널 Component.
+ * Token 수 계산 및 생성 요청(Validation 포함) 로직을 관리합니다.
+ */
 const InputPanel: React.FC = () => {
   const [mcpData, setMcpData] = useAtom(mcpDataAtom);
   const [prompt, setPrompt] = useAtom(promptAtom);
@@ -63,7 +67,10 @@ const InputPanel: React.FC = () => {
     setDebugLog(prev => prev + `[${ts}] ${line}\n`);
   };
 
-  /** generateContent / countTokens 양쪽에서 사용하는 parts 빌더 */
+  /** 
+   * Token 계산과 Content 생성 양측에서 사용하는 공통 Prompt Parts 빌더.
+   * Screenshot, Design Data, User Prompt를 포함합니다.
+   */
   const buildPromptParts = (): GeminiPart[] => {
     const parts: GeminiPart[] = [];
     if (screenshot) {
@@ -79,6 +86,7 @@ const InputPanel: React.FC = () => {
     return parts;
   };
 
+  /** Token 카운트 API를 호출하여 입력 데이터 크기를 미리 산출합니다. */
   const handleCountTokens = async () => {
     if (!apiKey || (!mcpData.trim() && !prompt.trim())) return;
     setIsCountingTokens(true);
@@ -111,6 +119,7 @@ const InputPanel: React.FC = () => {
     }
   };
 
+  /** Gemini API를 호출하여 코드를 생성합니다. */
   const handleSubmit = async () => {
     const bar = '─'.repeat(40);
 
@@ -145,7 +154,7 @@ const InputPanel: React.FC = () => {
     setGeneratedHtml('');
     setRawResponse('');
 
-    // ── Build prompt parts ────────────────────────────────────
+    // --- Prompt Parts 구성 ---
     const enc = new TextEncoder();
     const parts = buildPromptParts();
 
@@ -164,7 +173,7 @@ const InputPanel: React.FC = () => {
     const screenshotBytes = screenshot ? enc.encode(screenshot).length : 0;
     const estimatedTokens = Math.round(promptBytes / 4);
 
-    // ── Request ───────────────────────────────────────────────
+    // --- API Request 구성 ---
     const endpoint = `${GEMINI_API_BASE}/models/${model}:generateContent`;
     const requestBody = {
       contents: [{ role: 'user', parts }],
@@ -224,7 +233,7 @@ const InputPanel: React.FC = () => {
         throw new Error(errMsg);
       }
 
-      // ── Parse Gemini response ─────────────────────────────
+      // --- Response Data 파싱 및 결과 추출 ---
       appendLog(`├${bar}`);
       appendLog(`│ [RESPONSE] candidates      : ${data.candidates?.length ?? 0}개`);
 

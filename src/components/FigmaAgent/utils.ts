@@ -1,6 +1,9 @@
-/** Gemini 응답 텍스트에서 HTML 추출 (마크다운 코드블록 제거) */
+/** 
+ * Gemini 응답 텍스트에서 순수 HTML 블록을 추출합니다.
+ * 마크다운 코드 블록 양식이 존재할 경우 이를 제거합니다.
+ */
 export function extractHtml(raw: string): string {
-    // ```html ... ``` 또는 ``` ... ``` 블록 추출
+    // ```html ... ``` 블록 파싱
     const fenced = raw.match(/```(?:html)?\s*\n?([\s\S]*?)```/);
     if (fenced) return fenced[1].trim();
     // 이미 HTML 태그로 시작하면 그대로 반환
@@ -9,7 +12,9 @@ export function extractHtml(raw: string): string {
     return trimmed;
 }
 
-/** data-node-id, data-name 등 data-* 속성 제거 + 연속 공백 줄 정리 */
+/** 
+ * MCP Data에서 불필요한 Figma 내부 data-* 속성을 제거하고 공백을 압축합니다.
+ */
 export function preprocessMcpData(raw: string): string {
     let result = raw
         .replace(/\s+data-node-id="[^"]*"/g, '')
