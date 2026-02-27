@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
@@ -56,6 +57,11 @@ module.exports = (env, argv) => {
       ]
     },
     plugins: [
+      new webpack.DefinePlugin({
+        'process.env.PROXY_URL': JSON.stringify(process.env.PROXY_URL || 'http://localhost:3006'),
+        'process.env.FIGMA_MCP_URL': JSON.stringify(process.env.FIGMA_MCP_URL || 'http://localhost:3845'),
+        'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
+      }),
       new ModuleFederationPlugin({
         name: 'figmalab',
         filename: 'remoteEntry.js',
