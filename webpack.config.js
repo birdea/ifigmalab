@@ -55,10 +55,10 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new ModuleFederationPlugin({
-        name: 'figmalab_app',
+        name: 'figmalab',
         filename: 'remoteEntry.js',
         exposes: {
-          './FigmaLabApp': './src/App'
+          './FigmaLab': './src/App'
         },
         shared: {
           react: { singleton: true, requiredVersion: '^19.0.0' },
