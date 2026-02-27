@@ -58,7 +58,7 @@ module.exports = (env, argv) => {
         name: 'figmalab',
         filename: 'remoteEntry.js',
         exposes: {
-          './FigmaLab': './src/App'
+          './FigmaLabApp': './src/App'
         },
         shared: {
           react: { singleton: true, requiredVersion: '^19.0.0' },
