@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { useAtom } from 'jotai';
 import { figmaNodeIdAtom, figmaConnectedAtom, mcpDataAtom, screenshotAtom, screenshotMimeTypeAtom, proxyServerUrlAtom, figmaMcpServerUrlAtom } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
@@ -52,6 +54,7 @@ function isConnectionStatus(v: unknown): v is ConnectionStatus {
  * Figma MCP와의 통신 환경 설정을 관리하고, Figma 디자인 요소에서 상태를 가져오는 패널.
  */
 const FigmaMcpPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [nodeId, setNodeId] = useAtom(figmaNodeIdAtom);
   const [connected, setConnected] = useAtom(figmaConnectedAtom);
   const [, setMcpData] = useAtom(mcpDataAtom);
@@ -59,14 +62,17 @@ const FigmaMcpPanel: React.FC = () => {
   const [screenshotMimeType, setScreenshotMimeType] = useAtom(screenshotMimeTypeAtom);
   const [proxyServerUrl] = useAtom(proxyServerUrlAtom);
   const [figmaMcpServerUrl, setFigmaMcpServerUrl] = useAtom(figmaMcpServerUrlAtom);
-  const [fetching, setFetching] = React.useState(false);
-  const [fetchingScreenshot, setFetchingScreenshot] = React.useState(false);
-  const [fetchError, setFetchError] = React.useState('');
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [fetching, setFetching] = useState(false);
+  const [fetchingScreenshot, setFetchingScreenshot] = useState(false);
+  const [fetchError, setFetchError] = useState('');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isVisibleRef = useRef(true);
 
-  const resolvedNodeId = React.useMemo(() => parseNodeId(nodeId), [nodeId]);
 
-  const checkStatus = React.useCallback(async () => {
+  const resolvedNodeId = useMemo(() => parseNodeId(nodeId), [nodeId]);
+
+
+  const checkStatus = useCallback(async () => {
     try {
       const res = await fetch(`${proxyServerUrl}/api/figma/status`);
       const data = await res.json();
@@ -84,38 +90,56 @@ const FigmaMcpPanel: React.FC = () => {
     }
   }, [proxyServerUrl, setConnected]);
 
+
   useEffect(() => {
     let active = true;
     let delay = POLL_INTERVAL;
 
     const poll = async () => {
       if (!active) return;
-      const ok = await checkStatus();
-      if (!active) return;
-      delay = ok ? POLL_INTERVAL : Math.min(delay * 2, 60000);
+
+      // Pause if tab is not visible
+      if (isVisibleRef.current) {
+        const ok = await checkStatus();
+        if (!active) return;
+        delay = ok ? POLL_INTERVAL : Math.min(delay * 2, 60000);
+      }
+
       timerRef.current = setTimeout(poll, delay);
     };
 
+    const handleVisibilityChange = () => {
+      isVisibleRef.current = document.visibilityState === 'visible';
+      if (isVisibleRef.current && active) {
+        // Resume polling quickly if visible
+        if (timerRef.current) clearTimeout(timerRef.current);
+        poll();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     poll();
 
     return () => {
       active = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [checkStatus]);
 
-  const fetchFigmaData = React.useCallback(async <T,>(
+
+  const fetchFigmaData = useCallback(async <T,>(
     endpoint: string,
     setFetchingState: (val: boolean) => void,
     onSuccess: (json: T) => void
   ) => {
     if (!nodeId.trim()) {
-      setFetchError('Node ID 또는 Figma URL을 입력해주세요.');
+      setFetchError(t('mcp.error_node_id_required'));
       return;
     }
 
     if (!resolvedNodeId) {
-      setFetchError('올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요.');
+      setFetchError(t('mcp.error_node_id_invalid'));
       return;
     }
 
@@ -140,17 +164,19 @@ const FigmaMcpPanel: React.FC = () => {
     } finally {
       setFetchingState(false);
     }
-  }, [nodeId, resolvedNodeId, proxyServerUrl, figmaMcpServerUrl, setNodeId]);
+  }, [nodeId, resolvedNodeId, proxyServerUrl, figmaMcpServerUrl, setNodeId, t]);
+
 
   /** Proxy Server와 연계하여 Figma Node 정보를 Fetch 하여 로컬 상태에 주입합니다. */
-  const handleFetch = React.useCallback(() => fetchFigmaData<{ data?: string }>(
+  const handleFetch = useCallback(() => fetchFigmaData<{ data?: string }>(
     'fetch-context',
     setFetching,
     (json) => setMcpData(json.data ?? '')
   ), [fetchFigmaData, setFetching, setMcpData]);
 
+
   /** Proxy Server와 연계하여 대상 Figma Node 영역의 Screenshot을 Fetch 해옵니다. */
-  const handleFetchScreenshot = React.useCallback(() => fetchFigmaData<{ data?: string, mimeType?: string }>(
+  const handleFetchScreenshot = useCallback(() => fetchFigmaData<{ data?: string, mimeType?: string }>(
     'fetch-screenshot',
     setFetchingScreenshot,
     (json) => {
@@ -159,12 +185,13 @@ const FigmaMcpPanel: React.FC = () => {
     }
   ), [fetchFigmaData, setFetchingScreenshot, setScreenshot, setScreenshotMimeType]);
 
+
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle}>Figma MCP 연동</div>
+      <div className={styles.panelTitle}>{t('mcp.title')}</div>
 
       <div className={styles.formRow}>
-        <label className={styles.formLabel}>Server URL</label>
+        <label className={styles.formLabel}>{t('mcp.server_url')}</label>
         <div className={styles.inputWithBtn}>
           <input
             className={styles.formInput}
@@ -178,21 +205,22 @@ const FigmaMcpPanel: React.FC = () => {
             onClick={checkStatus}
             type="button"
           >
-            적용
+            {t('mcp.apply')}
           </button>
           <span className={connected ? styles.statusConnected : styles.statusDisconnected}>
-            {connected ? '(●) : 연결됨' : '(○) : 연결 안 됨'}
+            {connected ? `(●) : ${t('mcp.connected')}` : `(○) : ${t('mcp.disconnected')}`}
           </span>
         </div>
       </div>
 
+
       <div className={styles.formRow}>
-        <label className={styles.formLabel}>Node ID</label>
+        <label className={styles.formLabel}>{t('mcp.node_id')}</label>
         <div className={styles.inputWithBtn}>
           <input
             className={styles.formInput}
             type="text"
-            placeholder="22041:218191  또는  https://www.figma.com/design/...?node-id=22041-218191"
+            placeholder={t('mcp.node_id_placeholder')}
             value={nodeId}
             onChange={e => setNodeId(e.target.value)}
           />
@@ -202,7 +230,7 @@ const FigmaMcpPanel: React.FC = () => {
             disabled={fetching || fetchingScreenshot}
             type="button"
           >
-            {fetching ? '가져오는 중...' : '데이터 가져오기'}
+            {fetching ? t('mcp.fetching') : t('mcp.fetch_data')}
           </button>
           <button
             className={styles.fetchScreenshotBtn}
@@ -210,24 +238,26 @@ const FigmaMcpPanel: React.FC = () => {
             disabled={fetching || fetchingScreenshot || !connected || !resolvedNodeId}
             type="button"
           >
-            {fetchingScreenshot ? '캡처 중...' : '📸 스크린샷'}
+            {fetchingScreenshot ? t('mcp.capturing') : `📸 ${t('mcp.screenshot')}`}
           </button>
         </div>
         {fetchError && <span className={styles.errorText}>{fetchError}</span>}
       </div>
 
+
       {screenshot && (
         <div className={styles.screenshotPreview}>
           <div className={styles.screenshotHeader}>
-            <span className={styles.screenshotLabel}>📸 스크린샷 (AI 입력용)</span>
+            <span className={styles.screenshotLabel}>📸 {t('mcp.screenshot_label')}</span>
             <button
               className={styles.screenshotClear}
               onClick={() => setScreenshot('')}
               type="button"
             >
-              ✕ 제거
+              ✕ {t('mcp.remove')}
             </button>
           </div>
+
           <img
             className={styles.screenshotThumb}
             src={`data:${screenshotMimeType};base64,${screenshot}`}

@@ -193,4 +193,37 @@ describe('FigmaMcpPanel', () => {
             expect(screen.getByText('Screenshot generation failed limit reached')).toBeInTheDocument();
         });
     });
+
+    it('pauses polling when tab is hidden and resumes when visible', async () => {
+        jest.useFakeTimers();
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: true,
+            json: async () => ({ connected: true }),
+        });
+
+        renderComponent();
+
+        // Initial poll happens on mount
+        await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+        const callCountAfterMount = (global.fetch as jest.Mock).mock.calls.length;
+
+        // Hide tab
+        Object.defineProperty(document, 'visibilityState', { value: 'hidden', writable: true, configurable: true });
+        fireEvent(document, new Event('visibilitychange'));
+
+        // Advance timers - should NOT call fetch while hidden
+        jest.advanceTimersByTime(20000);
+        expect((global.fetch as jest.Mock).mock.calls.length).toBe(callCountAfterMount);
+
+        // Show tab
+        Object.defineProperty(document, 'visibilityState', { value: 'visible', writable: true, configurable: true });
+        fireEvent(document, new Event('visibilitychange'));
+
+        // Should resume polling
+        jest.advanceTimersByTime(0);
+        await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.length).toBeGreaterThan(callCountAfterMount));
+
+        jest.useRealTimers();
+    });
 });
+

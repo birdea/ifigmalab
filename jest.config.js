@@ -4,6 +4,8 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
+  testPathIgnorePatterns: ['<rootDir>/e2e/'],
+
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {

@@ -1,0 +1,91 @@
+{
+    "tabs": {
+        "agent": "에이전트",
+        "mcp": "MCP 연동",
+        "view": "미리보기",
+        "help": "도움말"
+    },
+    "view": {
+        "placeholder": "미리보기 (VIEW)",
+        "title": "Generated Preview"
+    },
+    "toast": {
+        "success": "결과가 VIEW 페이지에 반영되었습니다",
+        "go_to_view": "미리보기(VIEW)로 이동",
+        "close": "닫기"
+    },
+    "setup": {
+        "title": "AI 에이전트 설정",
+        "api_token": "Gemini API Token",
+        "show": "보기",
+        "hide": "숨기기",
+        "rememberKey": "로컬에 암호화하여 저장",
+        "pin": "암호화 PIN",
+        "pin_placeholder": "4자리 이상 PIN 입력",
+        "pin_required": "4자리 이상 필요",
+        "saved": "자동 저장됨",
+        "reset_pin": "PIN 변경 시 초기화",
+        "locked_hint": "🔒 암호화된 API 키가 저장되어 있습니다.\nPIN을 입력해 안전하게 잠금 해제하세요.",
+        "pin_input_placeholder": "PIN 번호 입력",
+        "unlock": "잠금 해제",
+        "clear": "초기화",
+        "model": "모델 (Model)",
+        "refresh": "새로고침",
+        "apply": "설정",
+        "active_model": "현재 적용: ",
+        "get_info": "모델 정보 조회",
+        "fetching_info": "조회 중...",
+        "refresh_hint": "API에서 모델 목록 갱신",
+        "apply_hint": "선택한 모델을 MCP에 적용"
+    },
+    "mcp": {
+        "title": "Figma MCP 연동",
+        "server_url": "Server URL",
+        "node_id": "Node ID",
+        "node_id_placeholder": "22041:218191 또는 Figma URL",
+        "apply": "적용",
+        "connected": "연결됨",
+        "disconnected": "연결 안 됨",
+        "fetch_data": "데이터 가져오기",
+        "fetching": "가져오는 중...",
+        "screenshot": "스크린샷",
+        "capturing": "캡처 중...",
+        "screenshot_label": "스크린샷 (AI 입력용)",
+        "remove": "제거",
+        "error_node_id_required": "Node ID 또는 Figma URL을 입력해주세요.",
+        "error_node_id_invalid": "올바른 Node ID(예: 22041:218191) 또는 Figma URL을 입력해주세요."
+    },
+    "input": {
+        "title": "디자인 프롬프트",
+        "context": "컨텍스트 (Context)",
+        "context_hint": "(Fetch 시 자동 입력 (또는 Figma MCP get_design_context 결과 붙여넣기))",
+        "optimize": "최적화",
+        "optimize_label": "데이터 사이즈 최적화 (data-* 속성 제거)",
+        "prompt": "프롬프트 (Prompt)",
+        "prompt_placeholder": "위 디자인을 그대로 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘. (추가 지시사항 입력)",
+        "api_key_ok": "API 키",
+        "api_key_ng": "API 키 없음",
+        "content_ok": "컨텐츠",
+        "content_ng": "컨텐츠 없음",
+        "tokens": "토큰",
+        "ready": "준비 완료",
+        "count_tokens": "토큰 계산",
+        "counting": "토큰 계산 중...",
+        "submit": "생성 요청 ▶",
+        "submitting": "생성 중...",
+        "debug_log": "디버그 로그",
+        "clear_log": "지우기",
+        "clear_log_label": "로그 지우기",
+        "optimize_log": "🗜 데이터 최적화: {{before}} → {{after}} ({{percent}}% 감소)"
+    },
+    "errors": {
+        "invalid_pin": "PIN 번호가 일치하지 않습니다.",
+        "api_key_required": "Gemini API Token을 먼저 입력해주세요.",
+        "content_required": "MCP 데이터 또는 프롬프트를 입력해주세요.",
+        "json_parse_failed": "응답 파싱 오류: ",
+        "invalid_response": "Invalid Gemini API response format"
+    },
+    "common": {
+        "todo": "(todo)"
+    }
+}

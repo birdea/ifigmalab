@@ -1,0 +1,91 @@
+{
+    "tabs": {
+        "agent": "Agent",
+        "mcp": "MCP Integration",
+        "view": "Preview",
+        "help": "Help"
+    },
+    "view": {
+        "placeholder": "Preview (VIEW)",
+        "title": "Generated Preview"
+    },
+    "toast": {
+        "success": "Result reflected in VIEW page",
+        "go_to_view": "Go to VIEW",
+        "close": "Close"
+    },
+    "setup": {
+        "title": "AI Agent Setup",
+        "api_token": "Gemini API Token",
+        "show": "Show",
+        "hide": "Hide",
+        "rememberKey": "Encrypt and save locally",
+        "pin": "Encryption PIN",
+        "pin_placeholder": "Enter PIN (min 4 chars)",
+        "pin_required": "Min 4 characters required",
+        "saved": "Auto-saved",
+        "reset_pin": "Reset on PIN change",
+        "locked_hint": "🔒 Encrypted API key stored.\nEnter PIN to unlock securely.",
+        "pin_input_placeholder": "Enter PIN",
+        "unlock": "Unlock",
+        "clear": "Reset",
+        "model": "Model",
+        "refresh": "Refresh",
+        "apply": "Apply",
+        "active_model": "Currently active: ",
+        "get_info": "Get Model Info",
+        "fetching_info": "Fetching...",
+        "refresh_hint": "Refresh model list from API",
+        "apply_hint": "Apply selected model to MCP"
+    },
+    "mcp": {
+        "title": "Figma MCP Integration",
+        "server_url": "Server URL",
+        "node_id": "Node ID",
+        "node_id_placeholder": "22041:218191 or Figma URL",
+        "apply": "Apply",
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "fetch_data": "Fetch Data",
+        "fetching": "Fetching...",
+        "screenshot": "Screenshot",
+        "capturing": "Capturing...",
+        "screenshot_label": "Screenshot (for AI input)",
+        "remove": "Remove",
+        "error_node_id_required": "Please enter Node ID or Figma URL.",
+        "error_node_id_invalid": "Please enter valid Node ID or Figma URL."
+    },
+    "input": {
+        "title": "Design Prompt",
+        "context": "Context",
+        "context_hint": "(Auto-filled on fetch or paste Figma MCP result)",
+        "optimize": "Optimize",
+        "optimize_label": "Optimize data size (remove data-* attributes)",
+        "prompt": "Prompt",
+        "prompt_placeholder": "Implement the design above in HTML. Keep styles as similar as possible. (Extra instructions)",
+        "api_key_ok": "API Key",
+        "api_key_ng": "No API Key",
+        "content_ok": "Content",
+        "content_ng": "No Content",
+        "tokens": "tokens",
+        "ready": "Ready",
+        "count_tokens": "Count Tokens",
+        "counting": "Counting...",
+        "submit": "Generate ▶",
+        "submitting": "Generating...",
+        "debug_log": "Debug Log",
+        "clear_log": "Clear",
+        "clear_log_label": "Clear logs",
+        "optimize_log": "🗜 Optimized: {{before}} → {{after}} ({{percent}}% reduction)"
+    },
+    "errors": {
+        "invalid_pin": "Invalid PIN.",
+        "api_key_required": "Please enter Gemini API Token first.",
+        "content_required": "Please enter MCP data or prompt.",
+        "json_parse_failed": "Response parse error: ",
+        "invalid_response": "Invalid Gemini API response format"
+    },
+    "common": {
+        "todo": "(todo)"
+    }
+}

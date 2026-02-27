@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import helpContent from './content/help.md';
+import { useTranslation } from 'react-i18next';
+
 import { useAtomValue, Provider } from 'jotai';
 import styles from './App.module.scss';
 import FigmaAgent from './components/FigmaAgent';
@@ -14,12 +16,7 @@ const { version } = pkg;
 type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
 const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
-const TAB_LABELS: Record<TabId, string> = {
-  AGENT: '에이전트',
-  MCP: 'MCP 연동',
-  VIEW: '미리보기',
-  HELP: '도움말'
-};
+
 
 
 /**
@@ -50,8 +47,10 @@ const HelpPage: React.FC = () => (
  */
 const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
+
     const iframe = iframeRef.current;
     if (!iframe) return;
     const resize = () => {
@@ -67,10 +66,12 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   if (!html) {
     return (
       <div className={styles.placeholder}>
-        <span>미리보기 (VIEW)</span>
+        <span>{t('view.placeholder')}</span>
       </div>
     );
   }
+
+
 
   return (
     <div className={styles.viewPage}>
@@ -80,9 +81,10 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
         srcDoc={html}
         sandbox="allow-scripts"
         referrerPolicy="no-referrer"
-        title="Generated Preview"
+        title={t('view.title')}
       />
     </div>
+
   );
 };
 
@@ -91,11 +93,13 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
  * 왼쪽/오른쪽 패널의 Resizing 기능 및 Toast 알림 기능을 포함합니다.
  */
 const FigmaLabApp: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabId>('MCP');
   const [viewHtml, setViewHtml] = useState('');
   const [toast, setToast] = useState(false);
   const generateStatus = useAtomValue(generateStatusAtom, { store: sharedStore });
   const generatedHtml = useAtomValue(generatedHtmlAtom, { store: sharedStore });
+
   const prevStatus = useRef(generateStatus);
 
   // 생성 상태(generation status) 변경 감지 시 Toast 출력 및 VIEW 탭 갱신
@@ -145,10 +149,11 @@ const FigmaLabApp: React.FC = () => {
                 className={`${styles.navItem} ${activeTab === tab ? styles.navItemActive : ''}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {TAB_LABELS[tab]}
+                {t(`tabs.${tab.toLowerCase()}`)}
               </button>
             ))}
           </nav>
+
         </div>
       </div>
 
@@ -177,11 +182,12 @@ const FigmaLabApp: React.FC = () => {
       {toast && (
         <div className={styles.toast} role="status" aria-live="polite">
           <span className={styles.toastIcon}>✓</span>
-          <span className={styles.toastMessage}>결과가 VIEW 페이지에 반영되었습니다</span>
-          <button className={styles.toastAction} onClick={handleGoToView}>미리보기(VIEW)로 이동</button>
-          <button className={styles.toastClose} onClick={() => setToast(false)} aria-label="닫기">×</button>
+          <span className={styles.toastMessage}>{t('toast.success')}</span>
+          <button className={styles.toastAction} onClick={handleGoToView}>{t('toast.go_to_view')}</button>
+          <button className={styles.toastClose} onClick={() => setToast(false)} aria-label={t('toast.close')}>×</button>
         </div>
       )}
+
     </div>
   );
 };

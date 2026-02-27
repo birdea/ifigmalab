@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { useAtom, useAtomValue } from 'jotai';
 import {
   mcpDataAtom,
@@ -20,7 +22,9 @@ import { formatBytes, TEXT_ENCODER } from '../../../utils/utils';
  * Token 수 계산 및 생성 요청(Validation 포함) 로직을 관리합니다.
  */
 const InputPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [mcpData, setMcpData] = useAtom(mcpDataAtom);
+
   const [prompt, setPrompt] = useAtom(promptAtom);
   const [status] = useAtom(generateStatusAtom);
   const [debugLog, setDebugLog] = useAtom(debugLogAtom);
@@ -38,7 +42,8 @@ const InputPanel: React.FC = () => {
   const hasApiKey = !!apiKey;
   const hasContent = !!(mcpData.trim() || prompt.trim());
   const isReady = hasApiKey && hasContent;
-  const byteSize = React.useMemo(() => TEXT_ENCODER.encode(mcpData).length, [mcpData]);
+  const byteSize = useMemo(() => TEXT_ENCODER.encode(mcpData).length, [mcpData]);
+
 
   const appendLog = useCallback((line: string) => {
     const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
@@ -76,20 +81,27 @@ const InputPanel: React.FC = () => {
     const optimized = preprocessMcpData(mcpData);
     const after = TEXT_ENCODER.encode(optimized).length;
     setMcpData(optimized);
-    appendLog(`🗜 데이터 최적화: ${formatBytes(before)} → ${formatBytes(after)} (${Math.round((1 - after / before) * 100)}% 감소)`);
+    appendLog(t('input.optimize_log', {
+      before: formatBytes(before),
+      after: formatBytes(after),
+      percent: Math.round((1 - after / before) * 100)
+    }));
   };
+
 
   return (
     <div className={styles.panel}>
-      <div className={styles.panelTitle} id="panel-title">디자인 프롬프트</div>
+      <div className={styles.panelTitle} id="panel-title">{t('input.title')}</div>
+
 
       <div className={styles.formCol}>
         <div className={styles.contextLabelRow}>
           <label className={styles.formLabel} htmlFor="context-textarea">
-            컨텍스트 (Context){' '}
+            {t('input.context')}{' '}
             <span className={styles.formLabelHint}>
-              (Fetch 시 자동 입력 (또는 Figma MCP get_design_context 결과 붙여넣기))
+              {t('input.context_hint')}
             </span>
+
             {formatBytes(byteSize) && (
               <span className={styles.inputSizeBadge} aria-live="polite">
                 {formatBytes(byteSize)}
@@ -101,10 +113,11 @@ const InputPanel: React.FC = () => {
               className={styles.optimizeBtn}
               onClick={handleOptimize}
               type="button"
-              aria-label="데이터 사이즈 최적화 (data-* 속성 제거)"
+              aria-label={t('input.optimize_label')}
             >
-              🗜 최적화
+              🗜 {t('input.optimize')}
             </button>
+
           )}
         </div>
         <textarea
@@ -122,31 +135,34 @@ const InputPanel: React.FC = () => {
 
       <div className={styles.formCol}>
         <label className={styles.formLabel} htmlFor="prompt-textarea">
-          프롬프트 (Prompt)
+          {t('input.prompt')}
         </label>
         <textarea
           id="prompt-textarea"
           className={styles.formTextarea}
           rows={3}
-          placeholder="위 디자인을 그대로 HTML로 구현해줘. 스타일도 최대한 비슷하게 맞춰줘. (추가 지시사항 입력)"
+          placeholder={t('input.prompt_placeholder')}
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
         />
       </div>
 
+
       <div className={styles.readinessRow} aria-live="polite">
         <span className={hasApiKey ? styles.readyItem : styles.notReadyItem}>
-          {hasApiKey ? '✓ API 키' : '✗ API 키 없음'}
+          {hasApiKey ? `✓ ${t('input.api_key_ok')}` : `✗ ${t('input.api_key_ng')}`}
         </span>
         <span className={hasContent ? styles.readyItem : styles.notReadyItem}>
-          {hasContent ? '✓ 컨텐츠' : '✗ 컨텐츠 없음'}
+          {hasContent ? `✓ ${t('input.content_ok')}` : `✗ ${t('input.content_ng')}`}
         </span>
+
         {tokenCount !== null && (
-          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} 토큰</span>
+          <span className={styles.tokenBadge}>{tokenCount.toLocaleString()} {t('input.tokens')}</span>
         )}
         {isReady && !isLoading && tokenCount === null && (
-          <span className={styles.readyBadge}>준비 완료</span>
+          <span className={styles.readyBadge}>{t('input.ready')}</span>
         )}
+
       </div>
 
       <div className={styles.submitRow}>
@@ -158,7 +174,7 @@ const InputPanel: React.FC = () => {
             type="button"
             aria-busy={isCountingTokens}
           >
-            {isCountingTokens ? '토큰 계산 중...' : '토큰 계산'}
+            {isCountingTokens ? t('input.counting') : t('input.count_tokens')}
           </button>
           <button
             className={styles.submitBtn}
@@ -167,8 +183,9 @@ const InputPanel: React.FC = () => {
             type="button"
             aria-busy={isLoading}
           >
-            {isLoading ? '생성 중...' : '생성 요청 ▶'}
+            {isLoading ? t('input.submitting') : t('input.submit')}
           </button>
+
         </div>
       </div>
 
@@ -177,16 +194,17 @@ const InputPanel: React.FC = () => {
       {debugLog && (
         <div className={styles.debugLogWrap}>
           <div className={styles.debugLogHeader}>
-            <span className={styles.debugLogTitle} id="debug-log-title">디버그 로그</span>
+            <span className={styles.debugLogTitle} id="debug-log-title">{t('input.debug_log')}</span>
             <button
               className={styles.debugLogClear}
               onClick={() => setDebugLog('')}
               type="button"
-              aria-label="로그 지우기"
+              aria-label={t('input.clear_log_label')}
             >
-              지우기
+              {t('input.clear_log')}
             </button>
           </div>
+
           <textarea
             ref={logRef}
             className={styles.debugLogArea}

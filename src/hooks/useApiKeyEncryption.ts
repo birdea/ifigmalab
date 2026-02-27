@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
     apiKeyAtom,
     isLockedAtom,
@@ -12,6 +13,7 @@ import { encryptData, decryptData } from '../utils/crypto';
 const LOCAL_STORAGE_KEY_ENC = 'figma_agent_api_key_enc';
 
 export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) {
+    const { t } = useTranslation();
     const [apiKey, setApiKey] = useAtom(apiKeyAtom);
     const [rememberKey, setRememberKey] = useAtom(rememberKeyAtom);
     const [pin, setPin] = useAtom(pinAtom);
@@ -80,16 +82,16 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
     const handleUnlock = useCallback(async () => {
         try {
             const decryptedKey = await decryptData(savedEncryptedKey, pin);
-            if (!decryptedKey) throw new Error('Invalid PIN');
+            if (!decryptedKey) throw new Error(t('errors.invalid_pin'));
 
             setApiKey(decryptedKey);
             setIsLocked(false);
             setUnlockError('');
             onUnlockSuccess?.(decryptedKey);
         } catch {
-            setUnlockError('PIN 번호가 일치하지 않습니다.');
+            setUnlockError(t('errors.invalid_pin'));
         }
-    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, onUnlockSuccess]);
+    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, onUnlockSuccess, t]);
 
     const handleResetPin = useCallback(() => {
         localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
