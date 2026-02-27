@@ -31,6 +31,10 @@ module.exports = (env, argv) => {
           options: { transpileOnly: true }
         },
         {
+          test: /\.md$/,
+          type: 'asset/source',
+        },
+        {
           test: /\.(css|s[ac]ss)$/i,
           use: [
             'style-loader',

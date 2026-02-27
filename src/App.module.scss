@@ -217,144 +217,114 @@
   box-sizing: border-box;
 }
 
-.helpHero {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e8e8e8;
-}
-
-.helpTitle {
-  font-size: 26px;
-  font-weight: 700;
-  color: #111111;
-  margin: 0 0 8px;
-  letter-spacing: -0.5px;
-}
-
-.helpSubtitle {
-  font-size: 14px;
-  color: #666666;
-  margin: 0;
-  line-height: 1.6;
-}
-
-.helpSections {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+.helpMarkdown {
   max-width: 720px;
-}
+  font-family: inherit;
 
-.helpSection {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.helpSectionTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: #111111;
-  margin: 0;
-  padding-bottom: 6px;
-  border-bottom: 2px solid #4c6ef5;
-  display: inline-block;
-}
-
-.helpSectionBody {
-  font-size: 13px;
-  color: #444444;
-  line-height: 1.7;
-  margin: 0;
-}
-
-.helpTabList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.helpTabItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 10px 14px;
-  background: #f8f9fa;
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #444444;
-  line-height: 1.6;
-
-  strong {
-    display: block;
+  // h1: hero title
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
     color: #111111;
-    margin-bottom: 2px;
+    letter-spacing: -0.5px;
+    margin: 0 0 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e8e8e8;
   }
 
+  // h2: section titles
+  h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111111;
+    margin: 28px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e0e0e0;
+    display: inline-block;
+  }
+
+  // hr: separator after hero subtitle
+  hr {
+    border: none;
+    border-top: 1px solid #e8e8e8;
+    margin: 0 0 4px;
+  }
+
+  // paragraph
   p {
-    margin: 0;
+    font-size: 13px;
+    color: #444444;
+    line-height: 1.7;
+    margin: 8px 0 0;
   }
-}
 
-.helpTabBadge {
-  flex-shrink: 0;
-  padding: 3px 9px;
-  background: #eef2ff;
-  border: 1px solid #c5ceff;
-  border-radius: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #4c6ef5;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
+  // lists
+  ul, ol {
+    margin: 8px 0 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #444444;
+    line-height: 1.7;
+  }
 
-.helpSteps {
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  color: #444444;
-  line-height: 1.7;
+  li {
+    > p {
+      margin: 0;
+    }
+  }
 
+  // inline code: tab badge style
+  :not(pre) > code {
+    padding: 2px 7px;
+    background: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: #555555;
+    letter-spacing: 0.4px;
+  }
+
+  // code block
+  pre {
+    margin: 10px 0 0;
+    padding: 14px 16px;
+    background: #1e1e2e;
+    border-radius: 8px;
+    overflow-x: auto;
+
+    code {
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      color: #cdd6f4;
+      line-height: 1.7;
+      white-space: pre;
+      background: none;
+      border: none;
+      padding: 0;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+  }
+
+  // strong
   strong {
     color: #111111;
+    font-weight: 600;
   }
-}
 
-.helpList {
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  color: #444444;
-  line-height: 1.7;
-}
+  // links
+  a {
+    color: #4c6ef5;
+    text-decoration: none;
 
-.helpArch {
-  margin: 0;
-  padding: 14px 16px;
-  background: #1e1e2e;
-  border-radius: 8px;
-  font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-  color: #cdd6f4;
-  line-height: 1.7;
-  overflow-x: auto;
-  white-space: pre;
-}
-
-.helpLink {
-  color: #4c6ef5;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
