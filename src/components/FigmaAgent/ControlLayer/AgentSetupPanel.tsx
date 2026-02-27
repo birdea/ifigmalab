@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { apiKeyAtom, selectedModelAtom, geminiModelsAtom, modelInfoTextAtom } from '../atoms';
+import { apiKeyAtom, selectedModelAtom, geminiModelsAtom, modelInfoTextAtom, isLockedAtom, savedEncryptedKeyAtom, pinAtom, rememberKeyAtom } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
+import CryptoJS from 'crypto-js';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const LOCAL_STORAGE_KEY = 'figma_agent_api_key';
+const LOCAL_STORAGE_KEY_ENC = 'figma_agent_api_key_enc';
 
 interface GeminiModelInfo {
   name: string;
@@ -59,7 +60,14 @@ const AgentSetupPanel: React.FC = () => {
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
   const [isFetchingModels, setIsFetchingModels] = useState(false);
   const [modelsError, setModelsError] = useState('');
-  const [rememberKey, setRememberKey] = useState(false);
+
+  // Jotai 상태로 변경하여 탭을 이동해도 잠금 파트가 유지되도록 처리
+  const [rememberKey, setRememberKey] = useAtom(rememberKeyAtom);
+  const [pin, setPin] = useAtom(pinAtom);
+  const [savedEncryptedKey, setSavedEncryptedKey] = useAtom(savedEncryptedKeyAtom);
+  const [isLocked, setIsLocked] = useAtom(isLockedAtom);
+
+  const [unlockError, setUnlockError] = useState('');
 
   // selectedModel이 외부(fetchModels 등)에서 바뀔 때 staged도 동기화
   useEffect(() => {
@@ -101,36 +109,89 @@ const AgentSetupPanel: React.FC = () => {
     }
   };
 
-  // localStorage에서 복원 (Remember가 체크된 경우에만 저장되어 있음)
+  // Initial load: check localStorage for encrypted key (only once per session when lock atom is uninitialized)
   useEffect(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (saved) {
-      setApiKey(saved);
+    // 이미 언락했거나(key가 있거나) 체크했으면 스킵
+    if (apiKey || savedEncryptedKey) return;
+
+    const enc = localStorage.getItem(LOCAL_STORAGE_KEY_ENC);
+    if (enc) {
+      setSavedEncryptedKey(enc);
+      setIsLocked(true);
       setRememberKey(true);
-      fetchModels(saved);
+    } else {
+      // Backward compatibility: try to recover if there was a plain session key previously.
+      const sessionKey = sessionStorage.getItem('figma_agent_api_key');
+      if (sessionKey) {
+        setApiKey(sessionKey);
+        fetchModels(sessionKey);
+      }
     }
   }, []);
 
-  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setApiKey(val);
-    if (rememberKey) {
-      if (val) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, val);
-      } else {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
+  // Encrypt and save when conditions are met
+  useEffect(() => {
+    // 잠겨있는 상태(Unlock 화면)일 때는 저장 로직이 돌면 안 됨!
+    if (isLocked) return;
+
+    // apiKey가 있을 때만 암호화 저장 진행
+    if (rememberKey && apiKey && pin.length >= 4) {
+      try {
+        let needsSave = true;
+        // 기존 암호화된 키가 있다면 복호화해서 같은 값인지 확인
+        if (savedEncryptedKey) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(savedEncryptedKey, pin);
+            const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
+            if (decryptedKey === apiKey) {
+              needsSave = false; // 이미 동일한 값이 저장되어 있으므로 skip
+            }
+          } catch (e) {
+            // 복호화 실패(예: PIN 변경 등) 시 새로 덮어씀
+          }
+        }
+
+        if (needsSave) {
+          const encrypted = CryptoJS.AES.encrypt(apiKey, pin).toString();
+          localStorage.setItem(LOCAL_STORAGE_KEY_ENC, encrypted);
+          setSavedEncryptedKey(encrypted);
+        }
+      } catch (e) {
+        console.error('Encryption failed', e);
       }
+    } else if (!rememberKey && savedEncryptedKey) {
+      // rememberKey를 해제했을 경우에만 삭제
+      localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
+      setSavedEncryptedKey('');
+    }
+  }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey]);
+
+  const handleUnlock = () => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(savedEncryptedKey, pin);
+      const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
+      if (!decryptedKey) throw new Error('Invalid PIN');
+
+      setApiKey(decryptedKey);
+      setIsLocked(false);
+      setUnlockError('');
+      fetchModels(decryptedKey);
+    } catch (e) {
+      setUnlockError('PIN 번호가 일치하지 않습니다.');
     }
   };
 
-  const handleRememberToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    setRememberKey(checked);
-    if (checked && apiKey) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, apiKey);
-    } else {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-    }
+  const handleClearSaved = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);
+    setSavedEncryptedKey('');
+    setIsLocked(false);
+    setApiKey('');
+    setPin('');
+    setRememberKey(false);
+  };
+
+  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setApiKey(e.target.value);
   };
 
   const handleGetModelInfo = async () => {
@@ -174,45 +235,93 @@ const AgentSetupPanel: React.FC = () => {
         </button>
       </div>
 
-      <div className={styles.formRow}>
-        <label className={styles.formLabel}>Gemini API Token</label>
-        <div className={styles.inputWithBtn}>
-          <input
-            className={styles.formInput}
-            type={showKey ? 'text' : 'password'}
-            placeholder="AIza..."
-            value={apiKey}
-            onChange={handleApiKeyChange}
-            autoComplete="off"
-          />
-          <button className={styles.toggleBtn} onClick={() => setShowKey(v => !v)} type="button">
-            {showKey ? 'Hide' : 'Show'}
-          </button>
-          <a
-            className={styles.getKeyBtn}
-            href="https://aistudio.google.com/apikey"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GET
-          </a>
-        </div>
-      </div>
+      {!isLocked ? (
+        <>
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>Gemini API Token</label>
+            <div className={styles.inputWithBtn}>
+              <input
+                className={styles.formInput}
+                type={showKey ? 'text' : 'password'}
+                placeholder="AIza..."
+                value={apiKey}
+                onChange={handleApiKeyChange}
+                autoComplete="off"
+              />
+              <button className={styles.toggleBtn} onClick={() => setShowKey(v => !v)} type="button">
+                {showKey ? 'Hide' : 'Show'}
+              </button>
+              <a
+                className={styles.getKeyBtn}
+                href="https://aistudio.google.com/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GET
+              </a>
+            </div>
+          </div>
 
-      <div className={styles.rememberRow}>
-        <input
-          id="rememberApiKey"
-          type="checkbox"
-          checked={rememberKey}
-          onChange={handleRememberToggle}
-        />
-        <label htmlFor="rememberApiKey" className={styles.rememberLabel}>
-          API 키 기억하기
-        </label>
-        {rememberKey && apiKey && (
-          <span className={styles.savedBadge}>저장됨</span>
-        )}
-      </div>
+          <div className={styles.rememberRow}>
+            <input
+              id="rememberApiKey"
+              type="checkbox"
+              checked={rememberKey}
+              onChange={e => setRememberKey(e.target.checked)}
+            />
+            <label htmlFor="rememberApiKey" className={styles.rememberLabel}>
+              로컬에 암호화하여 저장
+            </label>
+          </div>
+          {rememberKey && (
+            <div className={styles.formRow}>
+              <label className={styles.formLabel}>암호화 PIN</label>
+              <div className={styles.inputWithBtn}>
+                <input
+                  className={styles.formInput}
+                  type={showKey ? 'text' : 'password'}
+                  placeholder="4자리 이상 PIN 입력"
+                  value={pin}
+                  onChange={e => setPin(e.target.value)}
+                />
+                {pin.length >= 4 && apiKey ? (
+                  <span className={styles.savedBadge} style={{ alignSelf: 'center', whiteSpace: 'nowrap', marginLeft: '8px' }}>자동 저장됨</span>
+                ) : (
+                  <span className={styles.providerTodo} style={{ fontSize: '0.8rem', alignSelf: 'center', whiteSpace: 'nowrap', marginLeft: '8px' }}>
+                    4자리 이상 필요
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className={styles.formRow} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+          <div style={{ fontSize: '0.9rem', color: '#e2e8f0', marginBottom: '4px' }}>
+            🔒 암호화된 API 키가 저장되어 있습니다.<br />PIN을 입력해 안전하게 잠금 해제하세요.
+          </div>
+          <div className={styles.inputWithBtn} style={{ width: '100%', marginBottom: '4px' }}>
+            <input
+              className={styles.formInput}
+              type={showKey ? 'text' : 'password'}
+              placeholder="PIN 번호 입력"
+              value={pin}
+              onChange={e => { setPin(e.target.value); setUnlockError(''); }}
+              onKeyDown={e => e.key === 'Enter' && handleUnlock()}
+            />
+            <button className={styles.toggleBtn} onClick={() => setShowKey(v => !v)} type="button">
+              {showKey ? 'Hide' : 'Show'}
+            </button>
+            <button className={styles.fetchBtn} onClick={handleUnlock} type="button">
+              Unlock
+            </button>
+            <button className={styles.toggleBtn} onClick={handleClearSaved} type="button">
+              Clear
+            </button>
+          </div>
+          {unlockError && <div className={styles.errorText} style={{ marginTop: '0' }}>{unlockError}</div>}
+        </div>
+      )}
 
       <div className={styles.formRow}>
         <label className={styles.formLabel}>Model</label>

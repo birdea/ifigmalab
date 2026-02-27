@@ -17,7 +17,7 @@ export const GEMINI_MODELS = GEMINI_MODELS_DEFAULT;
 
 export const DEFAULT_MODEL: GeminiModel = 'gemini-2.5-flash';
 
-// API 키 — sessionStorage 연동은 컴포넌트에서 처리
+// API 키 — 로컬스토리지 암호화 보관 처리 (AgentSetupPanel.tsx 에서 담당)
 export const apiKeyAtom = atom<string>('');
 
 // 선택된 모델
@@ -65,3 +65,9 @@ export const screenshotMimeTypeAtom = atom<string>('image/png');
 
 // Model Info 조회 결과
 export const modelInfoTextAtom = atom<string>('');
+
+// ... add imports for the lock state atoms
+export const isLockedAtom = atom<boolean>(false);
+export const savedEncryptedKeyAtom = atom<string>('');
+export const pinAtom = atom<string>('');
+export const rememberKeyAtom = atom<boolean>(false);
