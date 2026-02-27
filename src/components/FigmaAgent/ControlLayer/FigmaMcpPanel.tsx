@@ -149,24 +149,29 @@ const FigmaMcpPanel: React.FC = () => {
 
       <div className={styles.formRow}>
         <label className={styles.formLabel}>Figma MCP Server URL</label>
-        <input
-          className={styles.formInput}
-          type="url"
-          placeholder="http://localhost:3845"
-          value={figmaMcpServerUrl}
-          onChange={e => setFigmaMcpServerUrl(e.target.value)}
-        />
+        <div className={styles.inputWithBtn}>
+          <input
+            className={styles.formInput}
+            type="url"
+            placeholder="http://localhost:3845"
+            value={figmaMcpServerUrl}
+            onChange={e => setFigmaMcpServerUrl(e.target.value)}
+          />
+          <button
+            className={styles.fetchBtn}
+            onClick={checkStatus}
+            type="button"
+          >
+            Apply
+          </button>
+          <span className={connected ? styles.statusConnected : styles.statusDisconnected}>
+            {connected ? '(●) : Connected' : '(○) : Disconnected'}
+          </span>
+        </div>
       </div>
 
       <div className={styles.formRow}>
-        <span className={styles.formLabel}>연결 상태</span>
-        <span className={connected ? styles.statusConnected : styles.statusDisconnected}>
-          {connected ? '(●) : Connected' : '(○) : Disconnected'}
-        </span>
-      </div>
-
-      <div className={styles.formRow}>
-        <label className={styles.formLabel}>Node ID (선택)</label>
+        <label className={styles.formLabel}>Figma Node ID</label>
         <div className={styles.inputWithBtn}>
           <input
             className={styles.formInput}
@@ -181,7 +186,7 @@ const FigmaMcpPanel: React.FC = () => {
             disabled={fetching || fetchingScreenshot}
             type="button"
           >
-            {fetching ? '가져오는 중...' : 'Fetch from Figma'}
+            {fetching ? '가져오는 중...' : 'Fetch'}
           </button>
           <button
             className={styles.fetchScreenshotBtn}
