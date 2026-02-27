@@ -146,13 +146,16 @@
   overflow: hidden;
   background-color: #ffffff;
   transition: width 0.22s ease, border-color 0.22s ease;
+
+  &.sidebarResizing {
+    transition: none;
+  }
 }
 
 .sidebarLeft {
   border-right: 0px solid #e8e8e8;
 
   &.sidebarOpen {
-    width: 240px;
     border-right-width: 1px;
   }
 }
@@ -161,18 +164,43 @@
   border-left: 0px solid #e8e8e8;
 
   &.sidebarOpen {
-    width: 240px;
     border-left-width: 1px;
   }
 }
 
 .sidebarContent {
-  width: 240px;
+  width: 100%;
+  min-width: 160px;
   height: 100%;
   padding: 16px;
   font-size: 13px;
   color: #aaaaaa;
   box-sizing: border-box;
+}
+
+// ─── Resize handle ────────────────────────────────────────────────────────────
+.resizer {
+  flex-shrink: 0;
+  width: 4px;
+  background-color: transparent;
+  cursor: ew-resize;
+  transition: background-color 0.15s ease;
+  position: relative;
+
+  // Wider hit area
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -3px;
+    right: -3px;
+  }
+
+  &:hover,
+  &.resizerDragging {
+    background-color: #4c6ef5;
+  }
 }
 
 // ─── Content layer ────────────────────────────────────────────────────────────
