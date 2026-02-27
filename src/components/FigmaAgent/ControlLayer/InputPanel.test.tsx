@@ -99,8 +99,12 @@ describe('InputPanel', () => {
         });
 
         expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining('generateContent?key=test-api-key'),
-            expect.any(Object)
+            expect.stringContaining('generateContent'),
+            expect.objectContaining({
+                headers: expect.objectContaining({
+                    'x-goog-api-key': 'test-api-key'
+                })
+            })
         );
     });
 });

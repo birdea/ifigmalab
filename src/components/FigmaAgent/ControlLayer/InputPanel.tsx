@@ -86,10 +86,13 @@ const InputPanel: React.FC = () => {
     try {
       const parts = buildPromptParts();
       const res = await fetch(
-        `${GEMINI_API_BASE}/models/${model}:countTokens?key=${apiKey}`,
+        `${GEMINI_API_BASE}/models/${model}:countTokens`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
           body: JSON.stringify({ contents: [{ role: 'user', parts }] }),
         }
       );
@@ -162,7 +165,7 @@ const InputPanel: React.FC = () => {
     const estimatedTokens = Math.round(promptBytes / 4);
 
     // ── Request ───────────────────────────────────────────────
-    const endpoint = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
+    const endpoint = `${GEMINI_API_BASE}/models/${model}:generateContent`;
     const requestBody = {
       contents: [{ role: 'user', parts }],
       generationConfig: { maxOutputTokens: 65536 },
@@ -190,7 +193,10 @@ const InputPanel: React.FC = () => {
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
         body: JSON.stringify(requestBody),
       });
 

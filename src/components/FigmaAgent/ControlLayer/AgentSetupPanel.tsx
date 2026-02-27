@@ -71,7 +71,11 @@ const AgentSetupPanel: React.FC = () => {
     setIsFetchingModels(true);
     setModelsError('');
     try {
-      const res = await fetch(`${GEMINI_API_BASE}/models?key=${key}&pageSize=100`);
+      const res = await fetch(`${GEMINI_API_BASE}/models?pageSize=100`, {
+        headers: {
+          'x-goog-api-key': key,
+        }
+      });
       const data = (await res.json()) as GeminiModelsListResponse;
       if (!res.ok || data.error) {
         setModelsError(`Error (${data.error?.code ?? res.status}): ${data.error?.message ?? res.statusText}`);
@@ -135,7 +139,11 @@ const AgentSetupPanel: React.FC = () => {
     setModelInfoText('Loading...');
     try {
       const res = await fetch(
-        `${GEMINI_API_BASE}/models/${stagedModel}?key=${apiKey}`
+        `${GEMINI_API_BASE}/models/${stagedModel}`, {
+        headers: {
+          'x-goog-api-key': apiKey,
+        }
+      }
       );
       const data = (await res.json()) as GeminiModelInfo;
       if (!res.ok || data.error) {

@@ -80,7 +80,14 @@ describe('AgentSetupPanel', () => {
         fireEvent.click(refreshBtn);
 
         await waitFor(() => {
-            expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('models?key=test-api-key'));
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('models'),
+                expect.objectContaining({
+                    headers: expect.objectContaining({
+                        'x-goog-api-key': 'test-api-key'
+                    })
+                })
+            );
         });
     });
 
