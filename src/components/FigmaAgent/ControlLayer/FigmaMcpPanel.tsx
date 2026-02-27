@@ -238,7 +238,7 @@ const FigmaMcpPanel: React.FC = () => {
             disabled={fetching || fetchingScreenshot || !connected || !resolvedNodeId}
             type="button"
           >
-            {fetchingScreenshot ? t('mcp.capturing') : `📸 ${t('mcp.screenshot')}`}
+            {fetchingScreenshot ? t('mcp.capturing') : <><span aria-hidden="true">📸</span> {t('mcp.screenshot')}</>}
           </button>
         </div>
         {fetchError && <span className={styles.errorText}>{fetchError}</span>}
@@ -248,13 +248,13 @@ const FigmaMcpPanel: React.FC = () => {
       {screenshot && (
         <div className={styles.screenshotPreview}>
           <div className={styles.screenshotHeader}>
-            <span className={styles.screenshotLabel}>📸 {t('mcp.screenshot_label')}</span>
+            <span className={styles.screenshotLabel}><span aria-hidden="true">📸</span> {t('mcp.screenshot_label')}</span>
             <button
               className={styles.screenshotClear}
               onClick={() => setScreenshot('')}
               type="button"
             >
-              ✕ {t('mcp.remove')}
+              <span aria-hidden="true">✕</span> {t('mcp.remove')}
             </button>
           </div>
 

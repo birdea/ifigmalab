@@ -159,7 +159,7 @@ describe('FigmaMcpPanel', () => {
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234:5678' } });
 
-        const screenshotBtn = screen.getByText('📸 스크린샷');
+        const screenshotBtn = screen.getByRole('button', { name: /스크린샷/ });
         fireEvent.click(screenshotBtn);
 
         await waitFor(() => {
@@ -186,7 +186,7 @@ describe('FigmaMcpPanel', () => {
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
         fireEvent.change(nodeIdInput, { target: { value: '1234-5678' } }); // Valid alternative format
 
-        const screenshotBtn = screen.getByText('📸 스크린샷');
+        const screenshotBtn = screen.getByRole('button', { name: /스크린샷/ });
         fireEvent.click(screenshotBtn);
 
         await waitFor(() => {

@@ -61,6 +61,8 @@ module.exports = (env, argv) => {
         'process.env.PROXY_URL': JSON.stringify(process.env.PROXY_URL || 'http://localhost:3006'),
         'process.env.FIGMA_MCP_URL': JSON.stringify(process.env.FIGMA_MCP_URL || 'http://localhost:3845'),
         'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
+        'process.env.SYSTEM_PROMPT': JSON.stringify(process.env.SYSTEM_PROMPT ?? undefined),
+        'process.env.MAX_OUTPUT_TOKENS': JSON.stringify(process.env.MAX_OUTPUT_TOKENS ?? undefined),
       }),
       new ModuleFederationPlugin({
         name: 'figmalab',

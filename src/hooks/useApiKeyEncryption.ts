@@ -11,8 +11,9 @@ import {
     lockedUntilAtom
 } from '../components/FigmaAgent/atoms';
 import { encryptData, decryptData } from '../utils/crypto';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
-const LOCAL_STORAGE_KEY_ENC = 'figma_agent_api_key_enc';
+const LOCAL_STORAGE_KEY_ENC = STORAGE_KEYS.API_KEY_ENCRYPTED;
 
 export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) {
     const { t } = useTranslation();
@@ -34,8 +35,9 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
             setRememberKey(true);
         } else {
             // 하위 호환성 유지: 기존 일반 Text 형태의 SessionStorage 조회
-            const sessionKey = sessionStorage.getItem('figma_agent_api_key');
+            const sessionKey = sessionStorage.getItem(STORAGE_KEYS.API_KEY_SESSION_LEGACY);
             if (sessionKey) {
+                sessionStorage.removeItem(STORAGE_KEYS.API_KEY_SESSION_LEGACY); // S-10: 평문 키 즉시 제거
                 setApiKey(sessionKey);
                 onUnlockSuccess?.(sessionKey);
             }

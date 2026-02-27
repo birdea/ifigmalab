@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { apiKeyAtom, selectedModelAtom, geminiModelsAtom, modelInfoTextAtom } from '../components/FigmaAgent/atoms';
 import { GEMINI_API_BASE } from '../components/FigmaAgent/utils';
+import { STORAGE_KEYS } from '../constants/storageKeys';
+
+const MODELS_CACHE_TTL = 60 * 60 * 1000; // 1시간
 
 interface GeminiModelInfo {
     name: string;
@@ -72,6 +75,24 @@ export function useGeminiModels() {
 
     const fetchModels = useCallback(async (key: string) => {
         if (!key) return;
+
+        // P-06: sessionStorage TTL 캐시 확인 (1시간)
+        try {
+            const cached = sessionStorage.getItem(STORAGE_KEYS.GEMINI_MODELS_CACHE);
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached) as { data: typeof geminiModels; timestamp: number };
+                if (Date.now() - timestamp < MODELS_CACHE_TTL && data.length > 0) {
+                    setGeminiModels(data);
+                    if (!data.some(m => m.id === selectedModel)) {
+                        setSelectedModel(data[0].id);
+                    }
+                    return;
+                }
+            }
+        } catch {
+            // 캐시 파싱 실패 시 무시하고 API 호출 진행
+        }
+
         setIsFetchingModels(true);
         setModelsError('');
         try {
@@ -97,6 +118,12 @@ export function useGeminiModels() {
                     setGeminiModels(filtered);
                     if (!filtered.some(m => m.id === selectedModel)) {
                         setSelectedModel(filtered[0].id);
+                    }
+                    // P-06: 결과를 sessionStorage에 캐시 저장
+                    try {
+                        sessionStorage.setItem(STORAGE_KEYS.GEMINI_MODELS_CACHE, JSON.stringify({ data: filtered, timestamp: Date.now() }));
+                    } catch {
+                        // sessionStorage 용량 초과 시 무시
                     }
                 }
             }

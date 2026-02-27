@@ -148,6 +148,11 @@ const FigmaLabApp: React.FC = () => {
                 id={`tab-${tab}`}
                 className={`${styles.navItem} ${activeTab === tab ? styles.navItemActive : ''}`}
                 onClick={() => setActiveTab(tab)}
+                onKeyDown={(e) => {
+                  const current = TAB_ITEMS.indexOf(activeTab);
+                  if (e.key === 'ArrowRight') setActiveTab(TAB_ITEMS[(current + 1) % TAB_ITEMS.length]);
+                  if (e.key === 'ArrowLeft') setActiveTab(TAB_ITEMS[(current - 1 + TAB_ITEMS.length) % TAB_ITEMS.length]);
+                }}
               >
                 {t(`tabs.${tab.toLowerCase()}`)}
               </button>
