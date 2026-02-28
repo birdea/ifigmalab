@@ -95,7 +95,7 @@ describe('InputPanel', () => {
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
-            expect(screen.getByText(/생성 완료|결과가 VIEW 페이지에 반영되었습니다/)).toBeInTheDocument();
+            expect(screen.getByText(/Generation complete|결과가 VIEW 페이지에 반영되었습니다/)).toBeInTheDocument();
         });
 
         expect(global.fetch).toHaveBeenCalledWith(

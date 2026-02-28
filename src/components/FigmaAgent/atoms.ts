@@ -12,9 +12,6 @@ export const GEMINI_MODELS_DEFAULT: GeminiModelEntry[] = [
   { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', tier: '안정' },
 ];
 
-// 하위 호환을 위한 Alias
-export const GEMINI_MODELS = GEMINI_MODELS_DEFAULT;
-
 export const DEFAULT_MODEL: GeminiModel = 'gemini-2.5-flash';
 
 // API Key — AgentSetupPanel.tsx에서 LocalStorage 암호화 보관 담당

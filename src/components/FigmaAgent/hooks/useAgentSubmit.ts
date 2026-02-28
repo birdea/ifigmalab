@@ -122,7 +122,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             if (e instanceof DOMException && e.name === 'AbortError') return;
             const isTimeout = e instanceof DOMException && e.name === 'TimeoutError';
             appendLog(isTimeout
-                ? `[COUNT TOKENS] ⏱️ 타임아웃 (30초)`
+                ? `[COUNT TOKENS] ⏱️ Timeout (30s)`
                 : `[COUNT TOKENS] ❌ ${e instanceof Error ? e.message : String(e)}`
             );
         } finally {
@@ -138,16 +138,16 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
         const bar = '─'.repeat(40);
 
         appendLog(`┌${bar}`);
-        appendLog(`│ Submit 요청`);
+        appendLog(`│ Submit request`);
         appendLog(`├${bar}`);
-        appendLog(`│ [VALIDATE] API Key      : ${apiKey ? `${apiKey.slice(0, 6)}...${apiKey.slice(-4)} (${apiKey.length} chars) ✓` : '❌ 없음'}`);
-        appendLog(`│ [VALIDATE] MCP Data     : ${mcpData.trim() ? `${formatBytes(TEXT_ENCODER.encode(mcpData).length) || '0 bytes'} (${mcpData.length} chars) ✓` : '비어있음'}`);
-        appendLog(`│ [VALIDATE] Prompt       : ${prompt.trim() ? `${prompt.length} chars ✓` : '비어있음'}`);
+        appendLog(`│ [VALIDATE] API Key      : ${apiKey ? `${apiKey.slice(0, 6)}...${apiKey.slice(-4)} (${apiKey.length} chars) ✓` : '❌ none'}`);
+        appendLog(`│ [VALIDATE] MCP Data     : ${mcpData.trim() ? `${formatBytes(TEXT_ENCODER.encode(mcpData).length) || '0 bytes'} (${mcpData.length} chars) ✓` : 'empty'}`);
+        appendLog(`│ [VALIDATE] Prompt       : ${prompt.trim() ? `${prompt.length} chars ✓` : 'empty'}`);
         appendLog(`│ [VALIDATE] Model        : ${model}`);
-        appendLog(`│ [VALIDATE] Screenshot   : ${screenshot ? `${formatBytes(TEXT_ENCODER.encode(screenshot).length)} (${screenshotMimeType}) ✓` : '없음'}`);
+        appendLog(`│ [VALIDATE] Screenshot   : ${screenshot ? `${formatBytes(TEXT_ENCODER.encode(screenshot).length)} (${screenshotMimeType}) ✓` : 'none'}`);
 
         if (!apiKey) {
-            appendLog(`│ [VALIDATE] ❌ API Key 없음 → 중단`);
+            appendLog(`│ [VALIDATE] ❌ No API Key → abort`);
             appendLog(`└${bar}`);
             setError(t('errors.api_key_required'));
             setStatus('error');
@@ -155,14 +155,14 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
         }
 
         if (!mcpData.trim() && !prompt.trim()) {
-            appendLog(`│ [VALIDATE] ❌ MCP Data, Prompt 모두 비어있음 → 중단`);
+            appendLog(`│ [VALIDATE] ❌ MCP Data and Prompt both empty → abort`);
             appendLog(`└${bar}`);
             setError(t('errors.content_required'));
             setStatus('error');
             return;
         }
 
-        appendLog(`│ [VALIDATE] ✓ 검증 통과`);
+        appendLog(`│ [VALIDATE] ✓ Validation passed`);
 
         setStatus('loading');
         setError('');
@@ -189,9 +189,9 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
 
         appendLog(`├${bar}`);
         appendLog(`│ [BUILD]    system prompt   : ${formatBytes(systemBytes)} (${systemPromptSection.length} chars)`);
-        appendLog(`│ [BUILD]    design context  : ${contextBytes > 0 ? `${formatBytes(contextBytes)} (${designContextSection.length} chars)` : '없음'}`);
+        appendLog(`│ [BUILD]    design context  : ${contextBytes > 0 ? `${formatBytes(contextBytes)} (${designContextSection.length} chars)` : 'none'}`);
         appendLog(`│ [BUILD]    user prompt     : ${formatBytes(userBytes)} (${userPromptSection.length} chars)`);
-        appendLog(`│ [BUILD]    screenshot      : ${screenshotBytes > 0 ? `${formatBytes(screenshotBytes)} (${screenshotMimeType})` : '없음'}`);
+        appendLog(`│ [BUILD]    screenshot      : ${screenshotBytes > 0 ? `${formatBytes(screenshotBytes)} (${screenshotMimeType})` : 'none'}`);
         appendLog(`│ [BUILD]    total text      : ${formatBytes(promptBytes)} / est. ~${estimatedTokens.toLocaleString()} tokens`);
         appendLog(`│ [BUILD]    parts count     : ${parts.length} (${screenshot ? 'image + text' : 'text only'})`);
         appendLog(`├${bar}`);
@@ -200,7 +200,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
         appendLog(`│ [REQUEST]  maxOutputTokens : ${MAX_OUTPUT_TOKENS.toLocaleString()}`);
         appendLog(`│ [REQUEST]  body size       : ${formatBytes(requestBodyBytes)}`);
         appendLog(`├${bar}`);
-        appendLog(`│ [NETWORK]  Gemini API 호출 중...`);
+        appendLog(`│ [NETWORK]  Calling Gemini API...`);
 
         const startTime = Date.now();
 
@@ -227,7 +227,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             try {
                 data = JSON.parse(rawText);
             } catch {
-                appendLog(`│ [RESPONSE] ❌ JSON 파싱 실패: ${rawText.slice(0, 200)}`);
+                appendLog(`│ [RESPONSE] ❌ JSON parse failed: ${rawText.slice(0, 200)}`);
                 appendLog(`└${bar}`);
                 throw new Error(`${t('errors.json_parse_failed')}${rawText.slice(0, 100)}`);
             }
@@ -239,13 +239,13 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                 const error = data.error;
                 const errMsg = error?.message ?? `HTTP ${res.status}`;
                 const errCode = error?.code ?? res.status;
-                appendLog(`│ [RESPONSE] ❌ API 오류 (code: ${errCode}): ${errMsg}`);
+                appendLog(`│ [RESPONSE] ❌ API error (code: ${errCode}): ${errMsg}`);
                 appendLog(`└${bar}`);
                 throw new Error(errMsg);
             }
 
             appendLog(`├${bar}`);
-            appendLog(`│ [RESPONSE] candidates      : ${data.candidates?.length ?? 0}개`);
+            appendLog(`│ [RESPONSE] candidates      : ${data.candidates?.length ?? 0}`);
 
             const usage = data.usageMetadata;
             if (usage) {
@@ -260,11 +260,11 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             const finishReason = data.candidates?.[0]?.finishReason;
             appendLog(`│ [RESPONSE] finishReason    : ${finishReason ?? 'unknown'}`);
             if (finishReason === 'MAX_TOKENS') {
-                appendLog(`│ [RESPONSE] ⚠️  MAX_TOKENS — 출력이 잘렸을 수 있습니다 (maxOutputTokens 초과)`);
+                appendLog(`│ [RESPONSE] ⚠️  MAX_TOKENS — output may be truncated (maxOutputTokens exceeded)`);
             } else if (finishReason === 'STOP') {
-                appendLog(`│ [RESPONSE] ✓  STOP — 정상 종료`);
+                appendLog(`│ [RESPONSE] ✓  STOP — normal completion`);
             } else if (finishReason === 'SAFETY') {
-                appendLog(`│ [RESPONSE] ⚠️  SAFETY — 안전 정책으로 차단됨`);
+                appendLog(`│ [RESPONSE] ⚠️  SAFETY — blocked by safety policy`);
             }
 
             const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
@@ -290,7 +290,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             appendLog(`│ [EXTRACT]  <body>          : ${hasBody ? '✓' : '✗'}`);
             appendLog(`│ [EXTRACT]  <style> blocks  : ${styleCount}`);
             appendLog(`│ [EXTRACT]  <script> blocks : ${scriptCount}`);
-            appendLog(`│ [EXTRACT]  </html> 종료    : ${isHtmlComplete ? '✓' : '⚠️  없음 (토큰 부족 가능)'}`);
+            appendLog(`│ [EXTRACT]  </html> end     : ${isHtmlComplete ? '✓' : '⚠️  missing (possible token shortage)'}`);
 
             appendLog(`├${bar}`);
             const firstLines = html.split('\n').slice(0, 3).map(l => l.trimEnd()).join('↵');
@@ -300,7 +300,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
 
             const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
             appendLog(`├${bar}`);
-            appendLog(`│ ✅ 생성 완료 (${elapsed}s)`);
+            appendLog(`│ ✅ Generation complete (${elapsed}s)`);
             appendLog(`└${bar}`);
 
             setGeneratedHtml(html);
@@ -315,13 +315,13 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                 (e.message === 'Failed to fetch' || e.message.includes('NetworkError'));
 
             if (isTimeout) {
-                appendLog(`│ [NETWORK]  ⏱️  타임아웃 (${elapsed}s) — 요청이 120초를 초과했습니다`);
+                appendLog(`│ [NETWORK]  ⏱️  Timeout (${elapsed}s) — request exceeded 120s`);
             } else if (isNetworkError) {
-                appendLog(`│ [NETWORK]  ❌ 연결 실패 (${elapsed}s)`);
-                appendLog(`│ [DIAGNOSE] Gemini API 서버에 연결할 수 없습니다.`);
-                appendLog(`│ [DIAGNOSE] 인터넷 연결 상태를 확인해주세요.`);
+                appendLog(`│ [NETWORK]  ❌ Connection failed (${elapsed}s)`);
+                appendLog(`│ [DIAGNOSE] Cannot connect to Gemini API server.`);
+                appendLog(`│ [DIAGNOSE] Please check your internet connection.`);
             } else {
-                appendLog(`│ [ERROR]    ❌ 실패 (${elapsed}s): ${e instanceof Error ? e.message : String(e)}`);
+                appendLog(`│ [ERROR]    ❌ Failure (${elapsed}s): ${e instanceof Error ? e.message : String(e)}`);
             }
             appendLog(`└${bar}`);
 

@@ -26,6 +26,8 @@ module.exports = (env, argv) => {
     output: {
       publicPath: 'auto',
       path: path.resolve(__dirname, 'dist'),
+      filename: isProd ? '[name].[contenthash].js' : '[name].js',
+      chunkFilename: isProd ? '[name].[contenthash].chunk.js' : '[name].chunk.js',
       clean: true,
     },
     resolve: {

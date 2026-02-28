@@ -1,8 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import helpContentKo from './content/help.md';
-import helpContentEn from './content/help.en.md';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAtomValue, Provider } from 'jotai';
@@ -11,38 +7,13 @@ import FigmaAgent from './components/FigmaAgent';
 import AgentSetupPanel from './components/FigmaAgent/ControlLayer/AgentSetupPanel';
 import { generateStatusAtom, generatedHtmlAtom } from './components/FigmaAgent/atoms';
 import { sharedStore } from './shared/store';
+
 const version = process.env.APP_VERSION;
+const HelpPage = React.lazy(() => import('./components/HelpPage'));
 
 type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
 const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
-
-
-
-/**
- * 도움말 화면을 렌더링하는 Component.
- * Markdown 형태의 도움말 콘텐츠를 파싱하여 출력합니다.
- */
-const HelpPage: React.FC = () => {
-  const { i18n } = useTranslation();
-  const helpContent = i18n.language === 'en' ? helpContentEn : helpContentKo;
-  return (
-    <div className={styles.helpPage}>
-      <div className={styles.helpMarkdown}>
-        <Markdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            a: ({ href, children }) => (
-              <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
-            ),
-          }}
-        >
-          {helpContent}
-        </Markdown>
-      </div>
-    </div>
-  );
-};
 
 /**
  * AI가 생성한 HTML 코드를 렌더링하여 미리보여주는 View Component.
@@ -91,8 +62,6 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
     );
   }
 
-
-
   return (
     <div className={styles.viewPage}>
       <iframe
@@ -104,7 +73,6 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
         title={t('view.title')}
       />
     </div>
-
   );
 };
 
@@ -210,7 +178,9 @@ const FigmaLabApp: React.FC = () => {
               <ViewPage html={viewHtml} />
             </div>
             <div id="panel-HELP" role="tabpanel" aria-labelledby="tab-HELP" className={getTabPanelClass('HELP')}>
-              <HelpPage />
+              <Suspense fallback={<div className={styles.placeholder}><span>Loading...</span></div>}>
+                <HelpPage />
+              </Suspense>
             </div>
           </Provider>
         </div>

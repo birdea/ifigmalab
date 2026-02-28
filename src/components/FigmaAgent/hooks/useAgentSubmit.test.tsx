@@ -154,7 +154,7 @@ describe('useAgentSubmit Branch Coverage', () => {
             await act(async () => {
                 await result.current.handleSubmit();
             });
-            expect(appendLog).toHaveBeenCalledWith(expect.stringContaining('❌ JSON 파싱 실패'));
+            expect(appendLog).toHaveBeenCalledWith(expect.stringContaining('❌ JSON parse failed'));
             expect(store.get(generateStatusAtom)).toBe('error');
         });
 
@@ -191,7 +191,7 @@ describe('useAgentSubmit Branch Coverage', () => {
                 await result.current.handleSubmit();
             });
             expect(store.get(generateErrorAtom)).toBe('API Key Expired');
-            expect(appendLog).toHaveBeenCalledWith(expect.stringContaining('❌ API 오류 (code: 400): API Key Expired'));
+            expect(appendLog).toHaveBeenCalledWith(expect.stringContaining('❌ API error (code: 400): API Key Expired'));
         });
 
         it('handles finishReason cases STOP with usageMetadata', async () => {
@@ -307,7 +307,7 @@ describe('useAgentSubmit Branch Coverage', () => {
             await act(async () => {
                 await result.current.handleSubmit();
             });
-            expect(appendLog).toHaveBeenCalledWith(expect.stringContaining('❌ 연결 실패'));
+            expect(appendLog).toHaveBeenCalledWith(expect.stringContaining('❌ Connection failed'));
         });
     });
 });

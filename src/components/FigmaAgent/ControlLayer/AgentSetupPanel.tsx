@@ -57,10 +57,10 @@ const AgentSetupPanel: React.FC = () => {
           Google Gemini
         </button>
         <button className={styles.providerBtn} type="button" disabled>
-          Claude <span className={styles.providerTodo}>{t('common.todo')}</span>
+          Claude <span className={styles.providerTodo}>{t('common.coming_soon')}</span>
         </button>
         <button className={styles.providerBtn} type="button" disabled>
-          Codex <span className={styles.providerTodo}>{t('common.todo')}</span>
+          Codex <span className={styles.providerTodo}>{t('common.coming_soon')}</span>
         </button>
       </div>
 

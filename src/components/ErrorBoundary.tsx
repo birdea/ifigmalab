@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import styles from './ErrorBoundary.module.scss';
 
 interface Props {
     children?: ReactNode;
@@ -26,16 +27,16 @@ class ErrorBoundary extends Component<Props, State> {
     public render() {
         if (this.state.hasError) {
             return this.props.fallback || (
-                <div style={{ padding: '20px', color: '#721c24', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '4px' }}>
-                    <h2>Something went wrong.</h2>
-                    <details style={{ whiteSpace: 'pre-wrap' }}>
+                <div className={styles.container}>
+                    <h2>Something went wrong. / 오류가 발생했습니다.</h2>
+                    <details className={styles.details}>
                         {this.state.error?.toString()}
                     </details>
                     <button
                         onClick={() => window.location.reload()}
-                        style={{ marginTop: '10px', padding: '8px 16px', cursor: 'pointer' }}
+                        className={styles.reloadBtn}
                     >
-                        Reload Page
+                        Reload Page / 새로 고침
                     </button>
                 </div>
             );

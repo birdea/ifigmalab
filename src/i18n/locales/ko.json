@@ -90,7 +90,8 @@
         "request_timeout": "요청 시간이 초과되었습니다 (120초). 다시 시도해주세요."
     },
     "common": {
-        "todo": "(todo)"
+        "todo": "(todo)",
+        "coming_soon": "(준비 중)"
     },
     "nav": {
         "aria_label": "메인 탭 메뉴"

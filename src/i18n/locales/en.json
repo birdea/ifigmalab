@@ -90,7 +90,8 @@
         "request_timeout": "Request timed out (120s). Please try again."
     },
     "common": {
-        "todo": "(todo)"
+        "todo": "(todo)",
+        "coming_soon": "(coming soon)"
     },
     "nav": {
         "aria_label": "Main navigation tabs"
