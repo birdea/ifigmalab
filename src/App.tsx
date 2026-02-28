@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import helpContent from './content/help.md';
+import helpContentKo from './content/help.md';
+import helpContentEn from './content/help.en.md';
 import { useTranslation } from 'react-i18next';
 
 import { useAtomValue, Provider } from 'jotai';
@@ -22,22 +23,26 @@ const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
  * 도움말 화면을 렌더링하는 Component.
  * Markdown 형태의 도움말 콘텐츠를 파싱하여 출력합니다.
  */
-const HelpPage: React.FC = () => (
-  <div className={styles.helpPage}>
-    <div className={styles.helpMarkdown}>
-      <Markdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
-          ),
-        }}
-      >
-        {helpContent}
-      </Markdown>
+const HelpPage: React.FC = () => {
+  const { i18n } = useTranslation();
+  const helpContent = i18n.language === 'en' ? helpContentEn : helpContentKo;
+  return (
+    <div className={styles.helpPage}>
+      <div className={styles.helpMarkdown}>
+        <Markdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ href, children }) => (
+              <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
+            ),
+          }}
+        >
+          {helpContent}
+        </Markdown>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /**
  * AI가 생성한 HTML 코드를 렌더링하여 미리보여주는 View Component.
@@ -108,7 +113,7 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
  * 왼쪽/오른쪽 패널의 Resizing 기능 및 Toast 알림 기능을 포함합니다.
  */
 const FigmaLabApp: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabId>('MCP');
   const [viewHtml, setViewHtml] = useState('');
   const [toast, setToast] = useState(false);
@@ -173,7 +178,20 @@ const FigmaLabApp: React.FC = () => {
               </button>
             ))}
           </div>
-
+        </div>
+        <div className={styles.menuRight}>
+          <div className={styles.localeSwitcher} role="group" aria-label="Language">
+            {(['ko', 'en'] as const).map(lang => (
+              <button
+                key={lang}
+                className={`${styles.localeBtn} ${i18n.language === lang ? styles.localeBtnActive : ''}`}
+                onClick={() => i18n.changeLanguage(lang)}
+                aria-pressed={i18n.language === lang}
+              >
+                {lang === 'ko' ? 'KR' : 'EN'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

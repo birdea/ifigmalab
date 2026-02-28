@@ -64,6 +64,55 @@
   gap: 0;
 }
 
+.menuRight {
+  display: flex;
+  align-items: center;
+}
+
+.localeSwitcher {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.localeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  height: 26px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888888;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background-color 0.12s ease, color 0.12s ease;
+
+  &:not(:last-child) {
+    border-right: 1px solid #e0e0e0;
+  }
+
+  &:hover {
+    background-color: #f0f0f0;
+    color: #333333;
+  }
+}
+
+.localeBtnActive {
+  background-color: #4c6ef5;
+  color: #ffffff;
+
+  &:hover {
+    background-color: #4c6ef5;
+    color: #ffffff;
+  }
+}
+
 .panelBtn {
   display: flex;
   align-items: center;
