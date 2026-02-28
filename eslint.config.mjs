@@ -33,7 +33,7 @@ export default tseslint.config(
             "jsx-a11y/click-events-have-key-events": "warn",
             "jsx-a11y/no-static-element-interactions": "warn",
             // 코드 품질 규칙
-            "no-console": "warn",
+            "no-console": ["warn", { "allow": ["warn", "error"] }],
             "prefer-const": "error"
         }
     },

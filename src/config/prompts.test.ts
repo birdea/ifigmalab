@@ -12,14 +12,14 @@ describe('SYSTEM_PROMPT env override (A-09)', () => {
 
     it('uses default prompt when SYSTEM_PROMPT env var is not set', () => {
         delete process.env.SYSTEM_PROMPT;
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+         
         const { SYSTEM_PROMPT } = require('./prompts') as { SYSTEM_PROMPT: string };
         expect(SYSTEM_PROMPT).toContain('전문 프론트엔드 개발자');
     });
 
     it('uses SYSTEM_PROMPT env var when set', () => {
         process.env.SYSTEM_PROMPT = 'custom system prompt for testing';
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+         
         const { SYSTEM_PROMPT } = require('./prompts') as { SYSTEM_PROMPT: string };
         expect(SYSTEM_PROMPT).toBe('custom system prompt for testing');
     });
