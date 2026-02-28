@@ -66,7 +66,6 @@ export const screenshotMimeTypeAtom = atom<string>('image/png');
 // Model 정보 조회 텍스트
 export const modelInfoTextAtom = atom<string>('');
 
-// ... add imports for the lock state atoms
 export const isLockedAtom = atom<boolean>(false);
 export const savedEncryptedKeyAtom = atom<string>('');
 export const pinAtom = atom<string>('');

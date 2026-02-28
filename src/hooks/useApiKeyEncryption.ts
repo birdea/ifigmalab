@@ -44,12 +44,13 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
         }
     }, [apiKey, savedEncryptedKey, setSavedEncryptedKey, setIsLocked, setRememberKey, setApiKey, onUnlockSuccess]);
 
-    // 조건 충족 시 API Key를 암호화하여 로컬에 보관
+    // 조건 충족 시 API Key를 암호화하여 로컬에 보관 (300ms debounce로 경쟁 조건 방지)
     useEffect(() => {
         if (isLocked) return;
 
         let isActive = true;
-        const saveEncrypted = async () => {
+        const timer = setTimeout(async () => {
+            if (!isActive) return;
             if (rememberKey && apiKey && pin.length >= 4) {
                 try {
                     let needsSave = true;
@@ -66,8 +67,10 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
 
                     if (needsSave && isActive) {
                         const encrypted = await encryptData(apiKey, pin);
-                        localStorage.setItem(LOCAL_STORAGE_KEY_ENC, encrypted);
-                        setSavedEncryptedKey(encrypted);
+                        if (isActive) {
+                            localStorage.setItem(LOCAL_STORAGE_KEY_ENC, encrypted);
+                            setSavedEncryptedKey(encrypted);
+                        }
                     }
                 } catch (e) {
                     console.error('Encryption failed', e);
@@ -78,9 +81,8 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
                     setSavedEncryptedKey('');
                 }
             }
-        };
-        saveEncrypted();
-        return () => { isActive = false; };
+        }, 300);
+        return () => { isActive = false; clearTimeout(timer); };
     }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey, setSavedEncryptedKey]);
 
     const [unlockAttempts, setUnlockAttempts] = useAtom(unlockAttemptsAtom);

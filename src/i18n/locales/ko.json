@@ -91,5 +91,8 @@
     },
     "common": {
         "todo": "(todo)"
+    },
+    "nav": {
+        "aria_label": "메인 탭 메뉴"
     }
 }

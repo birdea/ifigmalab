@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
@@ -45,7 +46,7 @@ module.exports = (env, argv) => {
         {
           test: /\.(css|s[ac]ss)$/i,
           use: [
-            'style-loader',
+            isProd ? MiniCssExtractPlugin.loader : 'style-loader',
             {
               loader: 'css-loader',
               options: {
@@ -68,7 +69,9 @@ module.exports = (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
         'process.env.SYSTEM_PROMPT': JSON.stringify(process.env.SYSTEM_PROMPT ?? undefined),
         'process.env.MAX_OUTPUT_TOKENS': JSON.stringify(process.env.MAX_OUTPUT_TOKENS ?? undefined),
+        'process.env.APP_VERSION': JSON.stringify(require('./package.json').version),
       }),
+      ...(isProd ? [new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' })] : []),
       new ModuleFederationPlugin({
         name: 'figmalab',
         filename: 'remoteEntry.js',

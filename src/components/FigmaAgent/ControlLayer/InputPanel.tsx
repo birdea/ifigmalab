@@ -131,7 +131,7 @@ const InputPanel: React.FC = () => {
         />
       </div>
 
-      <div className={styles.formCol} role="separator" aria-orientation="horizontal" />
+      <hr aria-hidden="true" />
 
       <div className={styles.formCol}>
         <label className={styles.formLabel} htmlFor="prompt-textarea">
@@ -189,7 +189,7 @@ const InputPanel: React.FC = () => {
         </div>
       </div>
 
-      <div role="separator" aria-orientation="horizontal" />
+      <hr aria-hidden="true" />
 
       {debugLog && (
         <div className={styles.debugLogWrap}>

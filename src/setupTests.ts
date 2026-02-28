@@ -4,6 +4,28 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
 
+// AbortSignal polyfills for jsdom (Node.js 20+ APIs not exposed by jsdom)
+if (typeof AbortSignal.any !== 'function') {
+    (AbortSignal as any).any = (signals: AbortSignal[]) => {
+        const controller = new AbortController();
+        for (const signal of signals) {
+            if (signal.aborted) {
+                controller.abort(signal.reason);
+                return controller.signal;
+            }
+            signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+        }
+        return controller.signal;
+    };
+}
+if (typeof AbortSignal.timeout !== 'function') {
+    (AbortSignal as any).timeout = (ms: number) => {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(new DOMException('TimeoutError', 'TimeoutError')), ms);
+        return controller.signal;
+    };
+}
+
 // Mock react-i18next
 jest.mock('react-i18next', () => {
     const ko = require('./i18n/locales/ko.json');

@@ -10,8 +10,7 @@ import FigmaAgent from './components/FigmaAgent';
 import AgentSetupPanel from './components/FigmaAgent/ControlLayer/AgentSetupPanel';
 import { generateStatusAtom, generatedHtmlAtom } from './components/FigmaAgent/atoms';
 import { sharedStore } from './shared/store';
-import pkg from '../package.json';
-const { version } = pkg;
+const version = process.env.APP_VERSION;
 
 type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
@@ -50,17 +49,33 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-
     const iframe = iframeRef.current;
     if (!iframe) return;
+    let ro: ResizeObserver | null = null;
+
     const resize = () => {
       try {
         const doc = iframe.contentDocument;
         if (doc?.body) iframe.style.height = `${doc.body.scrollHeight}px`;
       } catch { /* cross-origin 무시 */ }
     };
-    iframe.addEventListener('load', resize);
-    return () => iframe.removeEventListener('load', resize);
+
+    const handleLoad = () => {
+      resize();
+      try {
+        const doc = iframe.contentDocument;
+        if (doc?.body) {
+          ro = new ResizeObserver(resize);
+          ro.observe(doc.body);
+        }
+      } catch { /* cross-origin 무시 */ }
+    };
+
+    iframe.addEventListener('load', handleLoad);
+    return () => {
+      iframe.removeEventListener('load', handleLoad);
+      ro?.disconnect();
+    };
   }, [html]);
 
   if (!html) {
@@ -138,7 +153,7 @@ const FigmaLabApp: React.FC = () => {
 
       <div className={styles.menuBar}>
         <div className={styles.menuLeft}>
-          <div className={styles.nav} role="tablist" aria-label="메인 탭 메뉴">
+          <div className={styles.nav} role="tablist" aria-label={t('nav.aria_label')}>
             {TAB_ITEMS.map(tab => (
               <button
                 key={tab}

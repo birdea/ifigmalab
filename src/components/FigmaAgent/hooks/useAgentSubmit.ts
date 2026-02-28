@@ -23,7 +23,8 @@ import {
 } from '../utils';
 import { formatBytes, TEXT_ENCODER } from '../../../utils/utils';
 
-const MAX_OUTPUT_TOKENS = parseInt(process.env.MAX_OUTPUT_TOKENS ?? '65536', 10);
+const _parsed = parseInt(process.env.MAX_OUTPUT_TOKENS ?? '', 10);
+const MAX_OUTPUT_TOKENS = Number.isFinite(_parsed) ? _parsed : 65536;
 
 function isGeminiResponse(v: unknown): v is GeminiResponse {
     return typeof v === 'object' && v !== null && ('candidates' in v || 'usageMetadata' in v || 'error' in v);

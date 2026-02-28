@@ -76,9 +76,10 @@ export function useGeminiModels() {
     const fetchModels = useCallback(async (key: string) => {
         if (!key) return;
 
-        // P-06: sessionStorage TTL 캐시 확인 (1시간)
+        // P-06: sessionStorage TTL 캐시 확인 (1시간) — 캐시 키에 API Key 식별자 포함
+        const cacheKey = `${STORAGE_KEYS.GEMINI_MODELS_CACHE}_${key.slice(0, 8)}`;
         try {
-            const cached = sessionStorage.getItem(STORAGE_KEYS.GEMINI_MODELS_CACHE);
+            const cached = sessionStorage.getItem(cacheKey);
             if (cached) {
                 const { data, timestamp } = JSON.parse(cached) as { data: typeof geminiModels; timestamp: number };
                 if (Date.now() - timestamp < MODELS_CACHE_TTL && data.length > 0) {
@@ -119,9 +120,9 @@ export function useGeminiModels() {
                     if (!filtered.some(m => m.id === selectedModel)) {
                         setSelectedModel(filtered[0].id);
                     }
-                    // P-06: 결과를 sessionStorage에 캐시 저장
+                    // P-06: 결과를 sessionStorage에 캐시 저장 (API Key별 캐시 키 사용)
                     try {
-                        sessionStorage.setItem(STORAGE_KEYS.GEMINI_MODELS_CACHE, JSON.stringify({ data: filtered, timestamp: Date.now() }));
+                        sessionStorage.setItem(cacheKey, JSON.stringify({ data: filtered, timestamp: Date.now() }));
                     } catch {
                         // sessionStorage 용량 초과 시 무시
                     }
@@ -134,7 +135,7 @@ export function useGeminiModels() {
         }
     }, [selectedModel, setGeminiModels, setSelectedModel]);
 
-    const handleGetModelInfo = async () => {
+    const handleGetModelInfo = useCallback(async () => {
         if (!apiKey) return;
         setIsFetchingInfo(true);
         setModelInfoText('Loading...');
@@ -159,7 +160,7 @@ export function useGeminiModels() {
         } finally {
             setIsFetchingInfo(false);
         }
-    };
+    }, [apiKey, stagedModel, setModelInfoText]);
 
     return {
         geminiModels,

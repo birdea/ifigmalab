@@ -91,5 +91,8 @@
     },
     "common": {
         "todo": "(todo)"
+    },
+    "nav": {
+        "aria_label": "Main navigation tabs"
     }
 }

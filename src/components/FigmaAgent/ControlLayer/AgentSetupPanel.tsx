@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import styles from '../FigmaAgent.module.scss';
 import { useApiKeyEncryption } from '../../../hooks/useApiKeyEncryption';
 import { useGeminiModels } from '../../../hooks/useGeminiModels';
+import { useSessionTimeout } from '../../../hooks/useSessionTimeout';
 
 /**
  * API Key 초기화, Model 선택 여부, 로컬 암호화 저장을 설정하는 Panel.
@@ -11,6 +12,7 @@ import { useGeminiModels } from '../../../hooks/useGeminiModels';
 const AgentSetupPanel: React.FC = () => {
   const { t } = useTranslation();
   const [showKey, setShowKey] = useState(false);
+  useSessionTimeout();
 
 
   const {
