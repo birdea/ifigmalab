@@ -39,7 +39,11 @@ export async function encryptData(text: string, pin: string): Promise<string> {
     combined.set(salt, 0);
     combined.set(iv, salt.length);
     combined.set(new Uint8Array(encrypted), salt.length + iv.length);
-    return btoa(String.fromCharCode(...combined));
+    let binary = '';
+    for (let i = 0; i < combined.length; i++) {
+        binary += String.fromCharCode(combined[i]);
+    }
+    return btoa(binary);
 }
 
 export async function decryptData(encryptedBase64: string, pin: string): Promise<string> {

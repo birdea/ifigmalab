@@ -86,7 +86,8 @@
         "content_required": "Please enter MCP data or prompt.",
         "json_parse_failed": "Response parse error: ",
         "invalid_response": "Invalid Gemini API response format",
-        "locked_out": "Locked out: try again in {{seconds}}s"
+        "locked_out": "Locked out: try again in {{seconds}}s",
+        "request_timeout": "Request timed out (120s). Please try again."
     },
     "common": {
         "todo": "(todo)"

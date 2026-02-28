@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -56,6 +56,13 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
     const [tokenCount, setTokenCount] = useState<number | null>(null);
     const [isCountingTokens, setIsCountingTokens] = useState(false);
 
+    const submitAbortRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+        return () => {
+            submitAbortRef.current?.abort();
+        };
+    }, []);
 
     const buildPromptText = useCallback((): { textContent: string, systemPromptSection: string, designContextSection: string, userPromptSection: string } => {
         const systemPromptSection = SYSTEM_PROMPT;
@@ -81,7 +88,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
         return parts;
     }, [screenshot, screenshotMimeType]);
 
-    const handleCountTokens = async () => {
+    const handleCountTokens = useCallback(async () => {
         if (!apiKey || (!mcpData.trim() && !prompt.trim())) return;
         setIsCountingTokens(true);
         setTokenCount(null);
@@ -97,6 +104,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                         'x-goog-api-key': apiKey,
                     },
                     body: JSON.stringify({ contents: [{ role: 'user', parts }] }),
+                    signal: AbortSignal.timeout(30_000),
                 }
             );
             const json = await res.json();
@@ -110,13 +118,22 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                 appendLog(`[COUNT TOKENS] ✓ ${count.toLocaleString()} tokens (model: ${model})`);
             }
         } catch (e) {
-            appendLog(`[COUNT TOKENS] ❌ ${e instanceof Error ? e.message : String(e)}`);
+            if (e instanceof DOMException && e.name === 'AbortError') return;
+            const isTimeout = e instanceof DOMException && e.name === 'TimeoutError';
+            appendLog(isTimeout
+                ? `[COUNT TOKENS] ⏱️ 타임아웃 (30초)`
+                : `[COUNT TOKENS] ❌ ${e instanceof Error ? e.message : String(e)}`
+            );
         } finally {
             setIsCountingTokens(false);
         }
-    };
+    }, [apiKey, mcpData, prompt, buildPromptText, buildPromptParts, model, appendLog]);
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
+        submitAbortRef.current?.abort();
+        const controller = new AbortController();
+        submitAbortRef.current = controller;
+
         const bar = '─'.repeat(40);
 
         appendLog(`┌${bar}`);
@@ -194,6 +211,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
                     'x-goog-api-key': apiKey,
                 },
                 body: requestBodyJson,
+                signal: AbortSignal.any([controller.signal, AbortSignal.timeout(120_000)]),
             });
 
             const networkMs = Date.now() - startTime;
@@ -288,11 +306,16 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             setRawResponse(rawResponse);
             setStatus('success');
         } catch (e) {
+            if (e instanceof DOMException && e.name === 'AbortError') return;
+
             const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            const isTimeout = e instanceof DOMException && e.name === 'TimeoutError';
             const isNetworkError = e instanceof TypeError &&
                 (e.message === 'Failed to fetch' || e.message.includes('NetworkError'));
 
-            if (isNetworkError) {
+            if (isTimeout) {
+                appendLog(`│ [NETWORK]  ⏱️  타임아웃 (${elapsed}s) — 요청이 120초를 초과했습니다`);
+            } else if (isNetworkError) {
                 appendLog(`│ [NETWORK]  ❌ 연결 실패 (${elapsed}s)`);
                 appendLog(`│ [DIAGNOSE] Gemini API 서버에 연결할 수 없습니다.`);
                 appendLog(`│ [DIAGNOSE] 인터넷 연결 상태를 확인해주세요.`);
@@ -301,10 +324,12 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
             }
             appendLog(`└${bar}`);
 
-            setError(e instanceof Error ? e.message : String(e));
+            setError(isTimeout ? t('errors.request_timeout') : (e instanceof Error ? e.message : String(e)));
             setStatus('error');
         }
-    };
+    }, [apiKey, model, mcpData, prompt, screenshot, screenshotMimeType,
+        buildPromptText, buildPromptParts,
+        setStatus, setError, setGeneratedHtml, setRawResponse, appendLog, t]);
 
     return {
         tokenCount,

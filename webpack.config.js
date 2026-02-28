@@ -10,11 +10,16 @@ module.exports = (env, argv) => {
   return {
     entry: './src/index.ts',
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? 'source-map' : 'eval-cheap-module-source-map',
+    // hidden-source-map: .map 파일 생성하지만 번들에서 참조하지 않아 소스 노출 방지
+    devtool: isProd ? 'hidden-source-map' : 'eval-cheap-module-source-map',
     devServer: {
       port: 3005,
       headers: {
+        // 개발 환경 전용 — 프로덕션은 public/_headers 파일로 관리
         "Access-Control-Allow-Origin": "*",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
       }
     },
     output: {

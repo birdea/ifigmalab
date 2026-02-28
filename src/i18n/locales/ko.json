@@ -86,7 +86,8 @@
         "content_required": "MCP 데이터 또는 프롬프트를 입력해주세요.",
         "json_parse_failed": "응답 파싱 오류: ",
         "invalid_response": "Invalid Gemini API response format",
-        "locked_out": "잠금 해제 불가: {{seconds}}초 후 재시도"
+        "locked_out": "잠금 해제 불가: {{seconds}}초 후 재시도",
+        "request_timeout": "요청 시간이 초과되었습니다 (120초). 다시 시도해주세요."
     },
     "common": {
         "todo": "(todo)"

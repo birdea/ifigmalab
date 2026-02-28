@@ -46,7 +46,7 @@
     "webpack-dev-server": "^5.2.0"
   },
   "scripts": {
-    "build": "webpack --mode production && cp public/_redirects dist/_redirects",
+    "build": "webpack --mode production && cp public/_redirects dist/_redirects && cp public/_headers dist/_headers",
     "test": "jest --coverage",
     "test:e2e": "playwright test",
     "lint": "eslint .",

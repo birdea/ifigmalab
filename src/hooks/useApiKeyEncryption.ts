@@ -102,6 +102,7 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
             setUnlockError('');
             setUnlockAttempts(0);
             setLockedUntil(0);
+            setPin(''); // 복호화 성공 후 PIN 즉시 메모리에서 제거
             onUnlockSuccess?.(decryptedKey);
         } catch {
             const newAttempts = unlockAttempts + 1;
@@ -116,7 +117,7 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
                 setUnlockError(`${t('errors.invalid_pin')} (${newAttempts}/5)`);
             }
         }
-    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, onUnlockSuccess, t, unlockAttempts, setUnlockAttempts, lockedUntil, setLockedUntil]);
+    }, [savedEncryptedKey, pin, setApiKey, setIsLocked, setPin, onUnlockSuccess, t, unlockAttempts, setUnlockAttempts, lockedUntil, setLockedUntil]);
 
     const handleResetPin = useCallback(() => {
         localStorage.removeItem(LOCAL_STORAGE_KEY_ENC);

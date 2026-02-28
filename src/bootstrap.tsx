@@ -3,13 +3,17 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import './i18n/config';
+import { reportError } from './utils/errorReporter';
 
-// A-10: 전역 에러 핸들러 — ErrorBoundary가 포착하지 못하는 비동기 오류 수집
+// 전역 에러 핸들러 — ErrorBoundary가 포착하지 못하는 비동기 오류 수집 및 지속 기록
 window.addEventListener('unhandledrejection', (event) => {
   console.error('[Unhandled Promise Rejection]', event.reason);
+  reportError('UnhandledRejection', event.reason);
 });
 window.addEventListener('error', (event) => {
-  console.error('[Global Error]', event.error ?? event.message);
+  const err = event.error ?? new Error(event.message);
+  console.error('[Global Error]', err);
+  reportError('GlobalError', err);
 });
 
 const container = document.getElementById('root');
