@@ -23,6 +23,7 @@ const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
 const ViewPage: React.FC<{ html: string }> = ({ html }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { t } = useTranslation();
+  const [allowScripts, setAllowScripts] = useState(false);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -52,7 +53,7 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
       iframe.removeEventListener('load', handleLoad);
       ro?.disconnect();
     };
-  }, [html]);
+  }, [html, allowScripts]);
 
   if (!html) {
     return (
@@ -64,11 +65,22 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
 
   return (
     <div className={styles.viewPage}>
+      <div className={`${styles.viewToolbar} ${allowScripts ? styles.viewToolbarWarning : ''}`}>
+        <span className={styles.viewToolbarLabel}>
+          {allowScripts ? t('view.script_enabled_warning') : t('view.script_disabled_label')}
+        </span>
+        <button
+          className={`${styles.viewToolbarBtn} ${allowScripts ? styles.viewToolbarBtnDanger : ''}`}
+          onClick={() => setAllowScripts(prev => !prev)}
+        >
+          {allowScripts ? t('view.disable_scripts') : t('view.enable_scripts')}
+        </button>
+      </div>
       <iframe
         ref={iframeRef}
         className={styles.viewFrame}
         srcDoc={html}
-        sandbox="allow-scripts"
+        sandbox={allowScripts ? 'allow-scripts' : ''}
         referrerPolicy="no-referrer"
         title={t('view.title')}
       />

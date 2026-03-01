@@ -140,7 +140,7 @@ export function useAgentSubmit(appendLog: (line: string) => void) {
         appendLog(`┌${bar}`);
         appendLog(`│ Submit request`);
         appendLog(`├${bar}`);
-        appendLog(`│ [VALIDATE] API Key      : ${apiKey ? `${apiKey.slice(0, 6)}...${apiKey.slice(-4)} (${apiKey.length} chars) ✓` : '❌ none'}`);
+        appendLog(`│ [VALIDATE] API Key      : ${apiKey ? `${apiKey.slice(0, 4)}**** (${apiKey.length} chars) ✓` : '❌ none'}`);
         appendLog(`│ [VALIDATE] MCP Data     : ${mcpData.trim() ? `${formatBytes(TEXT_ENCODER.encode(mcpData).length) || '0 bytes'} (${mcpData.length} chars) ✓` : 'empty'}`);
         appendLog(`│ [VALIDATE] Prompt       : ${prompt.trim() ? `${prompt.length} chars ✓` : 'empty'}`);
         appendLog(`│ [VALIDATE] Model        : ${model}`);

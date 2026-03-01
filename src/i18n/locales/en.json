@@ -7,7 +7,11 @@
     },
     "view": {
         "placeholder": "Preview (VIEW)",
-        "title": "Generated Preview"
+        "title": "Generated Preview",
+        "enable_scripts": "Enable Scripts",
+        "disable_scripts": "Disable Scripts",
+        "script_enabled_warning": "⚠ AI-generated scripts are running. Only allow for trusted content.",
+        "script_disabled_label": "Scripts blocked"
     },
     "toast": {
         "success": "Result reflected in VIEW page",
