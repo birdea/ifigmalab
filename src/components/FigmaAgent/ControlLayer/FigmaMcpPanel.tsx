@@ -32,7 +32,6 @@ const FigmaMcpPanel: React.FC = () => {
   const [fetching, setFetching] = useState(false);
   const [fetchingScreenshot, setFetchingScreenshot] = useState(false);
   const [fetchError, setFetchError] = useState('');
-  const [pollError, setPollError] = useState('');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isVisibleRef = useRef(true);
 
@@ -47,16 +46,13 @@ const FigmaMcpPanel: React.FC = () => {
       if (isConnectionStatus(data)) {
         const isConnected = data.connected;
         setConnected(isConnected);
-        setPollError('');
         return isConnected;
       } else {
         setConnected(false);
-        setPollError('');
         return false;
       }
-    } catch (e) {
+    } catch {
       setConnected(false);
-      setPollError(e instanceof Error ? e.message : 'Connection failed');
       return false;
     }
   }, [proxyServerUrl, setConnected]);
@@ -184,7 +180,6 @@ const FigmaMcpPanel: React.FC = () => {
             {connected ? `(●) : ${t('mcp.connected')}` : `(○) : ${t('mcp.disconnected')}`}
           </span>
         </div>
-        {pollError && <span className={styles.errorText}>{pollError}</span>}
       </div>
 
 
