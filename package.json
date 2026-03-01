@@ -52,6 +52,7 @@
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "format": "eslint --fix .",
-    "dev": "webpack serve --mode development --port 3005"
+    "dev": "webpack serve --mode development --port 3005",
+    "dev:mobile": "webpack serve --mode development --port 3005 --host 0.0.0.0 --allowed-hosts all"
   }
 }

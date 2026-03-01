@@ -15,6 +15,8 @@ module.exports = (env, argv) => {
     devtool: isProd ? 'hidden-source-map' : 'eval-cheap-module-source-map',
     devServer: {
       port: 3005,
+      host: '0.0.0.0',
+      allowedHosts: 'all',
       headers: {
         // 개발 환경 전용 — 프로덕션은 public/_headers 파일로 관리
         "Access-Control-Allow-Origin": "*",
