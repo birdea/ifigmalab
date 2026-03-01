@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
 import { apiKeyAtom, isLockedAtom, savedEncryptedKeyAtom } from '../components/FigmaAgent/atoms';
+import { SESSION_TIMEOUT_MS as DEFAULT_TIMEOUT_MS } from '../constants/config';
 
 const INACTIVITY_EVENTS = ['mousedown', 'keydown', 'scroll', 'touchstart'] as const;
 
@@ -9,7 +10,7 @@ const INACTIVITY_EVENTS = ['mousedown', 'keydown', 'scroll', 'touchstart'] as co
  * savedEncryptedKey가 있는 경우(암호화 저장된 키)에만 동작합니다.
  * @param timeoutMs - 비활동 타임아웃 (기본값: 30분)
  */
-export function useSessionTimeout(timeoutMs = 30 * 60 * 1000) {
+export function useSessionTimeout(timeoutMs = DEFAULT_TIMEOUT_MS) {
     const [apiKey, setApiKey] = useAtom(apiKeyAtom);
     const [, setIsLocked] = useAtom(isLockedAtom);
     const [savedEncryptedKey] = useAtom(savedEncryptedKeyAtom);

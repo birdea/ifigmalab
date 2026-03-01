@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   mcpDataAtom,
   promptAtom,
@@ -16,6 +16,8 @@ import {
 } from '../utils';
 import { useAgentSubmit } from '../hooks/useAgentSubmit';
 import { formatBytes, TEXT_ENCODER } from '../../../utils/utils';
+import { MAX_DEBUG_LOG_LINES } from '../../../constants/config';
+import DebugLogPanel from './DebugLogPanel';
 
 /**
  * 사용자의 추가 Prompt와 Figma MCP 데이터를 모아 Gemini API로 전송하는 입력 패널 Component.
@@ -27,16 +29,9 @@ const InputPanel: React.FC = () => {
 
   const [prompt, setPrompt] = useAtom(promptAtom);
   const [status] = useAtom(generateStatusAtom);
-  const [debugLog, setDebugLog] = useAtom(debugLogAtom);
+  const setDebugLog = useSetAtom(debugLogAtom);
   const apiKey = useAtomValue(apiKeyAtom);
   const screenshot = useAtomValue(screenshotAtom);
-  const logRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [debugLog]);
 
   const isLoading = status === 'loading';
   const hasApiKey = !!apiKey;
@@ -44,15 +39,14 @@ const InputPanel: React.FC = () => {
   const isReady = hasApiKey && hasContent;
   const byteSize = useMemo(() => TEXT_ENCODER.encode(mcpData).length, [mcpData]);
 
-
   const appendLog = useCallback((line: string) => {
     const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
     setDebugLog(prev => {
       const newLine = `[${ts}] ${line}\n`;
       const combined = prev + newLine;
       const lines = combined.split('\n');
-      if (lines.length > 500) {
-        return lines.slice(lines.length - 500).join('\n');
+      if (lines.length > MAX_DEBUG_LOG_LINES) {
+        return lines.slice(lines.length - MAX_DEBUG_LOG_LINES).join('\n');
       }
       return combined;
     });
@@ -70,9 +64,6 @@ const InputPanel: React.FC = () => {
   useEffect(() => {
     setTokenCount(null);
   }, [mcpData, prompt, screenshot, setTokenCount]);
-
-
-
 
 
   const handleOptimize = () => {
@@ -191,31 +182,7 @@ const InputPanel: React.FC = () => {
 
       <hr aria-hidden="true" />
 
-      {debugLog && (
-        <div className={styles.debugLogWrap}>
-          <div className={styles.debugLogHeader}>
-            <span className={styles.debugLogTitle} id="debug-log-title">{t('input.debug_log')}</span>
-            <button
-              className={styles.debugLogClear}
-              onClick={() => setDebugLog('')}
-              type="button"
-              aria-label={t('input.clear_log_label')}
-            >
-              {t('input.clear_log')}
-            </button>
-          </div>
-
-          <textarea
-            ref={logRef}
-            className={styles.debugLogArea}
-            readOnly
-            value={debugLog}
-            rows={8}
-            aria-labelledby="debug-log-title"
-            aria-live="polite"
-          />
-        </div>
-      )}
+      <DebugLogPanel />
 
     </div>
   );

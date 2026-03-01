@@ -1,6 +1,7 @@
 /**
  * Utilities for Web Crypto API based PBKDF2 + AES-GCM
  */
+import { PBKDF2_ITERATIONS } from '../constants/config';
 
 async function deriveKey(pin: string, salt: Uint8Array) {
     const enc = new TextEncoder();
@@ -15,7 +16,7 @@ async function deriveKey(pin: string, salt: Uint8Array) {
         {
             name: 'PBKDF2',
             salt: salt as BufferSource,
-            iterations: 310000,
+            iterations: PBKDF2_ITERATIONS,
             hash: 'SHA-256'
         },
         keyMaterial,

@@ -5,8 +5,9 @@ import { useAtom } from 'jotai';
 import { figmaNodeIdAtom, figmaConnectedAtom, mcpDataAtom, screenshotAtom, screenshotMimeTypeAtom, proxyServerUrlAtom, figmaMcpServerUrlAtom } from '../atoms';
 import { parseNodeId } from '../figmaNodeUtils';
 import styles from '../FigmaAgent.module.scss';
+import { MCP_POLL_INTERVAL_MS } from '../../../constants/config';
 
-const POLL_INTERVAL = 10_000;
+const POLL_INTERVAL = MCP_POLL_INTERVAL_MS;
 
 interface ConnectionStatus {
   connected: boolean;

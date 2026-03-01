@@ -12,6 +12,8 @@ import {
 } from '../components/FigmaAgent/atoms';
 import { encryptData, decryptData } from '../utils/crypto';
 import { STORAGE_KEYS } from '../constants/storageKeys';
+import { ENCRYPT_DEBOUNCE_MS, MAX_UNLOCK_ATTEMPTS, LOCKOUT_DURATION_MS } from '../constants/config';
+import { reportError } from '../utils/errorReporter';
 
 const LOCAL_STORAGE_KEY_ENC = STORAGE_KEYS.API_KEY_ENCRYPTED;
 
@@ -73,7 +75,7 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
                         }
                     }
                 } catch (e) {
-                    console.error('Encryption failed', e);
+                    reportError('Encryption', e);
                 }
             } else if (!rememberKey && savedEncryptedKey) {
                 if (isActive) {
@@ -81,7 +83,7 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
                     setSavedEncryptedKey('');
                 }
             }
-        }, 300);
+        }, ENCRYPT_DEBOUNCE_MS);
         return () => { isActive = false; clearTimeout(timer); };
     }, [rememberKey, apiKey, pin, isLocked, savedEncryptedKey, setSavedEncryptedKey]);
 
@@ -110,13 +112,13 @@ export function useApiKeyEncryption(onUnlockSuccess?: (apiKey: string) => void) 
             const newAttempts = unlockAttempts + 1;
             setUnlockAttempts(newAttempts);
 
-            if (newAttempts >= 5) {
-                const lockoutTime = Date.now() + 30_000; // 30 seconds
+            if (newAttempts >= MAX_UNLOCK_ATTEMPTS) {
+                const lockoutTime = Date.now() + LOCKOUT_DURATION_MS;
                 setLockedUntil(lockoutTime);
                 setUnlockAttempts(0);
-                setUnlockError(t('errors.locked_out', { seconds: 30 }));
+                setUnlockError(t('errors.locked_out', { seconds: LOCKOUT_DURATION_MS / 1000 }));
             } else {
-                setUnlockError(`${t('errors.invalid_pin')} (${newAttempts}/5)`);
+                setUnlockError(`${t('errors.invalid_pin')} (${newAttempts}/${MAX_UNLOCK_ATTEMPTS})`);
             }
         }
     }, [savedEncryptedKey, pin, setApiKey, setIsLocked, setPin, onUnlockSuccess, t, unlockAttempts, setUnlockAttempts, lockedUntil, setLockedUntil]);
