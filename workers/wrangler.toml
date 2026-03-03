@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 FIGMA_CLIENT_ID = "bAylr8CfFb4U0zil8yf6bX"
-ALLOWED_ORIGINS = "http://localhost:3005"
+ALLOWED_ORIGINS = "http://localhost:3005,https://ifigmalab.pages.dev"
 
 # Secrets (set via `wrangler secret put`):
 # FIGMA_CLIENT_SECRET
