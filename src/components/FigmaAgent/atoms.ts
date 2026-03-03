@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
 // Dynamic loading을 지원하기 위해 string 타입으로 정의
 export type GeminiModel = string;
@@ -24,16 +25,22 @@ export const selectedModelAtom = atom<GeminiModel>(DEFAULT_MODEL);
 export const geminiModelsAtom = atom<GeminiModelEntry[]>(GEMINI_MODELS_DEFAULT);
 
 // Figma MCP proxy server URL
-export const proxyServerUrlAtom = atom<string>(process.env.PROXY_URL || 'http://localhost:3006');
+export const proxyServerUrlAtom = atomWithStorage<string>(
+  'proxyServerUrl',
+  process.env.PROXY_URL || 'http://localhost:3006'
+);
 
 // Figma Desktop App MCP server URL
-export const figmaMcpServerUrlAtom = atom<string>(process.env.FIGMA_MCP_URL || 'http://localhost:3845');
+export const figmaMcpServerUrlAtom = atomWithStorage<string>(
+  'figmaMcpServerUrl',
+  process.env.FIGMA_MCP_URL || 'http://localhost:3845'
+);
 
 // Figma Target Node ID
 export const figmaNodeIdAtom = atom<string>('');
 
-// Figma MCP Connection 상태
-export const figmaConnectedAtom = atom<boolean>(false);
+// Figma MCP Connection 상태: true=연결됨, false=연결 안 됨, null=확인 불가(Proxy 미도달)
+export const figmaConnectedAtom = atom<boolean | null>(null);
 
 // MCP 데이터 입력
 export const mcpDataAtom = atom<string>('');

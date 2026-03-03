@@ -6,11 +6,21 @@ import { checkFigmaStatus, fetchDesignContext, fetchScreenshot } from './figma.j
 const app = express();
 const PORT = parseInt(process.env.PROXY_PORT ?? '3006', 10);
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3005'];
-const fe = process.env.FRONTEND_PORT;
-if (fe && !allowedOrigins.includes(`http://localhost:${fe}`))
-  allowedOrigins.push(`http://localhost:${fe}`);
-app.use(cors({ origin: allowedOrigins }));
+// Private Network Access 헤더를 cors보다 먼저 설정해야 OPTIONS preflight 응답에 포함됨
+app.use((_req, res, next) => {
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  next();
+});
+
+// localhost/127.0.0.1 전체 + 배포 도메인 허용 (proxy는 로컬 전용 도구이므로 안전)
+// cors origin 배열: RegExp와 string을 함께 사용 (함수 시그니처 불일치 방지)
+app.use(cors({
+  origin: [
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+    'https://ifigmalab.pages.dev',
+  ],
+}));
+
 app.use(express.json({ limit: '10mb' }));
 
 // POST /api/ai/generate

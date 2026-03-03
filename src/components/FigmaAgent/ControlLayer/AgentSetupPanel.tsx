@@ -217,7 +217,6 @@ const AgentSetupPanel: React.FC = () => {
         )}
       </div>
 
-
     </div>
   );
 };

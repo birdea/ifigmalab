@@ -19,10 +19,10 @@ describe('FigmaMcpPanel', () => {
         );
     };
 
-    it('renders the component with default disconnected state', () => {
+    it('renders the component with default unknown state', () => {
         renderComponent();
         expect(screen.getByText('Figma MCP 연동')).toBeInTheDocument();
-        expect(screen.getByText('(○) : 연결 안 됨')).toBeInTheDocument();
+        expect(screen.getAllByText('(–) : 확인 불가')).toHaveLength(2);
     });
 
     it('checks status and updates connected state successfully', async () => {
@@ -31,11 +31,11 @@ describe('FigmaMcpPanel', () => {
         });
 
         renderComponent();
-        const applyBtn = screen.getByText('적용');
+        const applyBtn = screen.getAllByText('적용')[1];
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(●) : 연결됨')).toBeInTheDocument();
+            expect(screen.getAllByText('(●) : 연결됨')).toHaveLength(2);
         });
     });
 
@@ -45,11 +45,12 @@ describe('FigmaMcpPanel', () => {
         });
 
         renderComponent();
-        const applyBtn = screen.getByText('적용');
+        const applyBtn = screen.getAllByText('적용')[1];
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(○) : 연결 안 됨')).toBeInTheDocument();
+            expect(screen.getByText('(○) : 연결 안 됨')).toBeInTheDocument(); // proxy
+            expect(screen.getByText('(–) : 확인 불가')).toBeInTheDocument();  // MCP unknown
         });
     });
 
@@ -149,11 +150,11 @@ describe('FigmaMcpPanel', () => {
 
         renderComponent();
 
-        const applyBtn = screen.getByText('적용');
+        const applyBtn = screen.getAllByText('적용')[1];
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(●) : 연결됨')).toBeInTheDocument();
+            expect(screen.getAllByText('(●) : 연결됨')[0]).toBeInTheDocument();
         });
 
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
@@ -176,11 +177,11 @@ describe('FigmaMcpPanel', () => {
 
         renderComponent();
 
-        const applyBtn = screen.getByText('적용');
+        const applyBtn = screen.getAllByText('적용')[1];
         fireEvent.click(applyBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('(●) : 연결됨')).toBeInTheDocument();
+            expect(screen.getAllByText('(●) : 연결됨')[0]).toBeInTheDocument();
         });
 
         const nodeIdInput = screen.getByPlaceholderText(/22041:218191/);
@@ -192,6 +193,59 @@ describe('FigmaMcpPanel', () => {
         await waitFor(() => {
             expect(screen.getByText('Screenshot generation failed limit reached')).toBeInTheDocument();
         });
+    });
+
+    it('renders proxy server URL input with default value', () => {
+        renderComponent();
+        const input = screen.getByPlaceholderText('http://localhost:3006');
+        expect(input).toBeInTheDocument();
+        expect(input).toHaveValue('http://localhost:3006');
+    });
+
+    it('updates proxy server URL on input change', () => {
+        renderComponent();
+        const input = screen.getByPlaceholderText('http://localhost:3006');
+        fireEvent.change(input, { target: { value: 'http://localhost:3010' } });
+        expect(input).toHaveValue('http://localhost:3010');
+    });
+
+    it('auto-detect finds proxy and updates URL', async () => {
+        (global.fetch as jest.Mock).mockImplementation(async (url: string) => {
+            // 3006~3008은 응답 없음, 3009에 proxy 존재 시뮬레이션
+            if (String(url).includes('localhost:3009')) {
+                return { ok: true, json: async () => ({ connected: false }) };
+            }
+            throw new Error('ECONNREFUSED');
+        });
+
+        renderComponent();
+
+        const detectBtn = screen.getByText('자동 감지');
+        fireEvent.click(detectBtn);
+
+        await waitFor(() => {
+            const input = screen.getByPlaceholderText('http://localhost:3006');
+            expect(input).toHaveValue('http://localhost:3009');
+        });
+    });
+
+    it('auto-detect shows detecting state and resets when no proxy found', async () => {
+        (global.fetch as jest.Mock).mockImplementation(async () => {
+            throw new Error('ECONNREFUSED');
+        });
+
+        renderComponent();
+
+        const detectBtn = screen.getByText('자동 감지');
+        fireEvent.click(detectBtn);
+
+        // 버튼이 즉시 비활성화됨
+        expect(detectBtn).toBeDisabled();
+
+        // 스캔 완료 후 버튼 복구
+        await waitFor(() => {
+            expect(screen.getByText('자동 감지')).not.toBeDisabled();
+        }, { timeout: 5000 });
     });
 
     it('pauses polling when tab is hidden and resumes when visible', async () => {
