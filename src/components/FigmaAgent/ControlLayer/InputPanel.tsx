@@ -8,7 +8,9 @@ import {
   generateStatusAtom,
   debugLogAtom,
   apiKeyAtom,
-  screenshotAtom
+  screenshotAtom,
+  outputFormatAtom,
+  OutputFormat,
 } from '../atoms';
 import styles from '../FigmaAgent.module.scss';
 import {
@@ -28,6 +30,7 @@ const InputPanel: React.FC = () => {
   const [mcpData, setMcpData] = useAtom(mcpDataAtom);
 
   const [prompt, setPrompt] = useAtom(promptAtom);
+  const [outputFormat, setOutputFormat] = useAtom(outputFormatAtom);
   const [status] = useAtom(generateStatusAtom);
   const setDebugLog = useSetAtom(debugLogAtom);
   const apiKey = useAtomValue(apiKeyAtom);
@@ -138,6 +141,24 @@ const InputPanel: React.FC = () => {
         />
       </div>
 
+
+      <div className={styles.formatRow}>
+        <span className={styles.formLabel}>{t('input.output_format')}</span>
+        <div className={styles.formatToggle} role="radiogroup" aria-label={t('input.output_format')}>
+          {(['html', 'react'] as OutputFormat[]).map(fmt => (
+            <button
+              key={fmt}
+              role="radio"
+              aria-checked={outputFormat === fmt}
+              className={`${styles.formatBtn} ${outputFormat === fmt ? styles.formatBtnActive : ''}`}
+              onClick={() => setOutputFormat(fmt)}
+              type="button"
+            >
+              {t(`input.output_format_${fmt}`)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className={styles.readinessRow} aria-live="polite">
         <span className={hasApiKey ? styles.readyItem : styles.notReadyItem}>

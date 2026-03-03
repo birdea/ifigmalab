@@ -838,6 +838,48 @@ $panel-bg: #ffffff;
   }
 }
 
+// ─── Output Format Toggle ───────────────────────────────────────────────────
+.formatRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.formatToggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid $border;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.formatBtn {
+  padding: 5px 14px;
+  border: none;
+  background: $white;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  color: $text-muted;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+
+  &:not(:last-child) {
+    border-right: 1px solid $border;
+  }
+
+  &:hover:not(.formatBtnActive) {
+    background: #f0f0f0;
+  }
+}
+
+.formatBtnActive {
+  background: #eef2ff;
+  color: $primary;
+  font-weight: 600;
+  cursor: default;
+}
+
 // ─── Readiness Indicator ─────────────────────────────────────────────────────
 .readinessRow {
   display: flex;

@@ -11,7 +11,14 @@
         "enable_scripts": "Enable Scripts",
         "disable_scripts": "Disable Scripts",
         "script_enabled_warning": "⚠ AI-generated scripts are running. Only allow for trusted content.",
-        "script_disabled_label": "Scripts blocked"
+        "script_disabled_label": "Scripts blocked",
+        "code_viewer": "Code Viewer",
+        "files": "files",
+        "copy": "Copy",
+        "copied": "Copied!",
+        "download_html": "Download HTML",
+        "download_all": "Download All",
+        "download_file": "Download"
     },
     "toast": {
         "success": "Result reflected in VIEW page",
@@ -84,7 +91,10 @@
         "debug_log": "Debug Log",
         "clear_log": "Clear",
         "clear_log_label": "Clear logs",
-        "optimize_log": "🗜 Optimized: {{before}} → {{after}} ({{percent}}% reduction)"
+        "optimize_log": "🗜 Optimized: {{before}} → {{after}} ({{percent}}% reduction)",
+        "output_format": "Output Format",
+        "output_format_html": "HTML",
+        "output_format_react": "React + TS + SCSS"
     },
     "errors": {
         "invalid_pin": "Invalid PIN.",

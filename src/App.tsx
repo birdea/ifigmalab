@@ -7,6 +7,7 @@ import FigmaAgent from './components/FigmaAgent';
 import AgentSetupPanel from './components/FigmaAgent/ControlLayer/AgentSetupPanel';
 import ScreenshotSidePanel from './components/FigmaAgent/ScreenshotSidePanel';
 import { generateStatusAtom, generatedHtmlAtom, screenshotAtom } from './components/FigmaAgent/atoms';
+import { isHtmlOutput, parseCodeFiles, CodeFile } from './components/FigmaAgent/utils';
 import { sharedStore } from './shared/store';
 
 const version = process.env.APP_VERSION;
@@ -23,12 +24,21 @@ type TabId = 'AGENT' | 'MCP' | 'VIEW' | 'HELP';
 
 const TAB_ITEMS: TabId[] = ['AGENT', 'MCP', 'VIEW', 'HELP'];
 
+/** 개별 파일 다운로드 헬퍼 */
+function downloadFile(filename: string, content: string) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /**
- * AI가 생성한 HTML 코드를 렌더링하여 미리보여주는 View Component.
- * iframe 내부에 HTML 구조를 삽입하여 독립적인 렌더링 환경을 제공합니다.
- * @param {string} html - 생성된 원본 HTML 문자열
+ * HTML 미리보기 서브 컴포넌트
  */
-const ViewPage: React.FC<{ html: string }> = ({ html }) => {
+const HtmlPreview: React.FC<{ html: string }> = ({ html }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const { t } = useTranslation();
   const [allowScripts, setAllowScripts] = useState(false);
@@ -63,20 +73,18 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
     };
   }, [html, allowScripts]);
 
-  if (!html) {
-    return (
-      <div className={styles.placeholder}>
-        <span>{t('view.placeholder')}</span>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.viewPage}>
+    <>
       <div className={`${styles.viewToolbar} ${allowScripts ? styles.viewToolbarWarning : ''}`}>
         <span className={styles.viewToolbarLabel}>
           {allowScripts ? t('view.script_enabled_warning') : t('view.script_disabled_label')}
         </span>
+        <button
+          className={styles.viewToolbarBtn}
+          onClick={() => downloadFile('index.html', html)}
+        >
+          {t('view.download_html')}
+        </button>
         <button
           className={`${styles.viewToolbarBtn} ${allowScripts ? styles.viewToolbarBtnDanger : ''}`}
           onClick={() => setAllowScripts(prev => !prev)}
@@ -92,6 +100,97 @@ const ViewPage: React.FC<{ html: string }> = ({ html }) => {
         referrerPolicy="no-referrer"
         title={t('view.title')}
       />
+    </>
+  );
+};
+
+/**
+ * 코드 파일 뷰어 서브 컴포넌트
+ */
+const CodeViewer: React.FC<{ files: CodeFile[] }> = ({ files }) => {
+  const { t } = useTranslation();
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+
+  const handleCopy = useCallback(async (content: string, idx: number) => {
+    await navigator.clipboard.writeText(content);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
+  }, []);
+
+  const handleDownloadAll = useCallback(() => {
+    files.forEach(f => downloadFile(f.filename, f.content));
+  }, [files]);
+
+  const active = files[activeIdx] ?? files[0];
+
+  return (
+    <>
+      <div className={styles.viewToolbar}>
+        <span className={styles.viewToolbarLabel}>
+          {t('view.code_viewer')} — {files.length} {t('view.files')}
+        </span>
+        <button className={styles.viewToolbarBtn} onClick={handleDownloadAll}>
+          {t('view.download_all')}
+        </button>
+      </div>
+      <div className={styles.codeFileTabs}>
+        {files.map((f, i) => (
+          <button
+            key={i}
+            className={`${styles.codeFileTab} ${i === activeIdx ? styles.codeFileTabActive : ''}`}
+            onClick={() => setActiveIdx(i)}
+          >
+            {f.filename}
+          </button>
+        ))}
+      </div>
+      <div className={styles.codeBlockWrap}>
+        <div className={styles.codeBlockHeader}>
+          <span className={styles.codeBlockLang}>{active.language}</span>
+          <button
+            className={styles.copyBtn}
+            onClick={() => handleCopy(active.content, activeIdx)}
+          >
+            {copiedIdx === activeIdx ? t('view.copied') : t('view.copy')}
+          </button>
+          <button
+            className={styles.copyBtn}
+            onClick={() => downloadFile(active.filename, active.content)}
+          >
+            {t('view.download_file')}
+          </button>
+        </div>
+        <pre className={styles.codeBlock}><code>{active.content}</code></pre>
+      </div>
+    </>
+  );
+};
+
+/**
+ * AI가 생성한 코드를 보여주는 View Component.
+ * HTML이면 iframe 미리보기, 코드 파일이면 코드 뷰어로 표시합니다.
+ */
+const ViewPage: React.FC<{ html: string }> = ({ html }) => {
+  const { t } = useTranslation();
+
+  if (!html) {
+    return (
+      <div className={styles.placeholder}>
+        <span>{t('view.placeholder')}</span>
+      </div>
+    );
+  }
+
+  const isHtml = isHtmlOutput(html);
+
+  return (
+    <div className={styles.viewPage}>
+      {isHtml ? (
+        <HtmlPreview html={html} />
+      ) : (
+        <CodeViewer files={parseCodeFiles(html)} />
+      )}
     </div>
   );
 };

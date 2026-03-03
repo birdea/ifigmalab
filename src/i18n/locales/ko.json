@@ -11,7 +11,14 @@
         "enable_scripts": "스크립트 허용",
         "disable_scripts": "스크립트 차단",
         "script_enabled_warning": "⚠ AI 생성 스크립트가 실행 중입니다. 신뢰할 수 있는 콘텐츠에서만 허용하세요.",
-        "script_disabled_label": "스크립트 비허용"
+        "script_disabled_label": "스크립트 비허용",
+        "code_viewer": "코드 뷰어",
+        "files": "파일",
+        "copy": "복사",
+        "copied": "복사됨!",
+        "download_html": "HTML 다운로드",
+        "download_all": "전체 다운로드",
+        "download_file": "다운로드"
     },
     "toast": {
         "success": "결과가 VIEW 페이지에 반영되었습니다",
@@ -84,7 +91,10 @@
         "debug_log": "디버그 로그",
         "clear_log": "지우기",
         "clear_log_label": "로그 지우기",
-        "optimize_log": "🗜 데이터 최적화: {{before}} → {{after}} ({{percent}}% 감소)"
+        "optimize_log": "🗜 데이터 최적화: {{before}} → {{after}} ({{percent}}% 감소)",
+        "output_format": "출력 포맷",
+        "output_format_html": "HTML",
+        "output_format_react": "React + TS + SCSS"
     },
     "errors": {
         "invalid_pin": "PIN 번호가 일치하지 않습니다.",

@@ -364,6 +364,99 @@
   display: block;
 }
 
+// ─── Code Viewer ─────────────────────────────────────────────────────────────
+.codeFileTabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f5f5f5;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.codeFileTab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: #333;
+    background: #eef2ff;
+  }
+}
+
+.codeFileTabActive {
+  color: #4c6ef5;
+  border-bottom-color: #4c6ef5;
+  font-weight: 600;
+}
+
+.codeBlockWrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.codeBlockHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #2d2d2d;
+  flex-shrink: 0;
+}
+
+.codeBlockLang {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.copyBtn {
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+}
+
+.codeBlock {
+  flex: 1;
+  margin: 0;
+  padding: 16px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: #cdd6f4;
+  background: #1e1e2e;
+  line-height: 1.6;
+  overflow: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+
 // ─── HELP page ────────────────────────────────────────────────────────────────
 .helpPage {
   width: 100%;

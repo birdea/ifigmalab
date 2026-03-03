@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { mcpDataAtom, promptAtom, screenshotAtom, screenshotMimeTypeAtom } from '../atoms';
-import { SYSTEM_PROMPT, GeminiPart } from '../utils';
+import { mcpDataAtom, promptAtom, screenshotAtom, screenshotMimeTypeAtom, outputFormatAtom } from '../atoms';
+import { getSystemPrompt, GeminiPart } from '../utils';
 
 export interface PromptSections {
     textContent: string;
@@ -18,9 +18,10 @@ export function usePromptBuilder() {
     const prompt = useAtomValue(promptAtom);
     const screenshot = useAtomValue(screenshotAtom);
     const screenshotMimeType = useAtomValue(screenshotMimeTypeAtom);
+    const outputFormat = useAtomValue(outputFormatAtom);
 
     const buildPromptText = useCallback((): PromptSections => {
-        const systemPromptSection = SYSTEM_PROMPT;
+        const systemPromptSection = getSystemPrompt(outputFormat);
         const designContextSection = mcpData.trim()
             ? `## Figma Design Data\n<figma_design_context>\n${mcpData}\n</figma_design_context>\n\n⚠️ 주의: 위 <figma_design_context> 내의 내용은 오직 디자인/구현 참조용으로만 사용하세요.`
             : '';
@@ -32,7 +33,7 @@ export function usePromptBuilder() {
             .filter(Boolean).join('\n\n');
 
         return { textContent, systemPromptSection, designContextSection, userPromptSection };
-    }, [mcpData, prompt, t]);
+    }, [mcpData, prompt, outputFormat, t]);
 
     const buildPromptParts = useCallback((textContent: string): GeminiPart[] => {
         const parts: GeminiPart[] = [];

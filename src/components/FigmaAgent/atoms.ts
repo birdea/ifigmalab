@@ -46,7 +46,11 @@ export type GenerateStatus = 'idle' | 'loading' | 'success' | 'error';
 export const generateStatusAtom = atom<GenerateStatus>('idle');
 export const generateErrorAtom = atom<string>('');
 
-// 생성된 원본 HTML
+// 출력 포맷 선택 (html: 독립 실행 HTML, react: React + TS + SCSS Module)
+export type OutputFormat = 'html' | 'react';
+export const outputFormatAtom = atomWithStorage<OutputFormat>('outputFormat', 'react');
+
+// 생성된 코드 (HTML 또는 React/TS/SCSS)
 export const generatedHtmlAtom = atom<string>('');
 export const rawResponseAtom = atom<string>('');
 

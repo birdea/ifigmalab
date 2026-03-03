@@ -12,8 +12,9 @@ import {
     generateErrorAtom,
     generatedHtmlAtom,
     rawResponseAtom,
+    outputFormatAtom,
 } from '../atoms';
-import { extractHtml, GEMINI_API_BASE, GeminiPart, GeminiResponse } from '../utils';
+import { extractContent, isHtmlOutput, GEMINI_API_BASE, GeminiPart, GeminiResponse } from '../utils';
 import { formatBytes, TEXT_ENCODER } from '../../../utils/utils';
 import { API_TIMEOUT_MS } from '../../../constants/config';
 import type { PromptSections } from './usePromptBuilder';
@@ -41,6 +42,8 @@ export function useGeminiApi(
     const prompt = useAtomValue(promptAtom);
     const screenshot = useAtomValue(screenshotAtom);
     const screenshotMimeType = useAtomValue(screenshotMimeTypeAtom);
+
+    const outputFormat = useAtomValue(outputFormatAtom);
 
     const setStatus = useSetAtom(generateStatusAtom);
     const setError = useSetAtom(generateErrorAtom);
@@ -197,24 +200,30 @@ export function useGeminiApi(
             appendLog(`│ [RESPONSE] raw text        : ${formatBytes(rawBytes)} / ${rawLines.toLocaleString()} lines`);
 
             appendLog(`├${bar}`);
-            const html = extractHtml(rawResponse);
+            const html = extractContent(rawResponse, outputFormat);
             const htmlBytes = TEXT_ENCODER.encode(html).length;
             const htmlLines = html.split('\n').length;
-            appendLog(`│ [EXTRACT]  html size       : ${formatBytes(htmlBytes)} / ${htmlLines.toLocaleString()} lines`);
+            appendLog(`│ [EXTRACT]  format          : ${outputFormat}`);
+            appendLog(`│ [EXTRACT]  output size     : ${formatBytes(htmlBytes)} / ${htmlLines.toLocaleString()} lines`);
 
-            const hasDoctype = /<!DOCTYPE\s+html/i.test(html);
-            const hasHead = /<head[\s>]/i.test(html);
-            const hasBody = /<body[\s>]/i.test(html);
-            const styleCount = (html.match(/<style[\s>]/gi) ?? []).length;
-            const scriptCount = (html.match(/<script[\s>]/gi) ?? []).length;
-            const isHtmlComplete = html.trimEnd().endsWith('</html>');
+            if (isHtmlOutput(html)) {
+                const hasDoctype = /<!DOCTYPE\s+html/i.test(html);
+                const hasHead = /<head[\s>]/i.test(html);
+                const hasBody = /<body[\s>]/i.test(html);
+                const styleCount = (html.match(/<style[\s>]/gi) ?? []).length;
+                const scriptCount = (html.match(/<script[\s>]/gi) ?? []).length;
+                const isHtmlComplete = html.trimEnd().endsWith('</html>');
 
-            appendLog(`│ [EXTRACT]  <!DOCTYPE>      : ${hasDoctype ? '✓' : '✗'}`);
-            appendLog(`│ [EXTRACT]  <head>          : ${hasHead ? '✓' : '✗'}`);
-            appendLog(`│ [EXTRACT]  <body>          : ${hasBody ? '✓' : '✗'}`);
-            appendLog(`│ [EXTRACT]  <style> blocks  : ${styleCount}`);
-            appendLog(`│ [EXTRACT]  <script> blocks : ${scriptCount}`);
-            appendLog(`│ [EXTRACT]  </html> end     : ${isHtmlComplete ? '✓' : '⚠️  missing (possible token shortage)'}`);
+                appendLog(`│ [EXTRACT]  <!DOCTYPE>      : ${hasDoctype ? '✓' : '✗'}`);
+                appendLog(`│ [EXTRACT]  <head>          : ${hasHead ? '✓' : '✗'}`);
+                appendLog(`│ [EXTRACT]  <body>          : ${hasBody ? '✓' : '✗'}`);
+                appendLog(`│ [EXTRACT]  <style> blocks  : ${styleCount}`);
+                appendLog(`│ [EXTRACT]  <script> blocks : ${scriptCount}`);
+                appendLog(`│ [EXTRACT]  </html> end     : ${isHtmlComplete ? '✓' : '⚠️  missing (possible token shortage)'}`);
+            } else {
+                const fileCount = (html.match(/\/\/\s*===\s*파일명:/g) ?? []).length;
+                appendLog(`│ [EXTRACT]  code files      : ${fileCount || 1}`);
+            }
 
             appendLog(`├${bar}`);
             const firstLines = html.split('\n').slice(0, 3).map(l => l.trimEnd()).join('↵');
@@ -252,7 +261,7 @@ export function useGeminiApi(
             setError(isTimeout ? t('errors.request_timeout') : (e instanceof Error ? e.message : String(e)));
             setStatus('error');
         }
-    }, [apiKey, model, mcpData, prompt, screenshot, screenshotMimeType,
+    }, [apiKey, model, mcpData, prompt, screenshot, screenshotMimeType, outputFormat,
         buildPromptText, buildPromptParts,
         setStatus, setError, setGeneratedHtml, setRawResponse, appendLog, t]);
 
