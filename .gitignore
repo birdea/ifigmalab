@@ -14,3 +14,9 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+
+# Wrangler build cache
+workers/.wrangler/
+
+# Claude Code local settings
+.claude/settings.local.json
